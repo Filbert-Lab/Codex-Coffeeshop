@@ -8,6 +8,9 @@ console.log("DATABASE_URL:", process.env.DATABASE_URL ? "✅ set" : "❌ not set
 console.log("DATABASE_URL_UNPOOLED:", process.env.DATABASE_URL_UNPOOLED ? "✅ set" : "❌ not set");
 console.log("NODE_ENV:", process.env.NODE_ENV);
 
+const isVercel = !!process.env.VERCEL;
+const isProduction = process.env.NODE_ENV === "production" || isVercel;
+
 if (process.env.DATABASE_URL_UNPOOLED) {
   // Production: Use unpooled connection for Vercel serverless
   console.log("🚀 Using DATABASE_URL_UNPOOLED (Vercel production)");
@@ -40,8 +43,13 @@ if (process.env.DATABASE_URL_UNPOOLED) {
     },
     logging: false,
   });
+} else if (isProduction || isVercel) {
+  // Production without DATABASE_URL - throw error
+  throw new Error(
+    "❌ DATABASE_URL or DATABASE_URL_UNPOOLED is required in production! Set it in Vercel environment variables."
+  );
 } else {
-  // Local development: SQLite fallback
+  // Local development only: SQLite fallback
   console.log("💾 Using SQLite (local development)");
   sequelize = new Sequelize({
     dialect: "sqlite",
