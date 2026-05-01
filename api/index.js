@@ -97,6 +97,5 @@ app.use((err, req, res, next) => {
 
 console.log("✅ [API] Express app configured");
 
-module.exports = app;
-
+// Export as serverless handler for Vercel
 module.exports = app;

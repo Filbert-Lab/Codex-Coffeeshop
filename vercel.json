@@ -9,7 +9,7 @@
     "api/index.js": {
       "maxDuration": 30,
       "memory": 512,
-      "includeFiles": "server/**"
+      "includeFiles": "server/**,node_modules/**"
     }
   },
   "rewrites": [
