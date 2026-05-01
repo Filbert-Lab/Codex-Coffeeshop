@@ -8,11 +8,13 @@ Anggota:
 
 Teknologi:
 - Frontend: React JS, Tailwind CSS, Vite
-- Backend: Node.js, Express, mysql2/promise
-- Database: MySQL (Saat ini konfigurasi awal, akan dimigrasikan untuk production jika dibutuhkan via integrasi lain)
+- Backend: Node.js, Express, Sequelize ORM
+- Database: SQLite (Development) / Neon PostgreSQL (Production via Vercel)
+- Link Template: Tampilan dibangun dan dirancang secara mandiri dari awal (from scratch) menggunakan Tailwind CSS. Tidak menggunakan template pihak ketiga.
 
-Inovasi & Fungsionalitas:
-- Memiliki rancangan 5 resource database (categories, products, users, orders, order_items)
-- Sistem Point-Of-Sale yang langsung terhubung dengan database 
-- Fitur live filtering menu
-- Mengimplementasikan Standard MVC Object-Oriented asinkronus dengan relasi tabel.
+Inovasi & Kreativitas:
+1. Arsitektur Relasional Kompleks: Mengimplementasikan 6 tabel (resource) database relasional dengan fitur Point-Of-Sale yang sinkron dan terhubung real-time.
+2. Filter & Pagination Dinamis: Fitur live search, filtering berdasarkan kategori, dan pagination pada admin panel.
+3. Keamanan Tingkat Tinggi: Menggunakan JWT Authentication yang kuat beserta role-based authorization (Admin vs Customer).
+4. Desain Premium & Interaktif: Menerapkan UI/UX yang modern, menggunakan efek hover animasi, glassmorphism, dan responsif sempurna dari desktop hingga mobile.
+5. Cloud Deployment Ready: Konfigurasi ganda yang mulus antara environment lokal (SQLite) dan cloud serverless Vercel dengan Neon PostgreSQL.

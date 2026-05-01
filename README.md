@@ -12,6 +12,11 @@
 
 ---
 
+## 🎥 Video Demo
+🔗 **[Link Video Demo Aplikasi (YouTube/Google Drive)]** *(Silakan masukkan link video presentasi Anda di sini)*
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Backend**: Node.js, Express 4, Sequelize ORM, SQLite (dev) / PostgreSQL Neon (prod)
@@ -138,6 +143,44 @@ cd server && node config/seed.js
 | Method | Endpoint | Keterangan |
 |---|---|---|
 | GET | `/api/stats` | Dashboard stats (admin) |
+
+---
+
+## 📋 Contoh Request/Response & Skema Error
+
+### ✅ Contoh Response Sukses (200/201)
+Semua response sukses menggunakan format standar:
+```json
+{
+  "success": true,
+  "message": "Deskripsi sukses opsional",
+  "data": { ... } // Payload data (object atau array)
+}
+```
+**Contoh GET `/api/products` (Pagination & Filter)**
+```json
+{
+  "success": true,
+  "data": [
+    { "id": 1, "name": "Espresso", "price": 25000, "category_id": 1 }
+  ],
+  "meta": {
+    "total": 1,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 1
+  }
+}
+```
+
+### ❌ Contoh Response Error (400/401/404/500)
+Error validation dan server mengembalikan skema error yang konsisten:
+```json
+{
+  "success": false,
+  "message": "Pesan error spesifik (contoh: Email already registered)"
+}
+```
 
 ---
 

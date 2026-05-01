@@ -40,7 +40,7 @@ input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin
            hover:bg-codex-dark hover:text-codex-light active:scale-95 transition-all duration-200;
   }
   .card {
-    @apply bg-white rounded-2xl shadow-md overflow-hidden;
+    @apply bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300;
   }
   .input-field {
     @apply w-full px-4 py-3 rounded-xl border border-gray-200 outline-none 

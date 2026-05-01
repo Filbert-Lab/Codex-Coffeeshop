@@ -16,7 +16,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Playfair Display", "serif"],
+        display: ["Inter", "sans-serif"],
         sans: ["Inter", "sans-serif"],
       },
       animation: {
