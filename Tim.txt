@@ -1,0 +1,18 @@
+Nama Tim: Codex
+
+Anggota:
+- Nachelle Ferari (241112498)
+- Filbert Matthew (241110460)
+- Ryu Kierando (241112002)
+- Zakky Pratama (241110371)
+
+Teknologi:
+- Frontend: React JS, Tailwind CSS, Vite
+- Backend: Node.js, Express, mysql2/promise
+- Database: MySQL (Saat ini konfigurasi awal, akan dimigrasikan untuk production jika dibutuhkan via integrasi lain)
+
+Inovasi & Fungsionalitas:
+- Memiliki rancangan 5 resource database (categories, products, users, orders, order_items)
+- Sistem Point-Of-Sale yang langsung terhubung dengan database 
+- Fitur live filtering menu
+- Mengimplementasikan Standard MVC Object-Oriented asinkronus dengan relasi tabel.
