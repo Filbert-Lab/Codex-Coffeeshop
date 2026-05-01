@@ -57,35 +57,47 @@ function Home() {
   };
 
   return (
-    <div className="bg-codex-light min-h-screen p-6 font-sans relative flex flex-col" style={{ height: "100vh", overflow: "hidden" }}>
-      <Navbar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
-        openAuth={() => setIsAuthOpen(true)}
-      />
+    <div className="min-h-screen p-5 font-sans relative flex flex-col" style={{ height: "100vh", overflow: "hidden" }}>
+      {/* Background is handled by CSS body::before */}
 
-      <div className="flex gap-5 mt-5 flex-1 min-h-0">
-        <div className="w-52 shrink-0">
-          <Sidebar categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <ProductList products={products} cart={cart} setCart={setCart} loading={loading} />
-        </div>
-        <div className="w-72 shrink-0">
-          <Cart cart={cart} setCart={setCart} openPayment={() => setIsPaymentOpen(true)} />
+      {/* Content with z-index above background */}
+      <div className="relative z-10 flex flex-col h-full">
+        <Navbar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          cartCount={cart.reduce((s, i) => s + i.quantity, 0)}
+          openAuth={() => setIsAuthOpen(true)}
+        />
+
+        <div className="flex gap-4 mt-4 flex-1 min-h-0">
+          <div className="w-52 shrink-0">
+            <Sidebar categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <ProductList products={products} cart={cart} setCart={setCart} loading={loading} />
+          </div>
+          <div className="w-[280px] shrink-0">
+            <Cart cart={cart} setCart={setCart} openPayment={() => setIsPaymentOpen(true)} />
+          </div>
         </div>
       </div>
 
       {isAuthOpen && <AuthModal close={() => setIsAuthOpen(false)} />}
       {isPaymentOpen && <PaymentModal cart={cart} close={() => setIsPaymentOpen(false)} onSuccess={handleCheckout} />}
 
+      {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-8 right-8 py-4 px-6 rounded-2xl shadow-2xl font-semibold z-[2000] animate-slide-up flex items-center gap-3 ${
-          toast.type === "error" ? "bg-red-600 text-white" : "bg-codex-dark text-white"
+        <div className={`fixed bottom-6 right-6 py-4 px-6 rounded-2xl shadow-2xl font-semibold z-[2000] animate-slide-up flex items-center gap-3 backdrop-blur-md ${
+          toast.type === "error"
+            ? "bg-red-600/90 text-white border border-red-500/30"
+            : "bg-codex-dark/90 text-white border border-white/[0.06]"
         }`}>
-          <span className="text-xl">{toast.type === "error" ? "⚠️" : "☕"}</span>
-          {toast.msg}
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-lg ${
+            toast.type === "error" ? "bg-red-500/30" : "bg-codex-accent/20"
+          }`}>
+            {toast.type === "error" ? "⚠" : "☕"}
+          </div>
+          <span className="text-sm">{toast.msg}</span>
         </div>
       )}
     </div>
