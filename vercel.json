@@ -7,9 +7,9 @@
   },
   "functions": {
     "api/index.js": {
+      "runtime": "nodejs20.x",
       "maxDuration": 30,
-      "memory": 512,
-      "includeFiles": "server/**,node_modules/**"
+      "memory": 512
     }
   },
   "rewrites": [
