@@ -20,7 +20,9 @@ try {
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "PATCH", "DELETE"] }));
+app.use(
+  cors({ origin: "*", methods: ["GET", "POST", "PUT", "PATCH", "DELETE"] }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,7 +38,9 @@ app.use(async (req, res, next) => {
   if (!dbSynced) {
     if (!sequelize) {
       console.error("❌ Sequelize not initialized");
-      return res.status(500).json({ success: false, message: "Database not initialized" });
+      return res
+        .status(500)
+        .json({ success: false, message: "Database not initialized" });
     }
     try {
       console.log("🔄 Syncing database...");
@@ -46,7 +50,12 @@ app.use(async (req, res, next) => {
     } catch (err) {
       console.error("❌ DB sync failed:", err.message);
       console.error(err);
-      return res.status(500).json({ success: false, message: "Database connection failed: " + err.message });
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Database connection failed: " + err.message,
+        });
     }
   }
   next();
@@ -54,12 +63,30 @@ app.use(async (req, res, next) => {
 
 // Routes (only load after DB sync middleware)
 try {
-  app.use("/api/users", require(path.join(__dirname, "../server/routes/userRoutes")));
-  app.use("/api/categories", require(path.join(__dirname, "../server/routes/categoryRoutes")));
-  app.use("/api/products", require(path.join(__dirname, "../server/routes/productRoutes")));
-  app.use("/api/orders", require(path.join(__dirname, "../server/routes/orderRoutes")));
-  app.use("/api/promos", require(path.join(__dirname, "../server/routes/promoRoutes")));
-  app.use("/api/stats", require(path.join(__dirname, "../server/routes/statsRoutes")));
+  app.use(
+    "/api/users",
+    require(path.join(__dirname, "../server/routes/userRoutes")),
+  );
+  app.use(
+    "/api/categories",
+    require(path.join(__dirname, "../server/routes/categoryRoutes")),
+  );
+  app.use(
+    "/api/products",
+    require(path.join(__dirname, "../server/routes/productRoutes")),
+  );
+  app.use(
+    "/api/orders",
+    require(path.join(__dirname, "../server/routes/orderRoutes")),
+  );
+  app.use(
+    "/api/promos",
+    require(path.join(__dirname, "../server/routes/promoRoutes")),
+  );
+  app.use(
+    "/api/stats",
+    require(path.join(__dirname, "../server/routes/statsRoutes")),
+  );
   console.log("✅ All routes loaded successfully");
 } catch (err) {
   console.error("❌ Failed to load routes:", err.message);
@@ -70,7 +97,9 @@ try {
 app.use((err, req, res, next) => {
   console.error("❌ API Error:", err.message);
   console.error(err.stack);
-  res.status(500).json({ success: false, message: err.message || "Internal Server Error" });
+  res
+    .status(500)
+    .json({ success: false, message: err.message || "Internal Server Error" });
 });
 
 module.exports = app;
