@@ -23,20 +23,22 @@ function ProductList({ products, cart, setCart, loading }) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 h-full p-1 overflow-y-auto content-start">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="glass-card rounded-2xl overflow-hidden">
-            <div className="w-full h-36 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
-            <div className="p-4 space-y-3">
-              <div className="h-4 bg-gray-200/80 rounded-full w-3/4 animate-pulse" />
-              <div className="h-3 bg-gray-200/60 rounded-full w-1/2 animate-pulse" />
-              <div className="flex justify-between items-center pt-1">
-                <div className="h-5 bg-gray-200/70 rounded-full w-20 animate-pulse" />
-                <div className="h-9 bg-gray-200/70 rounded-lg w-16 animate-pulse" />
+      <div className="h-full overflow-y-auto p-1">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="glass-card rounded-2xl overflow-hidden">
+              <div className="w-full h-36 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-gray-200/80 rounded-full w-3/4 animate-pulse" />
+                <div className="h-3 bg-gray-200/60 rounded-full w-1/2 animate-pulse" />
+                <div className="flex justify-between items-center pt-1">
+                  <div className="h-5 bg-gray-200/70 rounded-full w-20 animate-pulse" />
+                  <div className="h-9 bg-gray-200/70 rounded-lg w-16 animate-pulse" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   }
@@ -54,7 +56,8 @@ function ProductList({ products, cart, setCart, loading }) {
   }
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 p-1 h-full overflow-y-auto content-start">
+    <div className="h-full overflow-y-auto p-1">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
       {products.map((item, index) => {
         const inCart = cart.find((x) => x.id === item.id);
         const hasImage = item.image && item.image.trim() !== "";
@@ -137,6 +140,7 @@ function ProductList({ products, cart, setCart, loading }) {
           </div>
         );
       })}
+    </div>
     </div>
   );
 }

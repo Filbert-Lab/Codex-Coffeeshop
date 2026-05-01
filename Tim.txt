@@ -1,20 +1,62 @@
 Nama Tim: Codex
 
 Anggota:
-- Nachelle Ferari (241112498)
-- Filbert Matthew (241110460)
-- Ryu Kierando (241112002)
-- Zakky Pratama (241110371)
+- 241112498 - Nachelle Ferari
+- 241110460 - Filbert Matthew
+- 241112002 - Ryu Kierando
+- 241110371 - Zakky Pratama
 
-Teknologi:
-- Frontend: React JS, Tailwind CSS, Vite
-- Backend: Node.js, Express, Sequelize ORM
-- Database: SQLite (Development) / Neon PostgreSQL (Production via Vercel)
-- Link Template: Tampilan dibangun dan dirancang secara mandiri dari awal (from scratch) menggunakan Tailwind CSS. Tidak menggunakan template pihak ketiga.
+Teknologi yang Digunakan:
+- Runtime       : Node.js v18+
+- Framework     : Express.js v4
+- ORM           : Sequelize v6
+- Database      : SQLite (Development) / PostgreSQL via Neon (Production)
+- Frontend      : React 18 + React Router v6
+- Build Tool    : Vite 5
+- Styling       : Tailwind CSS v3
+- Autentikasi   : JWT (jsonwebtoken) + bcryptjs
+- Deployment    : Vercel (Frontend static + Backend serverless)
 
-Inovasi & Kreativitas:
-1. Arsitektur Relasional Kompleks: Mengimplementasikan 6 tabel (resource) database relasional dengan fitur Point-Of-Sale yang sinkron dan terhubung real-time.
-2. Filter & Pagination Dinamis: Fitur live search, filtering berdasarkan kategori, dan pagination pada admin panel.
-3. Keamanan Tingkat Tinggi: Menggunakan JWT Authentication yang kuat beserta role-based authorization (Admin vs Customer).
-4. Desain Premium & Interaktif: Menerapkan UI/UX yang modern, menggunakan efek hover animasi, glassmorphism, dan responsif sempurna dari desktop hingga mobile.
-5. Cloud Deployment Ready: Konfigurasi ganda yang mulus antara environment lokal (SQLite) dan cloud serverless Vercel dengan Neon PostgreSQL.
+Link Template:
+- Tampilan dibangun dan dirancang secara mandiri dari awal (from scratch) menggunakan Tailwind CSS.
+- Tidak menggunakan template pihak ketiga.
+
+Inovasi & Kreativitas pada Tampilan dan Fungsionalitas Web:
+
+1. Arsitektur OOP dengan Inheritance:
+   Menggunakan pola BaseModel (class inheritance) untuk seluruh 6 model database,
+   sehingga operasi CRUD terstandarisasi dan reusable di semua resource.
+
+2. Full-Stack POS (Point-of-Sale) System:
+   Bukan hanya CRUD sederhana, tetapi sistem kasir lengkap dengan fitur:
+   - Keranjang belanja real-time
+   - Checkout dengan pilihan Pickup/Delivery
+   - Integrasi kode promo (percent & fixed discount)
+   - Kalkulasi otomatis subtotal, diskon, dan ongkir
+
+3. Role-Based Authentication & Authorization:
+   JWT Authentication dengan middleware terpisah untuk auth & admin.
+   Admin mendapat akses penuh ke dashboard + CRUD semua resource.
+   Customer hanya bisa browse menu, order, dan validasi promo.
+
+4. Admin Dashboard dengan Statistik Real-Time:
+   Panel admin lengkap dengan statistik ringkasan (total order, revenue,
+   produk, user, pending orders) menggunakan raw SQL query yang efisien.
+
+5. Filter, Search & Pagination Dinamis:
+   - Live search produk berdasarkan nama
+   - Filter berdasarkan kategori
+   - Pagination di semua resource (products, orders, users, promos)
+   - Filter status order (pending/processing/completed)
+
+6. Desain Premium & Interaktif:
+   - Glassmorphism effect dengan backdrop blur
+   - Micro-animasi (hover, fade-in, slide-up, scale)
+   - Typography premium (Google Fonts: Inter + Playfair Display)
+   - Custom scrollbar dengan gradient
+   - Toast notification animasi
+   - Fully responsive (desktop hingga mobile)
+
+7. Dual Database & Cloud Deployment:
+   Konfigurasi mulus antara SQLite untuk development lokal dan
+   PostgreSQL (Neon) untuk production di Vercel serverless.
