@@ -2,19 +2,22 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
-// Load env variables
-require("dotenv").config();
-console.log("🔧 DATABASE_URL present:", !!process.env.DATABASE_URL);
+console.log("🚀 [API] Starting server initialization...");
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("DATABASE_URL_UNPOOLED present:", !!process.env.DATABASE_URL_UNPOOLED);
+console.log("DATABASE_URL present:", !!process.env.DATABASE_URL);
 
-// Load models & associations - with error handling
+// Load models & associations - with detailed error handling
 let sequelize;
 try {
+  console.log("📦 [API] Loading models from:", path.join(__dirname, "../server/models/index"));
   const models = require(path.join(__dirname, "../server/models/index"));
   sequelize = models.sequelize;
-  console.log("✅ Models loaded successfully");
+  console.log("✅ [API] Models loaded successfully");
 } catch (err) {
-  console.error("❌ Failed to load models:", err.message);
-  console.error(err);
+  console.error("❌ [API] Failed to load models");
+  console.error("Error message:", err.message);
+  console.error("Error stack:", err.stack);
 }
 
 const app = express();
