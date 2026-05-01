@@ -1,5 +1,9 @@
 const { Sequelize } = require("sequelize");
 
+// Explicitly require database drivers so Vercel's bundler (nft) includes them
+require("pg");
+require("pg-hstore");
+
 let sequelize;
 
 console.log("🔧 [Sequelize] Checking database configuration...");
