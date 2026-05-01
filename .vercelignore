@@ -1,6 +1,5 @@
 .git
 .gitignore
-client/dist
 .env.local
 .env.*.local
 *.log
@@ -9,3 +8,4 @@ client/dist
 .idea
 Tim.txt
 README.md
+database.sqlite
