@@ -34,40 +34,49 @@ app.use(async (req, res, next) => {
       );
       console.log("DATABASE_URL:", process.env.DATABASE_URL ? "✅" : "❌");
 
+      console.log("📦 [API] About to require models...");
       const models = require(path.join(__dirname, "../server/models/index"));
+      console.log("✅ [API] Models require succeeded");
       sequelize = models.sequelize;
       console.log("✅ [API] Models loaded successfully");
 
       // Sync database
-      console.log("🔄 [API] Syncing database...");
+      console.log("🔄 [API] About to sync database...");
       await sequelize.sync({ alter: false });
-      console.log("✅ [API] Database synced");
+      console.log("✅ [API] Database synced successfully");
 
       // Load routes
+      console.log("🛣️ [API] Loading routes...");
       app.use(
         "/api/users",
         require(path.join(__dirname, "../server/routes/userRoutes")),
       );
+      console.log("  ✅ User routes loaded");
       app.use(
         "/api/categories",
         require(path.join(__dirname, "../server/routes/categoryRoutes")),
       );
+      console.log("  ✅ Category routes loaded");
       app.use(
         "/api/products",
         require(path.join(__dirname, "../server/routes/productRoutes")),
       );
+      console.log("  ✅ Product routes loaded");
       app.use(
         "/api/orders",
         require(path.join(__dirname, "../server/routes/orderRoutes")),
       );
+      console.log("  ✅ Order routes loaded");
       app.use(
         "/api/promos",
         require(path.join(__dirname, "../server/routes/promoRoutes")),
       );
+      console.log("  ✅ Promo routes loaded");
       app.use(
         "/api/stats",
         require(path.join(__dirname, "../server/routes/statsRoutes")),
       );
+      console.log("  ✅ Stats routes loaded");
       console.log("✅ [API] All routes loaded successfully");
 
       routesLoaded = true;
@@ -75,11 +84,14 @@ app.use(async (req, res, next) => {
       console.error(
         "❌ [API] Failed to load models/routes/sync on first request",
       );
-      console.error("Error:", err.message);
+      console.error("Error Type:", err.constructor.name);
+      console.error("Error Message:", err.message);
       console.error("Stack:", err.stack);
+      console.error("Full Error:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
       return res.status(500).json({
         success: false,
         message: "Failed to initialize database: " + err.message,
+        error: err.message,
       });
     }
   }
