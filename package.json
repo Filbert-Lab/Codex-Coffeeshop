@@ -2,18 +2,46 @@
   "name": "codex-coffee-shop",
   "version": "1.0.0",
   "description": "Codex Coffee Shop - Full Stack Web App (UTS)",
+  "main": "server/server.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "cd server && node server.js",
+    "dev:server": "node server/server.js",
     "dev:client": "cd client && npx vite",
-    "install:all": "cd server && npm install && cd ../client && npm install",
-    "db:seed": "cd server && node config/seed.js",
-    "build": "cd client && npm run build"
+    "start": "node server/server.js",
+    "build": "cd client && npx vite build",
+    "db:seed": "node server/config/seed.js",
+    "db:fix": "node server/config/fixdata.js"
   },
-  "keywords": ["coffee", "shop", "nodejs", "sequelize", "react"],
+  "keywords": [
+    "coffee",
+    "shop",
+    "nodejs",
+    "sequelize",
+    "react"
+  ],
   "author": "Nachelle Ferari, Filbert Matthew, Ryu Kierando, Zakky Pratama",
   "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1",
+    "sequelize": "^6.37.1",
+    "sqlite3": "^5.1.7"
+  },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.0.3",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "vite": "^5.3.4"
   }
 }
