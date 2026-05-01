@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #F5F0E8;
+  color: #1C1A17;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C8962C; border-radius: 3px; }
+
+/* Number input hide arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+@layer components {
+  .btn-primary {
+    @apply bg-codex-accent text-white font-semibold py-2.5 px-5 rounded-xl 
+           hover:brightness-110 active:scale-95 transition-all duration-200;
+  }
+  .btn-dark {
+    @apply bg-codex-dark text-codex-light font-semibold py-2.5 px-5 rounded-xl 
+           hover:bg-codex-surface active:scale-95 transition-all duration-200;
+  }
+  .btn-outline {
+    @apply border-2 border-codex-dark text-codex-dark font-semibold py-2 px-4 rounded-xl 
+           hover:bg-codex-dark hover:text-codex-light active:scale-95 transition-all duration-200;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-md overflow-hidden;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 outline-none 
+           focus:border-codex-accent focus:ring-2 focus:ring-codex-accent/20 
+           transition-all duration-200 bg-white text-codex-dark;
+  }
+  .badge-pending   { @apply bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+  .badge-processing{ @apply bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+  .badge-completed { @apply bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+  .badge-cancelled { @apply bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+}
