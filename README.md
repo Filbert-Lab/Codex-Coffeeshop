@@ -9,18 +9,18 @@
 
 **Nama Tim: Codex**
 
-| NIM | Nama Lengkap |
-|---|---|
+| NIM       | Nama Lengkap    |
+| --------- | --------------- |
 | 241112498 | Nachelle Ferari |
 | 241110460 | Filbert Matthew |
-| 241112002 | Ryu Kierando |
-| 241110371 | Zakky Pratama |
+| 241112002 | Ryu Kierando    |
+| 241110371 | Zakky Pratama   |
 
 ---
 
 ## 🎥 Video Demo
 
-🔗 **[Link Video Demo Aplikasi]** *(masukkan link Google Drive / YouTube di sini)*
+🔗 **[Link Video Demo Aplikasi]** _(masukkan link Google Drive / YouTube di sini)_
 
 > Video demo berdurasi maksimal 15 menit, menjelaskan seluruh fitur aplikasi.
 
@@ -28,15 +28,15 @@
 
 ## 🛠️ Tech Stack
 
-| Layer | Teknologi |
-|---|---|
-| Runtime | Node.js v18+ |
-| Framework | Express.js v4 |
-| ORM | Sequelize v6 |
-| Database | SQLite (dev) / PostgreSQL via Neon (prod) |
-| Frontend | React 18, React Router v6, Vite 5 |
-| Styling | Tailwind CSS v3 |
-| Auth | JWT (jsonwebtoken) + bcryptjs |
+| Layer      | Teknologi                                     |
+| ---------- | --------------------------------------------- |
+| Runtime    | Node.js v18+                                  |
+| Framework  | Express.js v4                                 |
+| ORM        | Sequelize v6                                  |
+| Database   | SQLite (dev) / PostgreSQL via Neon (prod)     |
+| Frontend   | React 18, React Router v6, Vite 5             |
+| Styling    | Tailwind CSS v3                               |
+| Auth       | JWT (jsonwebtoken) + bcryptjs                 |
 | Deployment | Vercel (frontend static + backend serverless) |
 
 ---
@@ -120,20 +120,20 @@ codex-coffee-shop/
 
 Aplikasi ini memiliki **6 tabel/resource** database relasional:
 
-| # | Resource | Tabel | Deskripsi | CRUD |
-|---|---|---|---|---|
-| 1 | **Users** | `users` | Manajemen user dengan role admin/customer | ✅ C-R-U-D |
-| 2 | **Categories** | `categories` | Kategori menu (Espresso, Non-Coffee, Pastries, Seasonal) | ✅ C-R-U-D |
-| 3 | **Products** | `products` | Menu kopi dan makanan dengan harga, stok, gambar | ✅ C-R-U-D |
-| 4 | **Orders** | `orders` | Pesanan customer dengan status tracking | ✅ C-R-U-D |
-| 5 | **OrderItems** | `order_items` | Detail item per pesanan (relasi Order ↔ Product) | ✅ C-R |
-| 6 | **Promos** | `promos` | Kode promo diskon (percent/fixed) | ✅ C-R-U-D |
+| #   | Resource       | Tabel         | Deskripsi                                                | CRUD       |
+| --- | -------------- | ------------- | -------------------------------------------------------- | ---------- |
+| 1   | **Users**      | `users`       | Manajemen user dengan role admin/customer                | ✅ C-R-U-D |
+| 2   | **Categories** | `categories`  | Kategori menu (Espresso, Non-Coffee, Pastries, Seasonal) | ✅ C-R-U-D |
+| 3   | **Products**   | `products`    | Menu kopi dan makanan dengan harga, stok, gambar         | ✅ C-R-U-D |
+| 4   | **Orders**     | `orders`      | Pesanan customer dengan status tracking                  | ✅ C-R-U-D |
+| 5   | **OrderItems** | `order_items` | Detail item per pesanan (relasi Order ↔ Product)         | ✅ C-R     |
+| 6   | **Promos**     | `promos`      | Kode promo diskon (percent/fixed)                        | ✅ C-R-U-D |
 
 ### Relasi Antar Tabel
 
 ```
 User ──────< Order ──────< OrderItem >────── Product >────── Category
-                                                  
+
 Promo (standalone, divalidasi saat checkout)
 ```
 
@@ -147,6 +147,7 @@ Promo (standalone, divalidasi saat checkout)
 ## 🚀 Panduan Setup (Cara Menjalankan Lokal)
 
 ### Prerequisites
+
 - **Node.js** v18 atau lebih baru
 - **npm** (sudah termasuk dalam Node.js)
 
@@ -164,6 +165,8 @@ cd client && npm install && cd ..
 
 # 4. Seed database (SQLite otomatis dibuat)
 npm run db:seed
+npm run db:fix
+
 
 # 5. Jalankan server + client bersamaan
 npm run dev
@@ -177,19 +180,19 @@ npm run dev:client
 
 ### Akses Aplikasi
 
-| Halaman | URL |
-|---|---|
-| **Customer (Menu)** | http://localhost:5173 |
-| **Admin Panel** | http://localhost:5173/admin |
-| **API Backend** | http://localhost:5000/api |
-| **Health Check** | http://localhost:5000/api/health |
+| Halaman             | URL                              |
+| ------------------- | -------------------------------- |
+| **Customer (Menu)** | http://localhost:5173            |
+| **Admin Panel**     | http://localhost:5173/admin      |
+| **API Backend**     | http://localhost:5000/api        |
+| **Health Check**    | http://localhost:5000/api/health |
 
 ### 🔐 Akun Default untuk Pengujian
 
-| Role | Email | Password |
-|---|---|---|
-| **Admin** | `admin@codex.com` | `admin123` |
-| **Customer** | `user@codex.com` | `user123` |
+| Role         | Email             | Password   |
+| ------------ | ----------------- | ---------- |
+| **Admin**    | `admin@codex.com` | `admin123` |
+| **Customer** | `user@codex.com`  | `user123`  |
 
 > Login sebagai **Admin** untuk mengakses halaman `/admin` (Dashboard, CRUD Products, Categories, Orders, Users, Promos).
 
@@ -198,54 +201,60 @@ npm run dev:client
 ## 📡 API Endpoints
 
 ### Auth (`/api/users`)
-| Method | Endpoint | Keterangan | Auth |
-|---|---|---|---|
-| `POST` | `/api/users/login` | Login user, return JWT token | ❌ |
-| `POST` | `/api/users/register` | Registrasi user baru | ❌ |
-| `GET` | `/api/users` | List semua user (search, pagination) | 🔒 Admin |
-| `PUT` | `/api/users/:id` | Update user (name, role) | 🔒 Admin |
-| `DELETE` | `/api/users/:id` | Hapus user | 🔒 Admin |
+
+| Method   | Endpoint              | Keterangan                           | Auth     |
+| -------- | --------------------- | ------------------------------------ | -------- |
+| `POST`   | `/api/users/login`    | Login user, return JWT token         | ❌       |
+| `POST`   | `/api/users/register` | Registrasi user baru                 | ❌       |
+| `GET`    | `/api/users`          | List semua user (search, pagination) | 🔒 Admin |
+| `PUT`    | `/api/users/:id`      | Update user (name, role)             | 🔒 Admin |
+| `DELETE` | `/api/users/:id`      | Hapus user                           | 🔒 Admin |
 
 ### Products (`/api/products`)
-| Method | Endpoint | Keterangan | Auth |
-|---|---|---|---|
-| `GET` | `/api/products?search=&category_id=&page=&limit=` | List produk (filter, search, pagination) | ❌ |
-| `GET` | `/api/products/:id` | Detail satu produk | ❌ |
-| `POST` | `/api/products` | Tambah produk baru | 🔒 Admin |
-| `PUT` | `/api/products/:id` | Update produk | 🔒 Admin |
-| `DELETE` | `/api/products/:id` | Hapus produk | 🔒 Admin |
+
+| Method   | Endpoint                                          | Keterangan                               | Auth     |
+| -------- | ------------------------------------------------- | ---------------------------------------- | -------- |
+| `GET`    | `/api/products?search=&category_id=&page=&limit=` | List produk (filter, search, pagination) | ❌       |
+| `GET`    | `/api/products/:id`                               | Detail satu produk                       | ❌       |
+| `POST`   | `/api/products`                                   | Tambah produk baru                       | 🔒 Admin |
+| `PUT`    | `/api/products/:id`                               | Update produk                            | 🔒 Admin |
+| `DELETE` | `/api/products/:id`                               | Hapus produk                             | 🔒 Admin |
 
 ### Categories (`/api/categories`)
-| Method | Endpoint | Keterangan | Auth |
-|---|---|---|---|
-| `GET` | `/api/categories` | List semua kategori | ❌ |
-| `POST` | `/api/categories` | Tambah kategori baru | 🔒 Admin |
-| `PUT` | `/api/categories/:id` | Update kategori | 🔒 Admin |
-| `DELETE` | `/api/categories/:id` | Hapus kategori | 🔒 Admin |
+
+| Method   | Endpoint              | Keterangan           | Auth     |
+| -------- | --------------------- | -------------------- | -------- |
+| `GET`    | `/api/categories`     | List semua kategori  | ❌       |
+| `POST`   | `/api/categories`     | Tambah kategori baru | 🔒 Admin |
+| `PUT`    | `/api/categories/:id` | Update kategori      | 🔒 Admin |
+| `DELETE` | `/api/categories/:id` | Hapus kategori       | 🔒 Admin |
 
 ### Orders (`/api/orders`)
-| Method | Endpoint | Keterangan | Auth |
-|---|---|---|---|
-| `POST` | `/api/orders` | Buat pesanan baru (checkout) | ❌ |
-| `GET` | `/api/orders?status=&page=&limit=` | List pesanan (filter status, pagination) | 🔒 Admin |
-| `GET` | `/api/orders/:id` | Detail pesanan + items | ❌ |
-| `PATCH` | `/api/orders/:id/status` | Update status order | 🔒 Admin |
-| `DELETE` | `/api/orders/:id` | Hapus pesanan | 🔒 Admin |
+
+| Method   | Endpoint                           | Keterangan                               | Auth     |
+| -------- | ---------------------------------- | ---------------------------------------- | -------- |
+| `POST`   | `/api/orders`                      | Buat pesanan baru (checkout)             | ❌       |
+| `GET`    | `/api/orders?status=&page=&limit=` | List pesanan (filter status, pagination) | 🔒 Admin |
+| `GET`    | `/api/orders/:id`                  | Detail pesanan + items                   | ❌       |
+| `PATCH`  | `/api/orders/:id/status`           | Update status order                      | 🔒 Admin |
+| `DELETE` | `/api/orders/:id`                  | Hapus pesanan                            | 🔒 Admin |
 
 ### Promos (`/api/promos`)
-| Method | Endpoint | Keterangan | Auth |
-|---|---|---|---|
-| `GET` | `/api/promos/active` | List promo aktif (public) | ❌ |
-| `POST` | `/api/promos/validate` | Validasi kode promo + hitung diskon | ❌ |
-| `GET` | `/api/promos?page=&limit=` | List semua promo (pagination) | 🔒 Admin |
-| `POST` | `/api/promos` | Tambah promo baru | 🔒 Admin |
-| `PUT` | `/api/promos/:id` | Update promo | 🔒 Admin |
-| `DELETE` | `/api/promos/:id` | Hapus promo | 🔒 Admin |
+
+| Method   | Endpoint                   | Keterangan                          | Auth     |
+| -------- | -------------------------- | ----------------------------------- | -------- |
+| `GET`    | `/api/promos/active`       | List promo aktif (public)           | ❌       |
+| `POST`   | `/api/promos/validate`     | Validasi kode promo + hitung diskon | ❌       |
+| `GET`    | `/api/promos?page=&limit=` | List semua promo (pagination)       | 🔒 Admin |
+| `POST`   | `/api/promos`              | Tambah promo baru                   | 🔒 Admin |
+| `PUT`    | `/api/promos/:id`          | Update promo                        | 🔒 Admin |
+| `DELETE` | `/api/promos/:id`          | Hapus promo                         | 🔒 Admin |
 
 ### Stats (`/api/stats`)
-| Method | Endpoint | Keterangan | Auth |
-|---|---|---|---|
-| `GET` | `/api/stats` | Dashboard statistik (orders, revenue, products, users) | 🔒 Admin |
+
+| Method | Endpoint     | Keterangan                                             | Auth     |
+| ------ | ------------ | ------------------------------------------------------ | -------- |
+| `GET`  | `/api/stats` | Dashboard statistik (orders, revenue, products, users) | 🔒 Admin |
 
 ---
 
@@ -259,13 +268,14 @@ Semua response sukses menggunakan format JSON yang konsisten:
 {
   "success": true,
   "message": "Deskripsi sukses (opsional)",
-  "data": { }
+  "data": {}
 }
 ```
 
 ### Contoh: POST `/api/users/login`
 
 **Request:**
+
 ```json
 {
   "email": "admin@codex.com",
@@ -274,6 +284,7 @@ Semua response sukses menggunakan format JSON yang konsisten:
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -294,6 +305,7 @@ Semua response sukses menggunakan format JSON yang konsisten:
 ### Contoh: GET `/api/products?search=latte&page=1&limit=5`
 
 **Response (200) — Dengan Pagination:**
+
 ```json
 {
   "success": true,
@@ -320,6 +332,7 @@ Semua response sukses menggunakan format JSON yang konsisten:
 ### Contoh: POST `/api/orders` (Checkout)
 
 **Request:**
+
 ```json
 {
   "customer_name": "John Doe",
@@ -334,6 +347,7 @@ Semua response sukses menggunakan format JSON yang konsisten:
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -353,17 +367,17 @@ Semua error mengembalikan format yang konsisten:
 }
 ```
 
-| Status Code | Contoh Message | Kapan Muncul |
-|---|---|---|
-| `400` | `"Name and price required"` | Validasi input gagal |
-| `400` | `"Email already registered"` | Duplikat data |
-| `400` | `"Invalid status"` | Status order tidak valid |
-| `401` | `"No token provided"` | Request tanpa JWT token |
-| `401` | `"Invalid or expired token"` | Token expired/invalid |
-| `401` | `"Invalid credentials"` | Email/password salah |
-| `403` | `"Admin access required"` | Customer akses route admin |
-| `404` | `"Product not found"` | Resource tidak ditemukan |
-| `500` | `"Internal Server Error"` | Server error (centralized handler) |
+| Status Code | Contoh Message               | Kapan Muncul                       |
+| ----------- | ---------------------------- | ---------------------------------- |
+| `400`       | `"Name and price required"`  | Validasi input gagal               |
+| `400`       | `"Email already registered"` | Duplikat data                      |
+| `400`       | `"Invalid status"`           | Status order tidak valid           |
+| `401`       | `"No token provided"`        | Request tanpa JWT token            |
+| `401`       | `"Invalid or expired token"` | Token expired/invalid              |
+| `401`       | `"Invalid credentials"`      | Email/password salah               |
+| `403`       | `"Admin access required"`    | Customer akses route admin         |
+| `404`       | `"Product not found"`        | Resource tidak ditemukan           |
+| `500`       | `"Internal Server Error"`    | Server error (centralized handler) |
 
 ---
 
@@ -377,6 +391,7 @@ npm run db:seed
 ```
 
 Seed script (`server/config/seed.js`) akan membuat:
+
 - **2 Users** (admin + customer) — password di-hash otomatis dengan bcrypt
 - **4 Categories** (Espresso Based, Non-Coffee, Pastries, Seasonal Special)
 - **15 Products** (6 espresso, 4 non-coffee, 4 pastries, 1 seasonal)
@@ -395,39 +410,42 @@ npm run db:seed
 
 ### 👤 Customer (Halaman Utama `/`)
 
-| # | Fitur | Deskripsi |
-|---|---|---|
-| 1 | 🔐 Login / Register | Autentikasi user dengan JWT token |
-| 2 | 🔍 Search Produk | Live search produk berdasarkan nama |
-| 3 | 🗂️ Filter Kategori | Filter menu berdasarkan kategori (All, Espresso, Non-Coffee, Pastries, Seasonal) |
-| 4 | 🛒 Keranjang Belanja | Tambah/kurang item, quantity control real-time |
-| 5 | 💳 Checkout | Form pembayaran dengan pilihan Pickup/Delivery |
-| 6 | 🏷️ Kode Promo | Validasi kode promo, kalkulasi diskon otomatis |
-| 7 | 📱 Responsive | Layout adaptif dari desktop hingga mobile |
-| 8 | 🎨 Animasi & Hover | Micro-animasi, hover effects, toast notification |
+| #   | Fitur                | Deskripsi                                                                        |
+| --- | -------------------- | -------------------------------------------------------------------------------- |
+| 1   | 🔐 Login / Register  | Autentikasi user dengan JWT token                                                |
+| 2   | 🔍 Search Produk     | Live search produk berdasarkan nama                                              |
+| 3   | 🗂️ Filter Kategori   | Filter menu berdasarkan kategori (All, Espresso, Non-Coffee, Pastries, Seasonal) |
+| 4   | 🛒 Keranjang Belanja | Tambah/kurang item, quantity control real-time                                   |
+| 5   | 💳 Checkout          | Form pembayaran dengan pilihan Pickup/Delivery                                   |
+| 6   | 🏷️ Kode Promo        | Validasi kode promo, kalkulasi diskon otomatis                                   |
+| 7   | 📱 Responsive        | Layout adaptif dari desktop hingga mobile                                        |
+| 8   | 🎨 Animasi & Hover   | Micro-animasi, hover effects, toast notification                                 |
 
 ### 🛡️ Admin Panel (`/admin`)
 
-| # | Fitur | Deskripsi |
-|---|---|---|
-| 1 | 📊 Dashboard | Statistik ringkasan: total order, revenue, produk, user, pending |
-| 2 | ☕ CRUD Produk | Tambah, edit, hapus produk + search & pagination |
-| 3 | 🗂️ CRUD Kategori | Tambah, edit, hapus kategori dengan icon picker |
-| 4 | 📦 Manajemen Order | Lihat detail order, update status (pending → processing → completed → cancelled) |
-| 5 | 👥 Manajemen User | Lihat daftar user, toggle role (admin/customer), hapus user |
-| 6 | 🏷️ CRUD Promo | Tambah, edit, hapus promo, toggle aktif/nonaktif |
-| 7 | 🔒 Protected Route | Hanya admin yang bisa akses (ProtectedAdmin component) |
+| #   | Fitur              | Deskripsi                                                                        |
+| --- | ------------------ | -------------------------------------------------------------------------------- |
+| 1   | 📊 Dashboard       | Statistik ringkasan: total order, revenue, produk, user, pending                 |
+| 2   | ☕ CRUD Produk     | Tambah, edit, hapus produk + search & pagination                                 |
+| 3   | 🗂️ CRUD Kategori   | Tambah, edit, hapus kategori dengan icon picker                                  |
+| 4   | 📦 Manajemen Order | Lihat detail order, update status (pending → processing → completed → cancelled) |
+| 5   | 👥 Manajemen User  | Lihat daftar user, toggle role (admin/customer), hapus user                      |
+| 6   | 🏷️ CRUD Promo      | Tambah, edit, hapus promo, toggle aktif/nonaktif                                 |
+| 7   | 🔒 Protected Route | Hanya admin yang bisa akses (ProtectedAdmin component)                           |
 
 ---
 
 ## 🌐 Deployment (Vercel + Neon PostgreSQL)
 
 ### Step 1: Setup Neon Database
+
 1. Buka [neon.tech](https://neon.tech) → Login → **New Project**
 2. Copy **Connection String** (format `postgresql://...`)
 
 ### Step 2: Environment Variables
+
 Buat file `server/.env`:
+
 ```env
 DATABASE_URL=postgresql://user:password@ep-xxxx.neon.tech/neondb?sslmode=require
 JWT_SECRET=ganti_dengan_string_yang_aman
@@ -435,11 +453,13 @@ PORT=5000
 ```
 
 ### Step 3: Seed Database Neon
+
 ```bash
 npm run db:seed
 ```
 
 ### Step 4: Deploy ke Vercel
+
 1. Push ke GitHub
 2. Import di [vercel.com](https://vercel.com)
 3. Tambahkan Environment Variables: `DATABASE_URL`, `JWT_SECRET`
@@ -481,4 +501,4 @@ Sequelize Model (base)
 
 ---
 
-*Crafted with ☕ by Tim Codex — 2026*
+_Crafted with ☕ by Tim Codex — 2026_
