@@ -28,7 +28,10 @@ app.use(async (req, res, next) => {
     try {
       console.log("📦 [API] Loading models on first request...");
       console.log("NODE_ENV:", process.env.NODE_ENV);
-      console.log("DATABASE_URL_UNPOOLED:", process.env.DATABASE_URL_UNPOOLED ? "✅" : "❌");
+      console.log(
+        "DATABASE_URL_UNPOOLED:",
+        process.env.DATABASE_URL_UNPOOLED ? "✅" : "❌",
+      );
       console.log("DATABASE_URL:", process.env.DATABASE_URL ? "✅" : "❌");
 
       const models = require(path.join(__dirname, "../server/models/index"));
@@ -69,7 +72,9 @@ app.use(async (req, res, next) => {
 
       routesLoaded = true;
     } catch (err) {
-      console.error("❌ [API] Failed to load models/routes/sync on first request");
+      console.error(
+        "❌ [API] Failed to load models/routes/sync on first request",
+      );
       console.error("Error:", err.message);
       console.error("Stack:", err.stack);
       return res.status(500).json({

@@ -3,39 +3,36 @@ const { Sequelize } = require("sequelize");
 let sequelize;
 
 console.log("🔧 [Sequelize] Checking database configuration...");
-console.log("  DATABASE_URL:", process.env.DATABASE_URL ? "✅ set" : "❌ not set");
-console.log("  DATABASE_URL_UNPOOLED:", process.env.DATABASE_URL_UNPOOLED ? "✅ set" : "❌ not set");
+console.log(
+  "  DATABASE_URL:",
+  process.env.DATABASE_URL ? "✅ set" : "❌ not set",
+);
+console.log(
+  "  DATABASE_URL_UNPOOLED:",
+  process.env.DATABASE_URL_UNPOOLED ? "✅ set" : "❌ not set",
+);
 console.log("  NODE_ENV:", process.env.NODE_ENV);
 console.log("  VERCEL:", process.env.VERCEL ? "✅ yes" : "❌ no");
 
 const isVercel = !!process.env.VERCEL;
 const isProduction = process.env.NODE_ENV === "production" || isVercel;
 
+// Try to use DATABASE_URL_UNPOOLED first, then DATABASE_URL
+const dbUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+
 try {
-  if (process.env.DATABASE_URL_UNPOOLED) {
-    console.log("🚀 [Sequelize] Using DATABASE_URL_UNPOOLED (Vercel production)");
-    sequelize = new Sequelize(process.env.DATABASE_URL_UNPOOLED, {
+  if (dbUrl) {
+    const usingUnpooled = !!process.env.DATABASE_URL_UNPOOLED;
+    console.log(
+      `🚀 [Sequelize] Using ${usingUnpooled ? "DATABASE_URL_UNPOOLED" : "DATABASE_URL"}`,
+    );
+    sequelize = new Sequelize(dbUrl, {
       dialect: "postgres",
       dialectOptions: {
         ssl: { require: true, rejectUnauthorized: false },
       },
       pool: {
-        max: 1,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
-      },
-      logging: false,
-    });
-  } else if (process.env.DATABASE_URL) {
-    console.log("🔌 [Sequelize] Using DATABASE_URL (pooled)");
-    sequelize = new Sequelize(process.env.DATABASE_URL, {
-      dialect: "postgres",
-      dialectOptions: {
-        ssl: { require: true, rejectUnauthorized: false },
-      },
-      pool: {
-        max: 5,
+        max: usingUnpooled ? 1 : 5,
         min: 0,
         acquire: 30000,
         idle: 10000,
@@ -44,7 +41,7 @@ try {
     });
   } else if (isProduction || isVercel) {
     throw new Error(
-      "DATABASE_URL or DATABASE_URL_UNPOOLED is required in production!",
+      "DATABASE_URL or DATABASE_URL_UNPOOLED is required in production! Check Vercel environment variables.",
     );
   } else {
     console.log("💾 [Sequelize] Using SQLite (local development)");
