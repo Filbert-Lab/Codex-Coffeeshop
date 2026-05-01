@@ -167,7 +167,6 @@ cd client && npm install && cd ..
 npm run db:seed
 npm run db:fix
 
-
 # 5. Jalankan server + client bersamaan
 npm run dev
 
