@@ -7,7 +7,7 @@
   },
   "functions": {
     "api/index.js": {
-      "includeFiles": "server/**,node_modules/**",
+      "includeFiles": "server/**",
       "maxDuration": 30,
       "memory": 512
     }
