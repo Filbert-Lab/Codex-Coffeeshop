@@ -27,14 +27,13 @@ app.use(async (req, res, next) => {
   if (!routesLoaded) {
     try {
       console.log("📦 [API] Loading models on first request...");
-      console.log("  __dirname:", __dirname);
-      console.log("  path to models:", path.join(__dirname, "../server/models/index"));
+
 
       // Load models and sequelize instance
       console.log("  About to require models...");
       let models;
       try {
-        models = require(path.join(__dirname, "../server/models/index"));
+        models = require("../server/models/index");
       } catch (requireErr) {
         console.error("❌ [API] Require failed:", requireErr.message);
         throw requireErr;
@@ -50,30 +49,12 @@ app.use(async (req, res, next) => {
 
       // Load routes
       console.log("🛣️ [API] Loading routes...");
-      app.use(
-        "/api/users",
-        require(path.join(__dirname, "../server/routes/userRoutes")),
-      );
-      app.use(
-        "/api/categories",
-        require(path.join(__dirname, "../server/routes/categoryRoutes")),
-      );
-      app.use(
-        "/api/products",
-        require(path.join(__dirname, "../server/routes/productRoutes")),
-      );
-      app.use(
-        "/api/orders",
-        require(path.join(__dirname, "../server/routes/orderRoutes")),
-      );
-      app.use(
-        "/api/promos",
-        require(path.join(__dirname, "../server/routes/promoRoutes")),
-      );
-      app.use(
-        "/api/stats",
-        require(path.join(__dirname, "../server/routes/statsRoutes")),
-      );
+      app.use("/api/users", require("../server/routes/userRoutes"));
+      app.use("/api/categories", require("../server/routes/categoryRoutes"));
+      app.use("/api/products", require("../server/routes/productRoutes"));
+      app.use("/api/orders", require("../server/routes/orderRoutes"));
+      app.use("/api/promos", require("../server/routes/promoRoutes"));
+      app.use("/api/stats", require("../server/routes/statsRoutes"));
       console.log("✅ [API] All routes loaded successfully");
 
       routesLoaded = true;
