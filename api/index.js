@@ -27,11 +27,21 @@ app.use(async (req, res, next) => {
   if (!routesLoaded) {
     try {
       console.log("📦 [API] Loading models on first request...");
-      
+      console.log("  __dirname:", __dirname);
+      console.log("  path to models:", path.join(__dirname, "../server/models/index"));
+
       // Load models and sequelize instance
-      const models = require(path.join(__dirname, "../server/models/index"));
+      console.log("  About to require models...");
+      let models;
+      try {
+        models = require(path.join(__dirname, "../server/models/index"));
+      } catch (requireErr) {
+        console.error("❌ [API] Require failed:", requireErr.message);
+        throw requireErr;
+      }
+      console.log("✅ [API] Models require succeeded");
       sequelize = models.sequelize;
-      console.log("✅ [API] Models loaded successfully");
+      console.log("✅ [API] Sequelize instance obtained");
 
       // Sync database
       console.log("🔄 [API] Syncing database...");
@@ -40,12 +50,30 @@ app.use(async (req, res, next) => {
 
       // Load routes
       console.log("🛣️ [API] Loading routes...");
-      app.use("/api/users", require(path.join(__dirname, "../server/routes/userRoutes")));
-      app.use("/api/categories", require(path.join(__dirname, "../server/routes/categoryRoutes")));
-      app.use("/api/products", require(path.join(__dirname, "../server/routes/productRoutes")));
-      app.use("/api/orders", require(path.join(__dirname, "../server/routes/orderRoutes")));
-      app.use("/api/promos", require(path.join(__dirname, "../server/routes/promoRoutes")));
-      app.use("/api/stats", require(path.join(__dirname, "../server/routes/statsRoutes")));
+      app.use(
+        "/api/users",
+        require(path.join(__dirname, "../server/routes/userRoutes")),
+      );
+      app.use(
+        "/api/categories",
+        require(path.join(__dirname, "../server/routes/categoryRoutes")),
+      );
+      app.use(
+        "/api/products",
+        require(path.join(__dirname, "../server/routes/productRoutes")),
+      );
+      app.use(
+        "/api/orders",
+        require(path.join(__dirname, "../server/routes/orderRoutes")),
+      );
+      app.use(
+        "/api/promos",
+        require(path.join(__dirname, "../server/routes/promoRoutes")),
+      );
+      app.use(
+        "/api/stats",
+        require(path.join(__dirname, "../server/routes/statsRoutes")),
+      );
       console.log("✅ [API] All routes loaded successfully");
 
       routesLoaded = true;
@@ -66,9 +94,9 @@ app.use(async (req, res, next) => {
 app.use((err, req, res, next) => {
   console.error("❌ [API] Error:", err.message);
   console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: err.message || "Internal Server Error" 
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
 });
 
