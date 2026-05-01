@@ -5,13 +5,6 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "server/**",
-      "maxDuration": 30,
-      "memory": 512
-    }
-  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/(.*)", "destination": "/index.html" }

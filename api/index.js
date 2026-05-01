@@ -87,7 +87,10 @@ app.use(async (req, res, next) => {
       console.error("Error Type:", err.constructor.name);
       console.error("Error Message:", err.message);
       console.error("Stack:", err.stack);
-      console.error("Full Error:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      console.error(
+        "Full Error:",
+        JSON.stringify(err, Object.getOwnPropertyNames(err)),
+      );
       return res.status(500).json({
         success: false,
         message: "Failed to initialize database: " + err.message,

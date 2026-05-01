@@ -1,0 +1,11 @@
+.git
+.gitignore
+client/dist
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.vscode
+.idea
+Tim.txt
+README.md
