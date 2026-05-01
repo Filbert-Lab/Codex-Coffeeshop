@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const path = require("path");
 
 // Explicitly require database drivers so Vercel's bundler (nft) includes them
 require("pg");
@@ -70,9 +71,11 @@ try {
     );
   } else {
     console.log("💾 [Sequelize] Using SQLite (local development)");
+    const dbPath = path.join(__dirname, "../../database.sqlite");
+    console.log("  SQLite path:", dbPath);
     sequelize = new Sequelize({
       dialect: "sqlite",
-      storage: "./database.sqlite",
+      storage: dbPath,
       logging: false,
     });
   }
