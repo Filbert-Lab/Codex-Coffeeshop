@@ -1,5 +1,4 @@
 const { Sequelize } = require("sequelize");
-require("dotenv").config();
 
 let sequelize;
 
@@ -7,6 +6,7 @@ console.log("🔧 Checking database configuration...");
 console.log("DATABASE_URL:", process.env.DATABASE_URL ? "✅ set" : "❌ not set");
 console.log("DATABASE_URL_UNPOOLED:", process.env.DATABASE_URL_UNPOOLED ? "✅ set" : "❌ not set");
 console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("VERCEL:", process.env.VERCEL ? "✅ running on Vercel" : "❌ local");
 
 const isVercel = !!process.env.VERCEL;
 const isProduction = process.env.NODE_ENV === "production" || isVercel;
