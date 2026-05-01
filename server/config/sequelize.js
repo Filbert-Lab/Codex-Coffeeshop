@@ -18,7 +18,21 @@ const isVercel = !!process.env.VERCEL;
 const isProduction = process.env.NODE_ENV === "production" || isVercel;
 
 // Try to use DATABASE_URL_UNPOOLED first, then DATABASE_URL
-const dbUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+let dbUrl = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
+
+// Add libpq compatibility flag if using Neon
+if (dbUrl && dbUrl.includes("neon")) {
+  // Ensure sslmode is set properly for libpq compatibility
+  if (!dbUrl.includes("sslmode")) {
+    dbUrl += "?sslmode=require";
+  }
+  // Add libpq compatibility if not present
+  if (!dbUrl.includes("uselibpqcompat")) {
+    dbUrl += dbUrl.includes("?") ? "&" : "?";
+    dbUrl += "uselibpqcompat=true";
+  }
+  console.log("🔒 [Sequelize] Configured for Neon with libpq compatibility");
+}
 
 try {
   if (dbUrl) {
@@ -26,6 +40,8 @@ try {
     console.log(
       `🚀 [Sequelize] Using ${usingUnpooled ? "DATABASE_URL_UNPOOLED" : "DATABASE_URL"}`,
     );
+    console.log("[Sequelize] Connection string set (masked for security)");
+
     sequelize = new Sequelize(dbUrl, {
       dialect: "postgres",
       dialectOptions: {
@@ -37,7 +53,12 @@ try {
         acquire: 30000,
         idle: 10000,
       },
-      logging: false,
+      logging: (sql) => {
+        // Only log on errors to reduce noise
+        if (process.env.DEBUG_SQL) {
+          console.log("[Sequelize SQL]", sql);
+        }
+      },
     });
   } else if (isProduction || isVercel) {
     throw new Error(
