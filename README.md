@@ -20,7 +20,7 @@
 
 ## 🎥 Video Demo
 
-🔗 **[Link Video Demo Aplikasi]** _(masukkan link Google Drive / YouTube di sini)_
+🔗 https://drive.google.com/file/d/1--lUkFVVKdTQE94KYLy6yUCtgrG8Za2X/view
 
 > Video demo berdurasi maksimal 15 menit, menjelaskan seluruh fitur aplikasi.
 
