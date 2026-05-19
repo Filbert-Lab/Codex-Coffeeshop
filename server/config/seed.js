@@ -28,24 +28,24 @@ async function seed() {
     // Products
     await Product.bulkCreate([
       // Espresso Based
-      { category_id: espresso.id, name: "Signature Latte", description: "Our signature creamy latte with a velvety texture", price: 28000, image: "https://images.unsplash.com/photo-1621135177072-57c9b6242e7a?w=400", stock: 99 },
-      { category_id: espresso.id, name: "Cappuccino", description: "Classic Italian cappuccino with thick microfoam", price: 30000, image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400", stock: 99 },
-      { category_id: espresso.id, name: "Americano", description: "Bold and clean espresso diluted with hot water", price: 22000, image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400", stock: 99 },
-      { category_id: espresso.id, name: "Caramel Macchiato", description: "Sweet espresso with caramel drizzle and steamed milk", price: 32000, image: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400", stock: 99 },
-      { category_id: espresso.id, name: "Flat White", description: "Velvety microfoam over a double ristretto", price: 28000, image: "https://images.unsplash.com/photo-1611564494260-6f21b80af7ea?w=400", stock: 99 },
-      { category_id: espresso.id, name: "Café Mocha", description: "Rich chocolate meets premium espresso", price: 33000, image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400", stock: 99 },
+      { category_id: espresso.id, name: "Signature Latte", description: "Our signature creamy latte with a velvety texture", price: 28000, image: "https://images.unsplash.com/photo-1541167760496-9af0ab7f0da7?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: espresso.id, name: "Cappuccino", description: "Classic Italian cappuccino with thick microfoam", price: 30000, image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: espresso.id, name: "Americano", description: "Bold and clean espresso diluted with hot water", price: 22000, image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: espresso.id, name: "Caramel Macchiato", description: "Sweet espresso with caramel drizzle and steamed milk", price: 32000, image: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: espresso.id, name: "Flat White", description: "Velvety microfoam over a double ristretto", price: 28000, image: "https://images.unsplash.com/photo-1611564494260-6f21b80af7ea?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: espresso.id, name: "Café Mocha", description: "Rich chocolate meets premium espresso", price: 33000, image: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=400&h=400&fit=crop", stock: 99 },
       // Non-Coffee
-      { category_id: nonCoffee.id, name: "Matcha Latte", description: "Premium Uji matcha with creamy steamed milk", price: 35000, image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400", stock: 99 },
-      { category_id: nonCoffee.id, name: "Lychee Tea", description: "Refreshing lychee flavored tea with fruit bits", price: 22000, image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400", stock: 99 },
-      { category_id: nonCoffee.id, name: "Hot Chocolate", description: "Rich and creamy Belgian dark chocolate", price: 25000, image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400", stock: 99 },
-      { category_id: nonCoffee.id, name: "Red Velvet Latte", description: "Vibrant red velvet flavored steamed milk", price: 29000, image: "https://images.unsplash.com/photo-1461010083959-8a5727311252?w=400", stock: 99 },
+      { category_id: nonCoffee.id, name: "Matcha Latte", description: "Premium Uji matcha with creamy steamed milk", price: 35000, image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: nonCoffee.id, name: "Lychee Tea", description: "Refreshing lychee flavored tea with fruit bits", price: 22000, image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: nonCoffee.id, name: "Hot Chocolate", description: "Rich and creamy Belgian dark chocolate", price: 25000, image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&h=400&fit=crop", stock: 99 },
+      { category_id: nonCoffee.id, name: "Red Velvet Latte", description: "Vibrant red velvet flavored steamed milk", price: 29000, image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=400&fit=crop", stock: 99 },
       // Pastries
-      { category_id: pastries.id, name: "Butter Croissant", description: "Flaky, buttery layers baked to golden perfection", price: 18000, image: "https://images.unsplash.com/photo-1549903072-7e6e0bedb7fb?w=400", stock: 50 },
-      { category_id: pastries.id, name: "Chocolate Muffin", description: "Double chocolate chip muffin, moist and decadent", price: 20000, image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=400", stock: 50 },
-      { category_id: pastries.id, name: "Cinnamon Roll", description: "Soft, gooey cinnamon roll with cream cheese glaze", price: 22000, image: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400", stock: 30 },
-      { category_id: pastries.id, name: "Cheese Tart", description: "Silky smooth cheese custard in a buttery crust", price: 24000, image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=400", stock: 30 },
+      { category_id: pastries.id, name: "Butter Croissant", description: "Flaky, buttery layers baked to golden perfection", price: 18000, image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop", stock: 50 },
+      { category_id: pastries.id, name: "Chocolate Muffin", description: "Double chocolate chip muffin, moist and decadent", price: 20000, image: "https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=400&h=400&fit=crop", stock: 50 },
+      { category_id: pastries.id, name: "Cinnamon Roll", description: "Soft, gooey cinnamon roll with cream cheese glaze", price: 22000, image: "https://images.unsplash.com/photo-1509365465985-25d11c17e812?w=400&h=400&fit=crop", stock: 30 },
+      { category_id: pastries.id, name: "Cheese Tart", description: "Silky smooth cheese custard in a buttery crust", price: 24000, image: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=400&h=400&fit=crop", stock: 30 },
       // Seasonal
-      { category_id: seasonal.id, name: "Lavender Honey Latte", description: "Floral lavender with local honey and oat milk", price: 38000, image: "https://images.unsplash.com/photo-1578914901000-89c55d79e08b?w=400", stock: 20 },
+      { category_id: seasonal.id, name: "Lavender Honey Latte", description: "Floral lavender with local honey and oat milk", price: 38000, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop", stock: 20 },
     ]);
     console.log("✅ Products seeded");
 

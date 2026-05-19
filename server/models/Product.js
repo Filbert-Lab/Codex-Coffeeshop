@@ -5,8 +5,13 @@ const BaseModel = require("./BaseModel");
 class Product extends BaseModel {
   static async findWithCategory({ search, categoryId, page = 1, limit = 12 } = {}) {
     const Category = require("./Category");
+    const sequelizeInstance = require("../config/sequelize");
     const where = {};
-    if (search) where.name = { [Op.like]: `%${search}%` };
+    if (search) {
+      // Use iLike for PostgreSQL, like for SQLite
+      const likeOp = sequelizeInstance.getDialect() === "postgres" ? Op.iLike : Op.like;
+      where.name = { [likeOp]: `%${search}%` };
+    }
     if (categoryId) where.category_id = categoryId;
 
     return this.findPaginated({

@@ -47,7 +47,9 @@ const getUsers = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, search } = req.query;
     const { Op } = require("sequelize");
-    const where = search ? { name: { [Op.like]: `%${search}%` } } : {};
+    const sequelizeInstance = require("../config/sequelize");
+    const likeOp = sequelizeInstance.getDialect() === "postgres" ? Op.iLike : Op.like;
+    const where = search ? { name: { [likeOp]: `%${search}%` } } : {};
     const result = await User.findPaginated({ where, page, limit, order: [["created_at", "DESC"]] });
     res.json({ success: true, ...result });
   } catch (error) {
