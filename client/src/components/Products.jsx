@@ -47,8 +47,11 @@ const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
       style={{ animationDelay: `${index * 50}ms` }}
       className="card group animate-fade-in flex flex-col"
     >
-      {/* Image with vignette */}
-      <div className="relative overflow-hidden h-44 shrink-0" style={{ background: "#15100C" }}>
+      {/* Image */}
+      <div
+        className="relative overflow-hidden h-44 shrink-0"
+        style={{ background: "#F4ECDF" }}
+      >
         {hasImage ? (
           <img
             src={item.image}
@@ -60,10 +63,10 @@ const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
         ) : (
           <div
             className="w-full h-full flex items-center justify-center"
-            style={{ background: "radial-gradient(circle at 50% 40%, #36281D, #15100C)" }}
+            style={{ background: "radial-gradient(circle at 50% 40%, #FBF4E6, #F4ECDF)" }}
           >
             <div className="text-center animate-float">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-codex-accent/40 mx-auto mb-2">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "rgba(156,107,63,0.4)" }} className="mx-auto mb-2">
                 <path d="M17 8h1a4 4 0 0 1 0 8h-1" />
                 <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" />
                 <path d="M6 2v3M10 2v3M14 2v3" />
@@ -75,26 +78,23 @@ const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
           </div>
         )}
 
-        {/* Vignette + bottom gradient overlay (always visible, deepens on hover) */}
+        {/* Subtle bottom darken (improves contrast on light photos) */}
         <div
-          className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: "linear-gradient(180deg, transparent 50%, rgba(21,16,12,0.5) 100%)",
+            background: "linear-gradient(180deg, transparent 60%, rgba(42,27,14,0.18) 100%)",
           }}
-        />
-        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{ background: "linear-gradient(180deg, rgba(21,16,12,0.2) 0%, rgba(21,16,12,0.6) 100%)" }}
         />
 
         {item.category && (
           <span
             className="absolute top-3 left-3 text-[10px] font-semibold px-2.5 py-1 rounded-full z-10 flex items-center gap-1"
             style={{
-              background: "rgba(21,16,12,0.85)",
-              color: "#F5EBDC",
-              border: "1px solid rgba(232,155,61,0.3)",
+              background: "rgba(255,251,243,0.95)",
+              color: "#3D2817",
+              border: "1px solid rgba(156,107,63,0.2)",
               backdropFilter: "blur(8px)",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              boxShadow: "0 2px 6px rgba(61,40,23,0.1)",
             }}
           >
             <span>{item.category.icon}</span>
@@ -112,9 +112,7 @@ const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
           {item.description || "Freshly prepared with premium ingredients"}
         </p>
         <div className="flex items-center justify-between mt-auto gap-3">
-          <span className="font-bold text-codex-accent-glow text-[15px] tabular">
-            {fmt(item.price)}
-          </span>
+          <span className="font-bold text-codex-accent text-[15px] tabular">{fmt(item.price)}</span>
           <AddButton inCart={inCart} onAdd={onAdd} itemName={item.name} />
         </div>
       </div>
@@ -131,31 +129,16 @@ function AddButton({ inCart, onAdd, itemName }) {
       style={
         inCart
           ? {
-              background: "linear-gradient(135deg, #F4B96A 0%, #E89B3D 50%, #C8832A 100%)",
-              color: "#1B1410",
-              boxShadow: "0 4px 14px rgba(232,155,61,0.35), 0 1px 0 rgba(255,255,255,0.18) inset",
+              background: "linear-gradient(135deg, #B88B5A 0%, #9C6B3F 50%, #5A3920 100%)",
+              color: "#FAF6EF",
+              boxShadow: "0 4px 14px rgba(156,107,63,0.35), 0 1px 0 rgba(255,255,255,0.18) inset",
             }
           : {
-              background: "linear-gradient(180deg, #2D2118, #241A14)",
-              color: "#F5EBDC",
-              border: "1px solid #4F3A2A",
-              boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset, 0 2px 6px rgba(0,0,0,0.3)",
+              background: "linear-gradient(180deg, #3D2817, #2A1B0E)",
+              color: "#FAF6EF",
+              boxShadow: "0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 6px rgba(61,40,23,0.25)",
             }
       }
-      onMouseEnter={(e) => {
-        if (!inCart) {
-          e.currentTarget.style.background = "linear-gradient(135deg, #F4B96A, #E89B3D)";
-          e.currentTarget.style.color = "#1B1410";
-          e.currentTarget.style.borderColor = "transparent";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!inCart) {
-          e.currentTarget.style.background = "linear-gradient(180deg, #2D2118, #241A14)";
-          e.currentTarget.style.color = "#F5EBDC";
-          e.currentTarget.style.borderColor = "#4F3A2A";
-        }
-      }}
     >
       {inCart ? (
         <>
@@ -182,11 +165,7 @@ function ProductSkeleton() {
     <div className="h-full overflow-y-auto pr-1">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="rounded-2xl overflow-hidden surface-1"
-            style={{ animationDelay: `${i * 80}ms` }}
-          >
+          <div key={i} className="rounded-2xl overflow-hidden surface-1">
             <div className="w-full h-44 skeleton" />
             <div className="p-4 space-y-3">
               <div className="h-4 rounded w-3/4 skeleton" />
@@ -209,11 +188,11 @@ function EmptyState() {
       <div
         className="w-20 h-20 rounded-full flex items-center justify-center mb-4 animate-float"
         style={{
-          background: "radial-gradient(circle, rgba(232,155,61,0.15), rgba(232,155,61,0.04))",
-          border: "1px solid rgba(232,155,61,0.2)",
+          background: "radial-gradient(circle, rgba(156,107,63,0.15), rgba(156,107,63,0.04))",
+          border: "1px solid rgba(156,107,63,0.2)",
         }}
       >
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-codex-accent/60">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "rgba(156,107,63,0.6)" }}>
           <path d="M17 8h1a4 4 0 0 1 0 8h-1" />
           <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" />
           <path d="M6 2v3M10 2v3M14 2v3" />

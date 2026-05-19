@@ -36,13 +36,13 @@ function AuthModal({ close }) {
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-[400px] p-8 rounded-2xl text-codex-text shadow-2xl relative animate-slide-up overflow-hidden"
-        style={{background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 24px 64px rgba(0,0,0,0.7)"}}
+        style={{background:"#FFFFFF", border:"1px solid #E8DCC4", boxShadow:"0 24px 64px rgba(42,27,14,0.5)"}}
       >
         {/* Decorative gradient */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-codex-accent/70 to-transparent" />
-        <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{background:"rgba(232,155,61,0.06)"}} />
+        <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{background:"rgba(156,107,63,0.06)"}} />
 
-        <button onClick={close} className="absolute top-5 right-5 text-codex-muted hover:text-codex-text transition-all duration-300 w-8 h-8 flex items-center justify-center rounded-lg" style={{background:"#1B1410"}}>
+        <button onClick={close} className="absolute top-5 right-5 text-codex-muted hover:text-codex-text transition-all duration-300 w-8 h-8 flex items-center justify-center rounded-lg" style={{background:"#F4ECDF"}}>
           ✕
         </button>
 

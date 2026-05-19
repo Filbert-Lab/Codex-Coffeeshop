@@ -141,15 +141,15 @@ function Home() {
                     key={cat.id ?? "all"}
                     onClick={() => setActiveCategoryId(cat.id)}
                     className={`shrink-0 text-xs font-semibold px-3.5 py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 ${
-                      active ? "nav-pill nav-pill-active" : ""
+                      active ? "nav-pill-active" : ""
                     }`}
                     style={
                       active
                         ? undefined
                         : {
-                            background: "linear-gradient(180deg, #2D2118, #241A14)",
-                            color: "#A08770",
-                            border: "1px solid #3F2E22",
+                            background: "#FFFBF3",
+                            color: "#5C4530",
+                            border: "1px solid #E8DCC4",
                           }
                     }
                   >
@@ -183,7 +183,7 @@ function Home() {
         <div
           className="lg:hidden fixed inset-0 z-50 animate-fade-in"
           onClick={() => setIsMobileCartOpen(false)}
-          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+          style={{ background: "rgba(42,27,14,0.5)", backdropFilter: "blur(4px)" }}
         >
           <div
             className="absolute right-0 top-0 bottom-0 w-[90vw] max-w-[340px] p-3 animate-slide-up"
@@ -205,10 +205,11 @@ function Home() {
       {cart.length > 0 && !isMobileCartOpen && (
         <button
           onClick={() => setIsMobileCartOpen(true)}
-          className="lg:hidden fixed bottom-5 right-5 px-4 py-3 rounded-2xl flex items-center gap-3 z-40 animate-slide-up active:scale-95 transition-transform shadow-accent-lg"
+          className="lg:hidden fixed bottom-5 right-5 px-4 py-3 rounded-2xl flex items-center gap-3 z-40 animate-slide-up active:scale-95 transition-transform"
           style={{
-            background: "linear-gradient(135deg, #F4B96A 0%, #E89B3D 50%, #C8832A 100%)",
-            color: "#1B1410",
+            background: "linear-gradient(135deg, #B88B5A 0%, #9C6B3F 50%, #5A3920 100%)",
+            color: "#FAF6EF",
+            boxShadow: "0 8px 28px rgba(156,107,63,0.45), 0 1px 0 rgba(255,255,255,0.2) inset",
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">

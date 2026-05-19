@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getOrders, getOrderById, updateOrderStatus, deleteOrder } from "../../api";
 
 const fmt = (n) => new Intl.NumberFormat("id-ID", { style:"currency", currency:"IDR", minimumFractionDigits:0 }).format(n);
-const card = { background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
+const card = { background:"#FFFFFF", border:"1px solid #E8DCC4", boxShadow:"0 1px 3px rgba(61,40,23,0.06), 0 8px 20px rgba(61,40,23,0.06)" };
 const StatusBadge = ({ s }) => {
   const cls = { pending:"badge-pending", processing:"badge-processing", completed:"badge-completed", cancelled:"badge-cancelled" };
   return <span className={cls[s] || "badge-pending"}>{s}</span>;
@@ -43,13 +43,13 @@ export default function AdminOrders() {
           <h1 className="text-2xl font-display font-bold text-codex-text tracking-tight">Orders</h1>
           <p className="text-codex-muted text-sm mt-0.5">{total} orders total</p>
         </div>
-        <div className="flex gap-1 p-1 rounded-xl" style={{ background:"#15100C", border:"1px solid #3F2E22" }}>
+        <div className="flex gap-1 p-1 rounded-xl" style={{ background:"#F4ECDF", border:"1px solid #E8DCC4" }}>
           {[{val:"",label:"All"},{val:"pending",label:"Pending"},{val:"processing",label:"Process"},{val:"completed",label:"Done"}].map(f => (
             <button key={f.val} onClick={() => { setStatusFilter(f.val); setPage(1); }}
               className="text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-all duration-200"
-              style={statusFilter===f.val ? {background:"linear-gradient(135deg,#E89B3D,#A86519)",color:"#1B1410"} : {color:"#A08770"}}
-              onMouseEnter={e => { if (statusFilter!==f.val) { e.currentTarget.style.background="rgba(232,155,61,0.08)"; e.currentTarget.style.color="#F5EBDC"; }}}
-              onMouseLeave={e => { if (statusFilter!==f.val) { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#A08770"; }}}
+              style={statusFilter===f.val ? {background:"linear-gradient(135deg,#9C6B3F,#5A3920)",color:"#F4ECDF"} : {color:"#8C7458"}}
+              onMouseEnter={e => { if (statusFilter!==f.val) { e.currentTarget.style.background="rgba(156,107,63,0.08)"; e.currentTarget.style.color="#2A1B0E"; }}}
+              onMouseLeave={e => { if (statusFilter!==f.val) { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="#8C7458"; }}}
             >{f.label}</button>
           ))}
         </div>
@@ -77,15 +77,15 @@ export default function AdminOrders() {
       <div className="rounded-2xl overflow-hidden" style={card}>
         {loading ? (
           <div className="p-12 text-center text-codex-muted flex flex-col items-center">
-            <div className="w-8 h-8 border-2 rounded-full animate-spin mb-3" style={{borderColor:"rgba(232,155,61,0.3)",borderTopColor:"#E89B3D"}} />
+            <div className="w-8 h-8 border-2 rounded-full animate-spin mb-3" style={{borderColor:"rgba(156,107,63,0.3)",borderTopColor:"#9C6B3F"}} />
             <span className="text-sm">Loading orders...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead style={{ background:"#15100C", borderBottom:"1px solid #3F2E22" }}>
+              <thead style={{ background:"#F4ECDF", borderBottom:"1px solid #E8DCC4" }}>
                 <tr>{["#","Customer","Total","Type","Status","Date","Actions"].map(h => (
-                  <th key={h} className="text-left px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider" style={{color:"#A08770"}}>{h}</th>
+                  <th key={h} className="text-left px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider" style={{color:"#8C7458"}}>{h}</th>
                 ))}</tr>
               </thead>
               <tbody>
@@ -94,20 +94,20 @@ export default function AdminOrders() {
                     <span className="text-3xl block mb-2 opacity-30">📦</span>No orders found
                   </td></tr>
                 ) : orders.map(o => (
-                  <tr key={o.id} className="transition-colors duration-200" style={{borderBottom:"1px solid #3F2E22"}}
-                    onMouseEnter={e => e.currentTarget.style.background="rgba(232,155,61,0.02)"}
+                  <tr key={o.id} className="transition-colors duration-200" style={{borderBottom:"1px solid #E8DCC4"}}
+                    onMouseEnter={e => e.currentTarget.style.background="rgba(156,107,63,0.02)"}
                     onMouseLeave={e => e.currentTarget.style.background="transparent"}>
-                    <td className="px-5 py-3.5 font-mono text-[11px]" style={{color:"#A08770"}}>#{o.id}</td>
+                    <td className="px-5 py-3.5 font-mono text-[11px]" style={{color:"#8C7458"}}>#{o.id}</td>
                     <td className="px-5 py-3.5 font-medium text-codex-text">{o.customer_name}</td>
                     <td className="px-5 py-3.5 font-semibold text-codex-accent">{fmt(o.total_amount)}</td>
                     <td className="px-5 py-3.5">
                       <span className="text-[10px] font-semibold px-2 py-1 rounded-full"
-                        style={o.order_type==="delivery" ? {background:"rgba(139,92,246,0.15)",color:"#A78BFA",border:"1px solid rgba(139,92,246,0.2)"} : {background:"rgba(232,155,61,0.1)",color:"#E89B3D",border:"1px solid rgba(232,155,61,0.2)"}}>
+                        style={o.order_type==="delivery" ? {background:"rgba(139,92,246,0.15)",color:"#A78BFA",border:"1px solid rgba(139,92,246,0.2)"} : {background:"rgba(156,107,63,0.1)",color:"#9C6B3F",border:"1px solid rgba(156,107,63,0.2)"}}>
                         {o.order_type==="delivery" ? "🛵 Delivery" : "🏪 Pickup"}
                       </span>
                     </td>
                     <td className="px-5 py-3.5"><StatusBadge s={o.status} /></td>
-                    <td className="px-5 py-3.5 text-[11px]" style={{color:"#A08770"}}>
+                    <td className="px-5 py-3.5 text-[11px]" style={{color:"#8C7458"}}>
                       {o.created_at ? new Date(o.created_at).toLocaleDateString("id-ID",{day:"numeric",month:"short"}) : "—"}
                     </td>
                     <td className="px-5 py-3.5">
@@ -124,15 +124,15 @@ export default function AdminOrders() {
             </table>
           </div>
         )}
-        <div className="flex justify-between items-center px-5 py-3.5" style={{borderTop:"1px solid #3F2E22",background:"#15100C"}}>
+        <div className="flex justify-between items-center px-5 py-3.5" style={{borderTop:"1px solid #E8DCC4",background:"#F4ECDF"}}>
           <span className="text-xs text-codex-muted">Page {page} of {Math.ceil(total/LIMIT)||1}</span>
           <div className="flex gap-2">
             {[{label:"← Prev",disabled:page===1,onClick:()=>setPage(p=>Math.max(1,p-1))},{label:"Next →",disabled:page*LIMIT>=total,onClick:()=>setPage(p=>p+1)}].map(b => (
               <button key={b.label} onClick={b.onClick} disabled={b.disabled}
                 className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all duration-200 disabled:opacity-30"
-                style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}}
-                onMouseEnter={e=>{ if(!b.disabled) e.currentTarget.style.background="#2D2118"; }}
-                onMouseLeave={e=>e.currentTarget.style.background="#241A14"}
+                style={{background:"#FFFFFF",border:"1px solid #E8DCC4",color:"#5C4530"}}
+                onMouseEnter={e=>{ if(!b.disabled) e.currentTarget.style.background="#FFFBF3"; }}
+                onMouseLeave={e=>e.currentTarget.style.background="#FFFFFF"}
               >{b.label}</button>
             ))}
           </div>
@@ -141,31 +141,31 @@ export default function AdminOrders() {
 
       {/* Detail Modal */}
       {detail && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{background:"rgba(0,0,0,0.7)"}} onClick={() => setDetail(null)}>
-          <div className="rounded-2xl w-[500px] max-h-[85vh] overflow-y-auto animate-slide-up" style={{background:"#241A14",border:"1px solid #3F2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
-            <div className="p-6 flex justify-between items-start" style={{borderBottom:"1px solid #3F2E22"}}>
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{background:"rgba(42,27,14,0.5)"}} onClick={() => setDetail(null)}>
+          <div className="rounded-2xl w-[500px] max-h-[85vh] overflow-y-auto animate-slide-up" style={{background:"#FFFFFF",border:"1px solid #E8DCC4",boxShadow:"0 8px 24px rgba(61,40,23,0.15), 0 24px 64px rgba(61,40,23,0.18)"}} onClick={e=>e.stopPropagation()}>
+            <div className="p-6 flex justify-between items-start" style={{borderBottom:"1px solid #E8DCC4"}}>
               <div>
                 <h2 className="text-xl font-bold text-codex-text">Order #{detail.id}</h2>
                 <p className="text-codex-muted text-sm mt-0.5">{detail.customer_name}</p>
               </div>
-              <button onClick={() => setDetail(null)} className="text-codex-muted hover:text-codex-text text-xl w-8 h-8 flex items-center justify-center rounded-lg transition-colors" style={{background:"#1B1410"}}>✕</button>
+              <button onClick={() => setDetail(null)} className="text-codex-muted hover:text-codex-text text-xl w-8 h-8 flex items-center justify-center rounded-lg transition-colors" style={{background:"#F4ECDF"}}>✕</button>
             </div>
             <div className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="rounded-xl p-3.5" style={{background:"#1B1410",border:"1px solid #3F2E22"}}><p className="text-[10px] uppercase tracking-wider mb-1 text-codex-muted">Status</p><StatusBadge s={detail.status} /></div>
-                <div className="rounded-xl p-3.5" style={{background:"#1B1410",border:"1px solid #3F2E22"}}><p className="text-[10px] uppercase tracking-wider mb-1 text-codex-muted">Type</p><p className="font-semibold text-codex-text capitalize">{detail.order_type==="delivery"?"🛵 Delivery":"🏪 Pickup"}</p></div>
-                {detail.promo_code && <div className="rounded-xl p-3.5 col-span-2" style={{background:"#1B1410",border:"1px solid #3F2E22"}}><p className="text-[10px] uppercase tracking-wider mb-1 text-codex-muted">Promo</p><p className="font-semibold text-codex-accent">{detail.promo_code}</p></div>}
+                <div className="rounded-xl p-3.5" style={{background:"#F4ECDF",border:"1px solid #E8DCC4"}}><p className="text-[10px] uppercase tracking-wider mb-1 text-codex-muted">Status</p><StatusBadge s={detail.status} /></div>
+                <div className="rounded-xl p-3.5" style={{background:"#F4ECDF",border:"1px solid #E8DCC4"}}><p className="text-[10px] uppercase tracking-wider mb-1 text-codex-muted">Type</p><p className="font-semibold text-codex-text capitalize">{detail.order_type==="delivery"?"🛵 Delivery":"🏪 Pickup"}</p></div>
+                {detail.promo_code && <div className="rounded-xl p-3.5 col-span-2" style={{background:"#F4ECDF",border:"1px solid #E8DCC4"}}><p className="text-[10px] uppercase tracking-wider mb-1 text-codex-muted">Promo</p><p className="font-semibold text-codex-accent">{detail.promo_code}</p></div>}
               </div>
-              <div className="rounded-xl overflow-hidden" style={{border:"1px solid #3F2E22"}}>
+              <div className="rounded-xl overflow-hidden" style={{border:"1px solid #E8DCC4"}}>
                 <table className="w-full text-sm">
-                  <thead style={{background:"#15100C"}}><tr>
+                  <thead style={{background:"#F4ECDF"}}><tr>
                     <th className="text-left px-4 py-2.5 text-[10px] uppercase tracking-wider text-codex-muted">Item</th>
                     <th className="text-center px-4 py-2.5 text-[10px] uppercase tracking-wider text-codex-muted">Qty</th>
                     <th className="text-right px-4 py-2.5 text-[10px] uppercase tracking-wider text-codex-muted">Subtotal</th>
                   </tr></thead>
                   <tbody>
                     {(detail.items||[]).map((item,i) => (
-                      <tr key={i} style={{borderTop:"1px solid #3F2E22"}}>
+                      <tr key={i} style={{borderTop:"1px solid #E8DCC4"}}>
                         <td className="px-4 py-2.5 font-medium text-codex-text">{item.product?.name||"Product"}</td>
                         <td className="px-4 py-2.5 text-center text-codex-muted">{item.quantity}</td>
                         <td className="px-4 py-2.5 text-right font-semibold text-codex-accent">{fmt(item.subtotal)}</td>
@@ -174,10 +174,10 @@ export default function AdminOrders() {
                   </tbody>
                 </table>
               </div>
-              <div className="text-sm space-y-1.5 rounded-xl p-4" style={{background:"#1B1410",border:"1px solid #3F2E22"}}>
+              <div className="text-sm space-y-1.5 rounded-xl p-4" style={{background:"#F4ECDF",border:"1px solid #E8DCC4"}}>
                 {Number(detail.discount_amount)>0 && <div className="flex justify-between text-emerald-400"><span>Discount</span><span>−{fmt(detail.discount_amount)}</span></div>}
                 {Number(detail.delivery_fee)>0 && <div className="flex justify-between text-codex-muted"><span>Delivery Fee</span><span>{fmt(detail.delivery_fee)}</span></div>}
-                <div className="flex justify-between font-bold text-base pt-2.5 mt-2" style={{borderTop:"1px solid #3F2E22"}}><span className="text-codex-text">Total</span><span className="text-codex-accent">{fmt(detail.total_amount)}</span></div>
+                <div className="flex justify-between font-bold text-base pt-2.5 mt-2" style={{borderTop:"1px solid #E8DCC4"}}><span className="text-codex-text">Total</span><span className="text-codex-accent">{fmt(detail.total_amount)}</span></div>
               </div>
               <div className="flex gap-2">
                 {detail.status==="pending" && <button onClick={() => changeStatus(detail.id,"processing")} className="btn-dark flex-1 text-sm">Mark Processing</button>}

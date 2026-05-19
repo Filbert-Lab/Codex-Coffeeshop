@@ -9,10 +9,10 @@ const fmtShort = (n) => {
 };
 
 const S = { // shared inline styles
-  card: { background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" },
-  cardHover: { background:"#2D2118", border:"1px solid rgba(232,155,61,0.2)", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" },
-  divider: { borderTop:"1px solid #3F2E22" },
-  muted: { color:"#A08770" },
+  card: { background:"#FFFFFF", border:"1px solid #E8DCC4", boxShadow:"0 1px 3px rgba(61,40,23,0.06), 0 8px 20px rgba(61,40,23,0.06)" },
+  cardHover: { background:"#FFFBF3", border:"1px solid rgba(156,107,63,0.25)", boxShadow:"0 4px 12px rgba(61,40,23,0.1), 0 16px 32px rgba(61,40,23,0.12)" },
+  divider: { borderTop:"1px solid #E8DCC4" },
+  muted: { color:"#8C7458" },
 };
 
 const StatusBadge = ({ status }) => {
@@ -55,11 +55,11 @@ function BarChart({ data, maxHeight = 140 }) {
           <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
             <div className="relative w-full flex justify-center">
               <div className="w-full max-w-[36px] rounded-xl transition-all duration-300 relative overflow-hidden"
-                style={{ height:`${h}px`, background:"linear-gradient(to top, #E89B3D, #F0B865)" }}>
+                style={{ height:`${h}px`, background:"linear-gradient(to top, #9C6B3F, #F0B865)" }}>
                 <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-[9px] px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg z-10"
-                style={{ background:"#15100C", color:"#F5EBDC", border:"1px solid #3F2E22" }}>
+                style={{ background:"#F4ECDF", color:"#2A1B0E", border:"1px solid #E8DCC4" }}>
                 {fmtShort(Number(d.revenue))}
               </div>
             </div>
@@ -87,7 +87,7 @@ function DonutChart({ data }) {
     <div className="flex items-center gap-5">
       <div className="relative w-28 h-28 shrink-0">
         <div className="w-full h-full rounded-full" style={{ background:`conic-gradient(${grad})` }} />
-        <div className="absolute inset-4 rounded-full flex items-center justify-center" style={{ background:"#241A14" }}>
+        <div className="absolute inset-4 rounded-full flex items-center justify-center" style={{ background:"#FFFFFF" }}>
           <div className="text-center">
             <span className="text-lg font-bold text-codex-text block">{total}</span>
             <span className="text-[9px] uppercase tracking-wider" style={S.muted}>Total</span>
@@ -114,7 +114,7 @@ function TopProducts({ products }) {
     </div>
   );
   const max = Math.max(...products.map(p => Number(p.total_sold)), 1);
-  const rankColors = ["linear-gradient(135deg,#F59E0B,#D97706)", "linear-gradient(135deg,#94A3B8,#64748B)", "linear-gradient(135deg,#F97316,#EA580C)", "linear-gradient(135deg,#3F2E22,#2D2118)", "linear-gradient(135deg,#3F2E22,#2D2118)"];
+  const rankColors = ["linear-gradient(135deg,#F59E0B,#D97706)", "linear-gradient(135deg,#94A3B8,#64748B)", "linear-gradient(135deg,#F97316,#EA580C)", "linear-gradient(135deg,#E8DCC4,#FFFBF3)", "linear-gradient(135deg,#E8DCC4,#FFFBF3)"];
   return (
     <div className="space-y-3">
       {products.map((p, i) => (
@@ -125,8 +125,8 @@ function TopProducts({ products }) {
               <span className="text-sm font-medium text-codex-text truncate">{p.name}</span>
               <span className="text-[11px] font-bold text-codex-accent ml-2 shrink-0">{Number(p.total_sold)} sold</span>
             </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background:"#3F2E22" }}>
-              <div className="h-full rounded-full transition-all duration-700" style={{ width:`${(Number(p.total_sold)/max)*100}%`, background:"linear-gradient(to right, #E89B3D, #F0B865)" }} />
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background:"#E8DCC4" }}>
+              <div className="h-full rounded-full transition-all duration-700" style={{ width:`${(Number(p.total_sold)/max)*100}%`, background:"linear-gradient(to right, #9C6B3F, #F0B865)" }} />
             </div>
           </div>
         </div>
@@ -146,12 +146,12 @@ export default function Dashboard() {
   if (loading) return (
     <div className="p-8">
       <div className="mb-8">
-        <div className="h-8 rounded-xl w-48 animate-pulse mb-2" style={{ background:"#2D2118" }} />
-        <div className="h-4 rounded-lg w-72 animate-pulse" style={{ background:"#241A14" }} />
+        <div className="h-8 rounded-xl w-48 animate-pulse mb-2" style={{ background:"#FFFBF3" }} />
+        <div className="h-4 rounded-lg w-72 animate-pulse" style={{ background:"#FFFFFF" }} />
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-32 rounded-2xl animate-pulse" style={{ background:"#241A14", border:"1px solid #3F2E22" }} />
+          <div key={i} className="h-32 rounded-2xl animate-pulse" style={{ background:"#FFFFFF", border:"1px solid #E8DCC4" }} />
         ))}
       </div>
     </div>
@@ -165,7 +165,7 @@ export default function Dashboard() {
           <h1 className="text-3xl font-display font-bold text-codex-text tracking-tight">Dashboard</h1>
           <p className="text-codex-muted text-sm mt-1">Ringkasan penjualan & performa toko</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-codex-muted px-3 py-1.5 rounded-lg" style={{ background:"#241A14", border:"1px solid #3F2E22" }}>
+        <div className="flex items-center gap-2 text-xs text-codex-muted px-3 py-1.5 rounded-lg" style={{ background:"#FFFFFF", border:"1px solid #E8DCC4" }}>
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-soft" />
           Live Data
         </div>
@@ -175,14 +175,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard icon="💰" label="Total Revenue" value={fmt(stats?.totalRevenue ?? 0)} gradient="linear-gradient(135deg,#10B981,#059669)" />
         <StatCard icon="📦" label="Total Orders" value={stats?.totalOrders ?? 0} gradient="linear-gradient(135deg,#6366F1,#4F46E5)" />
-        <StatCard icon="☕" label="Products" value={stats?.totalProducts ?? 0} gradient="linear-gradient(135deg,#E89B3D,#A86519)" />
+        <StatCard icon="☕" label="Products" value={stats?.totalProducts ?? 0} gradient="linear-gradient(135deg,#9C6B3F,#5A3920)" />
         <StatCard icon="👥" label="Customers" value={stats?.totalUsers ?? 0} gradient="linear-gradient(135deg,#8B5CF6,#7C3AED)" />
       </div>
 
       {/* Today Highlights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {[
-          { label:"Hari Ini", value:fmt(stats?.todayRevenue ?? 0), sub:`${stats?.todayOrders ?? 0} pesanan`, accent:"#E89B3D" },
+          { label:"Hari Ini", value:fmt(stats?.todayRevenue ?? 0), sub:`${stats?.todayOrders ?? 0} pesanan`, accent:"#9C6B3F" },
           { label:"Rata-rata Order", value:fmt(stats?.avgOrderValue ?? 0), sub:"per transaksi", accent:"#6366F1" },
           { label:"Perlu Diproses", value:stats?.pendingOrders ?? 0, sub:"pesanan pending", accent:"#F59E0B" },
         ].map((item, i) => (
@@ -199,7 +199,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <div className="lg:col-span-2 rounded-2xl p-6" style={S.card}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(232,155,61,0.1)", border:"1px solid rgba(232,155,61,0.15)" }}>📈</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(156,107,63,0.1)", border:"1px solid rgba(156,107,63,0.15)" }}>📈</div>
             <div>
               <h3 className="font-bold text-codex-text text-sm">Revenue 7 Hari Terakhir</h3>
               <p className="text-[11px] text-codex-muted">Pendapatan harian dari pesanan selesai</p>
@@ -243,7 +243,7 @@ export default function Dashboard() {
           {stats?.orderTypeBreakdown?.length > 0 ? (
             <div className="space-y-3">
               {stats.orderTypeBreakdown.map((t, i) => (
-                <div key={i} className="rounded-xl p-4 transition-colors duration-200" style={{ background:"#1B1410", border:"1px solid #3F2E22" }}>
+                <div key={i} className="rounded-xl p-4 transition-colors duration-200" style={{ background:"#F4ECDF", border:"1px solid #E8DCC4" }}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{t.order_type === "pickup" ? "🏪" : "🛵"}</span>
@@ -275,10 +275,10 @@ export default function Dashboard() {
               {stats.recentOrders.map((o) => (
                 <div key={o.id} className="flex items-center gap-3 p-2.5 rounded-xl transition-colors duration-200 group"
                   style={{ background:"transparent" }}
-                  onMouseEnter={e => e.currentTarget.style.background="#1B1410"}
+                  onMouseEnter={e => e.currentTarget.style.background="#F4ECDF"}
                   onMouseLeave={e => e.currentTarget.style.background="transparent"}>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-mono transition-colors duration-200"
-                    style={{ background:"#1B1410", border:"1px solid #3F2E22", color:"#A08770" }}>
+                    style={{ background:"#F4ECDF", border:"1px solid #E8DCC4", color:"#8C7458" }}>
                     #{o.id}
                   </div>
                   <div className="flex-1 min-w-0">

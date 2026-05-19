@@ -1,13 +1,14 @@
 /**
- * Toast notification — bottom-center, animated slide-up.
- * Variants: success | error | info | added
+ * Toast notification — bottom-center, smooth slide-up animation.
+ * Uses toast-in keyframe that respects translate(-50%, ...) to prevent
+ * horizontal jump when toast appears.
  */
 const VARIANTS = {
   success: {
-    bg: "linear-gradient(180deg, #1F3A2A 0%, #15281D 100%)",
-    border: "1px solid rgba(93,212,166,0.35)",
-    iconBg: "linear-gradient(135deg, #5DD4A6, #3DB37E)",
-    iconColor: "#0F1F18",
+    bg: "linear-gradient(180deg, #FFFFFF 0%, #F4ECDF 100%)",
+    border: "1px solid #BFE5CC",
+    iconBg: "linear-gradient(135deg, #5A9070, #3F7A55)",
+    iconColor: "#FFFFFF",
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
         <polyline points="20 6 9 17 4 12" />
@@ -15,10 +16,10 @@ const VARIANTS = {
     ),
   },
   error: {
-    bg: "linear-gradient(180deg, #3A1818 0%, #281010 100%)",
-    border: "1px solid rgba(242,107,107,0.4)",
-    iconBg: "linear-gradient(135deg, #F26B6B, #D44545)",
-    iconColor: "#fff",
+    bg: "linear-gradient(180deg, #FFFFFF 0%, #F4ECDF 100%)",
+    border: "1px solid #E5A19E",
+    iconBg: "linear-gradient(135deg, #B85450, #963A37)",
+    iconColor: "#FFFFFF",
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
         <circle cx="12" cy="12" r="10" />
@@ -28,10 +29,10 @@ const VARIANTS = {
     ),
   },
   added: {
-    bg: "linear-gradient(180deg, #36281D 0%, #2D2118 100%)",
-    border: "1px solid rgba(232,155,61,0.4)",
-    iconBg: "linear-gradient(135deg, #F4B96A, #C8832A)",
-    iconColor: "#1B1410",
+    bg: "linear-gradient(180deg, #FFFFFF 0%, #FBF4E6 100%)",
+    border: "1px solid #D4C19D",
+    iconBg: "linear-gradient(135deg, #B88B5A, #7A5230)",
+    iconColor: "#FAF6EF",
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
         <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
@@ -41,10 +42,10 @@ const VARIANTS = {
     ),
   },
   info: {
-    bg: "linear-gradient(180deg, #1E2542 0%, #161B33 100%)",
-    border: "1px solid rgba(123,143,245,0.4)",
-    iconBg: "linear-gradient(135deg, #7B8FF5, #5563D4)",
-    iconColor: "#fff",
+    bg: "linear-gradient(180deg, #FFFFFF 0%, #F4ECDF 100%)",
+    border: "1px solid #A8B5F0",
+    iconBg: "linear-gradient(135deg, #5A6FB8, #3F4FA0)",
+    iconColor: "#FFFFFF",
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
         <circle cx="12" cy="12" r="10" />
@@ -60,13 +61,18 @@ function Toast({ toast }) {
   const v = VARIANTS[toast.type] || VARIANTS.info;
   return (
     <div
+      key={toast.id}
       role="status"
       aria-live="polite"
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[2000] animate-slide-up flex items-center gap-3 py-3 px-4 rounded-2xl max-w-[90vw]"
+      className="fixed bottom-6 z-[2000] flex items-center gap-3 py-3 px-4 rounded-2xl max-w-[90vw]"
       style={{
+        // Position centered with translate, animation handles slide-in
+        left: "50%",
+        transform: "translateX(-50%)",
+        animation: "toastIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards",
         background: v.bg,
         border: v.border,
-        boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 36px rgba(0,0,0,0.5)",
+        boxShadow: "0 8px 24px rgba(61,40,23,0.18), 0 1px 0 rgba(255,255,255,0.7) inset",
       }}
     >
       <div
@@ -74,7 +80,7 @@ function Toast({ toast }) {
         style={{
           background: v.iconBg,
           color: v.iconColor,
-          boxShadow: "0 1px 0 rgba(255,255,255,0.2) inset",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.25) inset",
         }}
       >
         {v.icon}
