@@ -32,10 +32,13 @@ body::before {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #E8A045, #C8832A); border-radius:10px; }
-::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #F0B865, #E8A045); }
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background: #1C1410; }
+::-webkit-scrollbar-thumb { background: #3D2E22; border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background: #E8A045; }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: #3D2E22 #1C1410; }
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }

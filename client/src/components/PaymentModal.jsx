@@ -1,6 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getActivePromos, validatePromo } from "../api";
 import { useAuth } from "../context/AuthContext";
+
+const fmt = (n) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(n);
+
+const Label = ({ children }) => (
+  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#8A7060" }}>
+    {children}
+  </label>
+);
 
 function PaymentModal({ cart, close, onSuccess }) {
   const { user } = useAuth();
@@ -13,13 +26,14 @@ function PaymentModal({ cart, close, onSuccess }) {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fmt = (n) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
-
   useEffect(() => {
     getActivePromos().then((r) => setPromos(r.data || [])).catch(() => {});
   }, []);
 
-  const subtotal = cart.reduce((s, i) => s + Number(i.price) * i.quantity, 0);
+  const subtotal = useMemo(
+    () => cart.reduce((s, i) => s + Number(i.price) * i.quantity, 0),
+    [cart]
+  );
   const deliveryFee = orderType === "delivery" ? 15000 : 0;
   const finalTotal = subtotal + deliveryFee - discount;
 
@@ -28,7 +42,7 @@ function PaymentModal({ cart, close, onSuccess }) {
     try {
       const res = await validatePromo(promoCode, subtotal);
       setDiscount(res.data.discount);
-      setPromoMsg({ type: "success", text: `✓ Saved ${fmt(res.data.discount)}!` });
+      setPromoMsg({ type: "success", text: `Saved ${fmt(res.data.discount)}` });
     } catch (err) {
       setDiscount(0);
       setPromoMsg({ type: "error", text: err.message });
@@ -43,7 +57,11 @@ function PaymentModal({ cart, close, onSuccess }) {
         order_type: orderType,
         promo_code: promoCode || null,
         notes,
-        items: cart.map((i) => ({ product_id: i.id, quantity: i.quantity, price: Number(i.price) })),
+        items: cart.map((i) => ({
+          product_id: i.id,
+          quantity: i.quantity,
+          price: Number(i.price),
+        })),
         user_id: user?.id || null,
       });
     } finally {
@@ -52,43 +70,75 @@ function PaymentModal({ cart, close, onSuccess }) {
   };
 
   return (
-    <div onClick={close} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] flex justify-center items-center animate-fade-in">
+    <div
+      onClick={close}
+      className="fixed inset-0 backdrop-blur-sm z-[1000] flex justify-center items-end sm:items-center p-0 sm:p-4 animate-fade-in"
+      style={{ background: "rgba(0,0,0,0.75)" }}
+    >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white w-[440px] p-0 rounded-3xl shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden animate-slide-up"
+        className="w-full sm:w-[440px] rounded-t-3xl sm:rounded-2xl relative flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden animate-slide-up"
+        style={{
+          background: "#251C16",
+          border: "1px solid #3D2E22",
+          boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
+        }}
       >
         {/* Header */}
-        <div className="relative bg-codex-dark px-7 pt-7 pb-5 overflow-hidden">
-          <div className="absolute -top-16 -right-16 w-32 h-32 bg-codex-accent/15 rounded-full blur-3xl" />
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-codex-accent/60 to-transparent" />
-          <button onClick={close} className="absolute top-4 right-4 text-codex-muted/40 hover:text-white transition w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/[0.06]">
+        <div
+          className="relative px-6 sm:px-7 pt-6 pb-5 overflow-hidden shrink-0"
+          style={{ background: "#1A1208", borderBottom: "1px solid #3D2E22" }}
+        >
+          <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full blur-3xl" style={{ background: "rgba(232,160,69,0.1)" }} />
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-codex-accent/70 to-transparent" />
+          <button
+            onClick={close}
+            className="absolute top-4 right-4 text-codex-muted hover:text-codex-text transition w-8 h-8 flex items-center justify-center rounded-lg"
+            style={{ background: "#251C16" }}
+            aria-label="Close"
+          >
             ✕
           </button>
           <div className="flex items-center gap-3 relative z-10">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-codex-accent to-codex-accent-dark flex items-center justify-center shadow-lg shadow-codex-accent/20">
-              <span className="text-white text-lg">🧾</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-codex-bg">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+              </svg>
             </div>
             <div>
-              <h2 className="font-display text-xl font-bold text-codex-accent">Checkout</h2>
-              <p className="text-codex-muted/50 text-xs mt-0.5">{cart.reduce((s, i) => s + i.quantity, 0)} items in order</p>
+              <h2 className="font-display text-xl font-bold text-codex-text">Checkout</h2>
+              <p className="text-codex-muted text-xs mt-0.5">
+                {cart.reduce((s, i) => s + i.quantity, 0)} items in order
+              </p>
             </div>
           </div>
         </div>
 
         {/* Body */}
-        <div className="px-7 py-5 overflow-y-auto flex-1 space-y-5">
+        <div className="px-6 sm:px-7 py-5 overflow-y-auto flex-1 space-y-5">
           {/* Order Type */}
           <div>
-            <label className="block text-xs font-semibold text-codex-muted uppercase tracking-wider mb-2">Order Type</label>
-            <div className="flex bg-gray-50 rounded-xl p-1 gap-1">
-              {["pickup", "delivery"].map((t) => (
-                <button key={t} onClick={() => setOrderType(t)}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-semibold capitalize transition-all duration-300 ${
-                    orderType === t
-                      ? "bg-white text-codex-dark shadow-md"
-                      : "text-codex-muted hover:text-codex-dark"
-                  }`}>
-                  {t === "pickup" ? "🏪 Pickup" : "🚗 Delivery (+Rp 15K)"}
+            <Label>Order Type</Label>
+            <div className="flex rounded-xl p-1 gap-1" style={{ background: "#1C1410", border: "1px solid #3D2E22" }}>
+              {[
+                { val: "pickup", label: "🏪 Pickup", sub: "Free" },
+                { val: "delivery", label: "🛵 Delivery", sub: "+Rp 15K" },
+              ].map((t) => (
+                <button
+                  key={t.val}
+                  onClick={() => setOrderType(t.val)}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex flex-col items-center gap-0.5"
+                  style={
+                    orderType === t.val
+                      ? { background: "linear-gradient(135deg, #E8A045, #C8832A)", color: "#1C1410" }
+                      : { color: "#8A7060" }
+                  }
+                >
+                  <span>{t.label}</span>
+                  <span className="text-[10px] opacity-70">{t.sub}</span>
                 </button>
               ))}
             </div>
@@ -96,42 +146,78 @@ function PaymentModal({ cart, close, onSuccess }) {
 
           {/* Customer Name */}
           <div>
-            <label className="block text-xs font-semibold text-codex-muted uppercase tracking-wider mb-2">Your Name</label>
-            <input type="text" placeholder="Enter your name" value={customerName} onChange={(e) => setCustomerName(e.target.value)}
-              className="input-field" />
+            <Label>Your Name</Label>
+            <input
+              type="text"
+              placeholder="Enter your name"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+              className="input-field"
+            />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-semibold text-codex-muted uppercase tracking-wider mb-2">Notes</label>
-            <textarea placeholder="Special instructions (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
-              className="input-field resize-none" />
+            <Label>Notes</Label>
+            <textarea
+              placeholder="Special instructions (optional)"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="input-field resize-none"
+            />
           </div>
 
           {/* Promos */}
           {promos.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-codex-muted uppercase tracking-wider mb-2">Promo Code</label>
+              <Label>Promo Code</Label>
               <div className="flex flex-wrap gap-1.5 mb-2.5">
                 {promos.map((p) => (
-                  <button key={p.id} onClick={() => setPromoCode(p.code)}
-                    className={`text-[11px] px-3 py-1.5 rounded-lg border-2 font-semibold transition-all duration-300 ${
+                  <button
+                    key={p.id}
+                    onClick={() => setPromoCode(p.code)}
+                    className="text-[11px] px-3 py-1.5 rounded-lg font-semibold transition-all duration-300"
+                    style={
                       promoCode === p.code
-                        ? "border-codex-accent bg-codex-accent/10 text-codex-accent"
-                        : "border-gray-100 text-codex-muted hover:border-codex-accent/40 hover:text-codex-accent"
-                    }`}>
+                        ? {
+                            border: "1px solid #E8A045",
+                            background: "rgba(232,160,69,0.12)",
+                            color: "#E8A045",
+                          }
+                        : {
+                            border: "1px solid #3D2E22",
+                            background: "transparent",
+                            color: "#8A7060",
+                          }
+                    }
+                  >
                     {p.code}
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
-                <input type="text" placeholder="Enter code" value={promoCode}
-                  onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoMsg(null); setDiscount(0); }}
-                  className="input-field flex-1 text-sm" />
-                <button onClick={applyPromo} className="btn-dark text-sm px-5 py-2 whitespace-nowrap">Apply</button>
+                <input
+                  type="text"
+                  placeholder="Enter code"
+                  value={promoCode}
+                  onChange={(e) => {
+                    setPromoCode(e.target.value.toUpperCase());
+                    setPromoMsg(null);
+                    setDiscount(0);
+                  }}
+                  className="input-field flex-1 text-sm"
+                />
+                <button onClick={applyPromo} className="btn-dark text-sm px-5 py-2 whitespace-nowrap">
+                  Apply
+                </button>
               </div>
               {promoMsg && (
-                <p className={`text-xs mt-2 font-medium flex items-center gap-1 ${promoMsg.type === "success" ? "text-emerald-600" : "text-red-500"}`}>
+                <p
+                  className={`text-xs mt-2 font-medium flex items-center gap-1 ${
+                    promoMsg.type === "success" ? "text-emerald-400" : "text-red-400"
+                  }`}
+                >
                   <span>{promoMsg.type === "success" ? "✓" : "✕"}</span>
                   {promoMsg.text}
                 </p>
@@ -141,30 +227,44 @@ function PaymentModal({ cart, close, onSuccess }) {
         </div>
 
         {/* Footer Summary */}
-        <div className="px-7 pb-7 pt-3 border-t border-gray-100 space-y-4 bg-gray-50/50">
-          <div className="glass-dark rounded-xl p-4 space-y-2 text-sm">
-            <div className="flex justify-between text-codex-light/60">
-              <span>Subtotal</span><span>{fmt(subtotal)}</span>
+        <div
+          className="px-6 sm:px-7 pb-6 pt-3 space-y-3 shrink-0"
+          style={{ background: "#1A1208", borderTop: "1px solid #3D2E22" }}
+        >
+          <div className="rounded-xl p-4 space-y-2 text-sm" style={{ background: "#251C16", border: "1px solid #3D2E22" }}>
+            <div className="flex justify-between text-codex-muted">
+              <span>Subtotal</span>
+              <span className="text-codex-text-dim">{fmt(subtotal)}</span>
             </div>
             {deliveryFee > 0 && (
-              <div className="flex justify-between text-codex-light/60">
-                <span>Delivery</span><span>{fmt(deliveryFee)}</span>
+              <div className="flex justify-between text-codex-muted">
+                <span>Delivery</span>
+                <span className="text-codex-text-dim">{fmt(deliveryFee)}</span>
               </div>
             )}
             {discount > 0 && (
               <div className="flex justify-between text-emerald-400">
-                <span>Discount ({promoCode})</span><span>−{fmt(discount)}</span>
+                <span>Discount ({promoCode})</span>
+                <span>−{fmt(discount)}</span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-base border-t border-white/[0.06] pt-2.5 mt-2">
-              <span className="text-codex-light">Total</span>
-              <span className="text-codex-accent font-display text-lg">{fmt(finalTotal)}</span>
+            <div
+              className="flex justify-between font-bold text-base pt-2.5 mt-2"
+              style={{ borderTop: "1px solid #3D2E22" }}
+            >
+              <span className="text-codex-text">Total</span>
+              <span className="text-codex-accent text-lg">{fmt(finalTotal)}</span>
             </div>
           </div>
 
-          <button onClick={handleCheckout} disabled={loading}
-            className="btn-primary w-full py-4 text-base disabled:opacity-50 active:scale-[0.97]">
-            <span className="relative z-10">{loading ? "Processing..." : `Place Order · ${fmt(finalTotal)}`}</span>
+          <button
+            onClick={handleCheckout}
+            disabled={loading}
+            className="btn-primary w-full py-3.5 text-base disabled:opacity-50"
+          >
+            <span className="relative z-10">
+              {loading ? "Processing..." : `Place Order · ${fmt(finalTotal)}`}
+            </span>
           </button>
         </div>
       </div>
