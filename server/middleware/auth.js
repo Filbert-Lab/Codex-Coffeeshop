@@ -1,12 +1,20 @@
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const isProd = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
 
-// Fail-fast: refuse to start if JWT_SECRET is missing or weak in production
-if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-  if (!JWT_SECRET || JWT_SECRET.length < 32) {
+// Production: must have a JWT_SECRET (any length); warn if weak
+if (isProd) {
+  if (!JWT_SECRET) {
     throw new Error(
-      "FATAL: JWT_SECRET environment variable must be set to a strong (32+ char) secret in production."
+      "FATAL: JWT_SECRET environment variable must be set in production. " +
+        "Set it in Vercel project Settings → Environment Variables."
+    );
+  }
+  if (JWT_SECRET.length < 32) {
+    console.warn(
+      `⚠️  [auth] JWT_SECRET is only ${JWT_SECRET.length} chars. ` +
+        "Recommended: 32+ chars random string for stronger security."
     );
   }
 }
@@ -41,13 +49,12 @@ const adminMiddleware = (req, res, next) => {
   next();
 };
 
-/** Optional auth — sets req.user if token valid, but doesn't reject if missing */
 const optionalAuth = (req, _res, next) => {
   const auth = req.headers.authorization;
   if (auth?.startsWith("Bearer ")) {
     try {
       req.user = jwt.verify(auth.slice(7), SECRET);
-    } catch { /* ignore — proceed unauthenticated */ }
+    } catch { /* ignore */ }
   }
   next();
 };

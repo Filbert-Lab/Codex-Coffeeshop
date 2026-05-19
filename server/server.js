@@ -52,25 +52,26 @@ app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 
 // ─── Rate limiting on auth endpoints (mitigates brute-force) ───
+// Note: in serverless (Vercel), in-memory rate-limit is per-instance so it's
+// best-effort. For stricter limits, use a shared store (Redis). This is a
+// reasonable defense-in-depth layer for now.
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // 20 attempts per window
+  windowMs: 15 * 60 * 1000,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: "Too many auth attempts, please try again later" },
 });
 
 const generalLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 200, // 200 req/min per IP
+  windowMs: 60 * 1000,
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: "Too many requests, please slow down" },
 });
 
 app.use("/api", generalLimiter);
-
-// Routes — auth endpoints get stricter limit
 app.use("/api/users/login", authLimiter);
 app.use("/api/users/register", authLimiter);
 

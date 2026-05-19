@@ -1,87 +1,64 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+/**
+ * Vercel serverless entry point.
+ * Reuses the main Express app from server/server.js to avoid duplicating
+ * security middleware (helmet, CORS, rate limiting, etc.).
+ *
+ * Vercel sets process.env.VERCEL=1 — server.js detects this and skips listen().
+ */
+require("dotenv").config();
 
-console.log("🚀 [API] Starting Express app initialization...");
+console.log("🚀 [API] Vercel serverless entry — loading app...");
 
-const app = express();
-
-// Middleware
-app.use(
-  cors({ origin: "*", methods: ["GET", "POST", "PUT", "PATCH", "DELETE"] }),
-);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Health check (no DB dependency)
-app.get("/api/health", (req, res) => {
-  res.json({ success: true, message: "Codex Coffee API is running ☕" });
-});
-
-// Lazy load models and routes on first request
-let sequelize = null;
-let routesLoaded = false;
-
-app.use(async (req, res, next) => {
-  // Load models and routes on first request
-  if (!routesLoaded) {
-    try {
-      console.log("📦 [API] Loading models on first request...");
-
-
-      // Load models and sequelize instance
-      console.log("  About to require models...");
-      let models;
-      try {
-        models = require("../server/models/index");
-      } catch (requireErr) {
-        console.error("❌ [API] Require failed:", requireErr.message);
-        throw requireErr;
-      }
-      console.log("✅ [API] Models require succeeded");
-      sequelize = models.sequelize;
-      console.log("✅ [API] Sequelize instance obtained");
-
-      // Sync database
-      console.log("🔄 [API] Syncing database...");
-      await sequelize.sync({ alter: false });
-      console.log("✅ [API] Database synced successfully");
-
-      // Load routes
-      console.log("🛣️ [API] Loading routes...");
-      app.use("/api/users", require("../server/routes/userRoutes"));
-      app.use("/api/categories", require("../server/routes/categoryRoutes"));
-      app.use("/api/products", require("../server/routes/productRoutes"));
-      app.use("/api/orders", require("../server/routes/orderRoutes"));
-      app.use("/api/promos", require("../server/routes/promoRoutes"));
-      app.use("/api/stats", require("../server/routes/statsRoutes"));
-      console.log("✅ [API] All routes loaded successfully");
-
-      routesLoaded = true;
-    } catch (err) {
-      console.error("❌ [API] Initialization failed");
-      console.error("Error:", err.message);
-      console.error("Stack:", err.stack);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to initialize database: " + err.message,
-      });
-    }
-  }
-  next();
-});
-
-// Centralized error handler
-app.use((err, req, res, next) => {
-  console.error("❌ [API] Error:", err.message);
+let app;
+try {
+  app = require("../server/server");
+  console.log("✅ [API] Express app loaded");
+} catch (err) {
+  console.error("❌ [API] Failed to load server:", err.message);
   console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
+  // Fallback: respond with 500 to all requests so debugging is visible
+  const express = require("express");
+  app = express();
+  app.use((_req, res) => {
+    res.status(500).json({
+      success: false,
+      message: "Server initialization failed: " + err.message,
+      hint:
+        "Check Vercel Environment Variables. Required: DATABASE_URL, JWT_SECRET. " +
+        "See deployment guide in README.",
+    });
   });
-});
+}
 
-console.log("✅ [API] Express app configured");
+// Sync database on first request (cold start), but cache the promise so
+// subsequent requests don't re-sync.
+let dbReady;
 
-// Export as serverless handler for Vercel
-module.exports = app;
+module.exports = async (req, res) => {
+  if (!dbReady) {
+    dbReady = (async () => {
+      try {
+        const { sequelize } = require("../server/models/index");
+        await sequelize.authenticate();
+        await sequelize.sync({ alter: false });
+        console.log("✅ [API] Database connected & synced");
+      } catch (err) {
+        console.error("❌ [API] Database init failed:", err.message);
+        // Reset so next request retries
+        dbReady = null;
+        throw err;
+      }
+    })();
+  }
+
+  try {
+    await dbReady;
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Database unavailable: " + err.message,
+    });
+  }
+
+  return app(req, res);
+};
