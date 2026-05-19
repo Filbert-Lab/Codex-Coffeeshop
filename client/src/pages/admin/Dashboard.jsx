@@ -1,216 +1,171 @@
 import { useState, useEffect } from "react";
 import { getDashboardStats } from "../../api";
 
-const StatusBadge = ({ status }) => {
-  const cls = { pending: "badge-pending", processing: "badge-processing", completed: "badge-completed", cancelled: "badge-cancelled" };
-  return <span className={cls[status] || "badge-pending"}>{status}</span>;
-};
-
-const fmt = (n) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
+const fmt = (n) => new Intl.NumberFormat("id-ID", { style:"currency", currency:"IDR", minimumFractionDigits:0 }).format(n);
 const fmtShort = (n) => {
-  if (n >= 1000000) return `Rp ${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `Rp ${(n / 1000).toFixed(0)}K`;
+  if (n >= 1000000) return `Rp ${(n/1000000).toFixed(1)}M`;
+  if (n >= 1000) return `Rp ${(n/1000).toFixed(0)}K`;
   return fmt(n);
 };
 
-const StatCard = ({ label, value, icon, sub, color = "bg-codex-accent/10", iconBg = "from-codex-accent to-codex-accent-dark" }) => (
-  <div className="bg-white rounded-2xl p-5 border border-gray-100/80 hover:border-codex-accent/20 hover:shadow-lg transition-all duration-500 group relative overflow-hidden shadow-soft">
-    <div className={`absolute -top-8 -right-8 w-24 h-24 ${color} rounded-full opacity-40 group-hover:opacity-70 transition-opacity duration-500`} />
-    <div className="relative z-10">
-      <div className="flex justify-between items-start mb-3">
-        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${iconBg} flex items-center justify-center text-lg shadow-md group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+const S = { // shared inline styles
+  card: { background:"#251C16", border:"1px solid #3D2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" },
+  cardHover: { background:"#2E2218", border:"1px solid rgba(232,160,69,0.2)", boxShadow:"0 8px 32px rgba(0,0,0,0.5)" },
+  divider: { borderTop:"1px solid #3D2E22" },
+  muted: { color:"#8A7060" },
+};
+
+const StatusBadge = ({ status }) => {
+  const cls = { pending:"badge-pending", processing:"badge-processing", completed:"badge-completed", cancelled:"badge-cancelled" };
+  return <span className={cls[status] || "badge-pending"}>{status}</span>;
+};
+
+function StatCard({ label, value, icon, gradient }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div className="rounded-2xl p-5 relative overflow-hidden transition-all duration-500 cursor-default"
+      style={hovered ? S.cardHover : S.card}
+      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+      <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full opacity-20 transition-opacity duration-500"
+        style={{ background:gradient, filter:"blur(20px)", opacity: hovered ? 0.35 : 0.15 }} />
+      <div className="relative z-10">
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-md mb-3 transition-transform duration-300"
+          style={{ background:gradient, transform: hovered ? "scale(1.1) rotate(3deg)" : "scale(1)" }}>
           {icon}
         </div>
-        {sub && (
-          <span className="text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-semibold ring-1 ring-amber-100">
-            {sub}
-          </span>
-        )}
+        <p className="text-2xl font-bold text-codex-text tracking-tight">{value}</p>
+        <p className="text-[11px] uppercase tracking-wider font-semibold mt-0.5" style={S.muted}>{label}</p>
       </div>
-      <p className="text-2xl font-bold text-codex-dark mt-1 tracking-tight">{value}</p>
-      <p className="text-gray-500 text-[11px] mt-0.5 uppercase tracking-wider font-semibold">{label}</p>
     </div>
-  </div>
-);
+  );
+}
 
-// Bar chart component
-const MiniBarChart = ({ data, maxHeight = 140 }) => {
+function BarChart({ data, maxHeight = 140 }) {
   if (!data || data.length === 0) return (
-    <div className="flex items-center justify-center h-32 text-gray-400 text-sm">No data available</div>
+    <div className="flex items-center justify-center h-32 text-codex-muted text-sm">No data available</div>
   );
   const maxVal = Math.max(...data.map(d => Number(d.revenue)), 1);
-  const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-
+  const days = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
   return (
-    <div className="flex items-end justify-between gap-3 px-2" style={{ height: maxHeight }}>
+    <div className="flex items-end justify-between gap-3 px-2" style={{ height:maxHeight }}>
       {data.map((d, i) => {
-        const height = Math.max((Number(d.revenue) / maxVal) * (maxHeight - 30), 6);
-        const dayName = new Date(d.date).getDay();
+        const h = Math.max((Number(d.revenue) / maxVal) * (maxHeight - 30), 6);
+        const day = new Date(d.date).getDay();
         return (
           <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
             <div className="relative w-full flex justify-center">
-              <div
-                className="w-full max-w-[36px] rounded-xl bg-gradient-to-t from-codex-accent to-codex-accent-light group-hover:from-codex-accent-dark group-hover:to-codex-accent transition-all duration-300 relative overflow-hidden shadow-sm"
-                style={{ height: `${height}px` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="w-full max-w-[36px] rounded-xl transition-all duration-300 relative overflow-hidden"
+                style={{ height:`${h}px`, background:"linear-gradient(to top, #E8A045, #F0B865)" }}>
+                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              {/* Tooltip */}
-              <div className="absolute -top-10 left-1/2 -trangray-x-1/2 bg-codex-dark text-white text-[9px] px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg z-10">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-[9px] px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg z-10"
+                style={{ background:"#1A1208", color:"#F0E6D8", border:"1px solid #3D2E22" }}>
                 {fmtShort(Number(d.revenue))}
-                <div className="absolute top-full left-1/2 -trangray-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-transparent border-t-codex-dark" />
               </div>
             </div>
-            <span className="text-[10px] text-gray-400 font-medium">{days[dayName]}</span>
+            <span className="text-[10px] font-medium" style={S.muted}>{days[day]}</span>
           </div>
         );
       })}
     </div>
   );
-};
+}
 
-// Donut chart for order status
-const DonutChart = ({ data }) => {
-  if (!data || data.length === 0) return (
-    <div className="flex items-center justify-center h-32 text-gray-400 text-sm">No data</div>
-  );
-
+function DonutChart({ data }) {
+  if (!data || data.length === 0) return <div className="flex items-center justify-center h-32 text-codex-muted text-sm">No data</div>;
   const total = data.reduce((s, d) => s + Number(d.count), 0);
-  const colors = {
-    pending: "#F59E0B",
-    processing: "#6366F1",
-    completed: "#10B981",
-    cancelled: "#EF4444",
-  };
-  const labels = {
-    pending: "Pending",
-    processing: "Processing",
-    completed: "Completed",
-    cancelled: "Cancelled",
-  };
-
-  let cumulativePercent = 0;
-  const segments = data.map(d => {
-    const percent = (Number(d.count) / total) * 100;
-    const start = cumulativePercent;
-    cumulativePercent += percent;
-    return { ...d, percent, start, color: colors[d.status] || "#9CA3AF" };
+  const colors = { pending:"#F59E0B", processing:"#6366F1", completed:"#10B981", cancelled:"#EF4444" };
+  const labels = { pending:"Pending", processing:"Processing", completed:"Completed", cancelled:"Cancelled" };
+  let cum = 0;
+  const segs = data.map(d => {
+    const pct = (Number(d.count) / total) * 100;
+    const start = cum; cum += pct;
+    return { ...d, pct, start, color: colors[d.status] || "#9CA3AF" };
   });
-
-  const gradientStops = segments.map(s => `${s.color} ${s.start}% ${s.start + s.percent}%`).join(", ");
-
+  const grad = segs.map(s => `${s.color} ${s.start}% ${s.start + s.pct}%`).join(", ");
   return (
     <div className="flex items-center gap-5">
       <div className="relative w-28 h-28 shrink-0">
-        <div
-          className="w-full h-full rounded-full shadow-inner"
-          style={{ background: `conic-gradient(${gradientStops})` }}
-        />
-        <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center shadow-sm">
+        <div className="w-full h-full rounded-full" style={{ background:`conic-gradient(${grad})` }} />
+        <div className="absolute inset-4 rounded-full flex items-center justify-center" style={{ background:"#251C16" }}>
           <div className="text-center">
-            <span className="text-lg font-bold text-codex-dark block">{total}</span>
-            <span className="text-[9px] text-gray-400 uppercase tracking-wider">Total</span>
+            <span className="text-lg font-bold text-codex-text block">{total}</span>
+            <span className="text-[9px] uppercase tracking-wider" style={S.muted}>Total</span>
           </div>
         </div>
       </div>
       <div className="space-y-2 flex-1">
-        {segments.map(s => (
+        {segs.map(s => (
           <div key={s.status} className="flex items-center gap-2.5">
-            <div className="w-3 h-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: s.color }} />
-            <span className="text-xs text-gray-600 flex-1">{labels[s.status] || s.status}</span>
-            <span className="text-xs font-bold text-codex-dark">{Number(s.count)}</span>
+            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor:s.color }} />
+            <span className="text-xs flex-1 text-codex-text-dim">{labels[s.status] || s.status}</span>
+            <span className="text-xs font-bold text-codex-text">{Number(s.count)}</span>
           </div>
         ))}
       </div>
     </div>
   );
-};
+}
 
-// Top products list
-const TopProductsList = ({ products }) => {
+function TopProducts({ products }) {
   if (!products || products.length === 0) return (
-    <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-      <span className="text-2xl mb-2 opacity-30">☕</span>
-      <p className="text-sm">No sales data yet</p>
+    <div className="flex flex-col items-center justify-center py-8 text-codex-muted">
+      <span className="text-2xl mb-2 opacity-30">☕</span><p className="text-sm">No sales data yet</p>
     </div>
   );
-
-  const maxSold = Math.max(...products.map(p => Number(p.total_sold)), 1);
-
+  const max = Math.max(...products.map(p => Number(p.total_sold)), 1);
+  const rankColors = ["linear-gradient(135deg,#F59E0B,#D97706)", "linear-gradient(135deg,#94A3B8,#64748B)", "linear-gradient(135deg,#F97316,#EA580C)", "linear-gradient(135deg,#3D2E22,#2E2218)", "linear-gradient(135deg,#3D2E22,#2E2218)"];
   return (
     <div className="space-y-3">
       {products.map((p, i) => (
         <div key={i} className="flex items-center gap-3 group">
-          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0 shadow-sm ${
-            i === 0 ? "bg-gradient-to-br from-amber-400 to-amber-500" :
-            i === 1 ? "bg-gradient-to-br from-gray-400 to-gray-500" :
-            i === 2 ? "bg-gradient-to-br from-orange-400 to-orange-500" :
-            "bg-gradient-to-br from-gray-300 to-gray-400"
-          }`}>
-            {i + 1}
-          </div>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-codex-bg text-[10px] font-bold shrink-0 shadow-sm" style={{ background:rankColors[i] }}>{i+1}</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium text-codex-dark truncate">{p.name}</span>
+              <span className="text-sm font-medium text-codex-text truncate">{p.name}</span>
               <span className="text-[11px] font-bold text-codex-accent ml-2 shrink-0">{Number(p.total_sold)} sold</span>
             </div>
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-codex-accent to-codex-accent-light rounded-full transition-all duration-700"
-                style={{ width: `${(Number(p.total_sold) / maxSold) * 100}%` }}
-              />
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background:"#3D2E22" }}>
+              <div className="h-full rounded-full transition-all duration-700" style={{ width:`${(Number(p.total_sold)/max)*100}%`, background:"linear-gradient(to right, #E8A045, #F0B865)" }} />
             </div>
           </div>
         </div>
       ))}
     </div>
   );
-};
+}
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDashboardStats()
-      .then((r) => setStats(r.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    getDashboardStats().then(r => setStats(r.data)).catch(console.error).finally(() => setLoading(false));
   }, []);
 
   if (loading) return (
     <div className="p-8">
       <div className="mb-8">
-        <div className="h-8 bg-gray-200/60 rounded-xl w-48 animate-pulse mb-2" />
-        <div className="h-4 bg-gray-100 rounded-lg w-72 animate-pulse" />
+        <div className="h-8 rounded-xl w-48 animate-pulse mb-2" style={{ background:"#2E2218" }} />
+        <div className="h-4 rounded-lg w-72 animate-pulse" style={{ background:"#251C16" }} />
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-32 bg-white rounded-2xl border border-gray-100 animate-pulse">
-            <div className="p-5 space-y-3">
-              <div className="w-11 h-11 bg-gray-100 rounded-xl" />
-              <div className="h-6 bg-gray-100 rounded-lg w-2/3" />
-              <div className="h-3 bg-gray-50 rounded w-1/2" />
-            </div>
-          </div>
+          <div key={i} className="h-32 rounded-2xl animate-pulse" style={{ background:"#251C16", border:"1px solid #3D2E22" }} />
         ))}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 h-64 bg-white rounded-2xl border border-gray-100 animate-pulse" />
-        <div className="h-64 bg-white rounded-2xl border border-gray-100 animate-pulse" />
       </div>
     </div>
   );
 
   return (
-    <div className="p-8 relative">
+    <div className="p-8">
       {/* Header */}
       <div className="mb-7 flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-codex-dark tracking-tight">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">Ringkasan penjualan & performa toko</p>
+          <h1 className="text-3xl font-display font-bold text-codex-text tracking-tight">Dashboard</h1>
+          <p className="text-codex-muted text-sm mt-1">Ringkasan penjualan & performa toko</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500 bg-white px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm">
+        <div className="flex items-center gap-2 text-xs text-codex-muted px-3 py-1.5 rounded-lg" style={{ background:"#251C16", border:"1px solid #3D2E22" }}>
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-soft" />
           Live Data
         </div>
@@ -218,134 +173,125 @@ export default function Dashboard() {
 
       {/* Main Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon="💰" label="Total Revenue" value={fmt(stats?.totalRevenue ?? 0)} color="bg-emerald-100/50" iconBg="from-emerald-500 to-emerald-600" />
-        <StatCard icon="📦" label="Total Orders" value={stats?.totalOrders ?? 0} color="bg-blue-100/50" iconBg="from-blue-500 to-blue-600" />
-        <StatCard icon="☕" label="Products" value={stats?.totalProducts ?? 0} color="bg-amber-100/50" iconBg="from-amber-500 to-amber-600" />
-        <StatCard icon="👥" label="Customers" value={stats?.totalUsers ?? 0} color="bg-purple-100/50" iconBg="from-purple-500 to-purple-600" />
+        <StatCard icon="💰" label="Total Revenue" value={fmt(stats?.totalRevenue ?? 0)} gradient="linear-gradient(135deg,#10B981,#059669)" />
+        <StatCard icon="📦" label="Total Orders" value={stats?.totalOrders ?? 0} gradient="linear-gradient(135deg,#6366F1,#4F46E5)" />
+        <StatCard icon="☕" label="Products" value={stats?.totalProducts ?? 0} gradient="linear-gradient(135deg,#E8A045,#C8832A)" />
+        <StatCard icon="👥" label="Customers" value={stats?.totalUsers ?? 0} gradient="linear-gradient(135deg,#8B5CF6,#7C3AED)" />
       </div>
 
-      {/* Today's Highlight */}
+      {/* Today Highlights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 border-l-4 border-l-codex-accent relative overflow-hidden group hover:shadow-md transition-all duration-300">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1">Hari Ini</p>
-          <p className="text-2xl font-bold text-codex-dark">{fmt(stats?.todayRevenue ?? 0)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{stats?.todayOrders ?? 0} pesanan</p>
-        </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 border-l-4 border-l-blue-500 relative overflow-hidden group hover:shadow-md transition-all duration-300">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1">Rata-rata Order</p>
-          <p className="text-2xl font-bold text-codex-dark">{fmt(stats?.avgOrderValue ?? 0)}</p>
-          <p className="text-xs text-gray-400 mt-0.5">per transaksi</p>
-        </div>
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 border-l-4 border-l-amber-500 relative overflow-hidden group hover:shadow-md transition-all duration-300">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mb-1">Perlu Diproses</p>
-          <p className="text-2xl font-bold text-codex-dark">{stats?.pendingOrders ?? 0}</p>
-          <p className="text-xs text-gray-400 mt-0.5">pesanan pending</p>
-        </div>
+        {[
+          { label:"Hari Ini", value:fmt(stats?.todayRevenue ?? 0), sub:`${stats?.todayOrders ?? 0} pesanan`, accent:"#E8A045" },
+          { label:"Rata-rata Order", value:fmt(stats?.avgOrderValue ?? 0), sub:"per transaksi", accent:"#6366F1" },
+          { label:"Perlu Diproses", value:stats?.pendingOrders ?? 0, sub:"pesanan pending", accent:"#F59E0B" },
+        ].map((item, i) => (
+          <div key={i} className="rounded-2xl p-5 relative overflow-hidden transition-all duration-300"
+            style={{ ...S.card, borderLeft:`3px solid ${item.accent}` }}>
+            <p className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={S.muted}>{item.label}</p>
+            <p className="text-2xl font-bold text-codex-text">{item.value}</p>
+            <p className="text-xs mt-0.5" style={S.muted}>{item.sub}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Charts Row */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        {/* Revenue Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-codex-accent/10 to-codex-accent/5 flex items-center justify-center text-base border border-codex-accent/10">📈</div>
-              <div>
-                <h3 className="font-bold text-codex-dark text-sm">Revenue 7 Hari Terakhir</h3>
-                <p className="text-[11px] text-gray-400">Pendapatan harian dari pesanan selesai</p>
-              </div>
+        <div className="lg:col-span-2 rounded-2xl p-6" style={S.card}>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(232,160,69,0.1)", border:"1px solid rgba(232,160,69,0.15)" }}>📈</div>
+            <div>
+              <h3 className="font-bold text-codex-text text-sm">Revenue 7 Hari Terakhir</h3>
+              <p className="text-[11px] text-codex-muted">Pendapatan harian dari pesanan selesai</p>
             </div>
           </div>
-          <MiniBarChart data={stats?.dailyRevenue || []} maxHeight={140} />
+          <BarChart data={stats?.dailyRevenue || []} maxHeight={140} />
         </div>
-
-        {/* Order Status Donut */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        <div className="rounded-2xl p-6" style={S.card}>
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 flex items-center justify-center text-base border border-blue-100">📊</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(99,102,241,0.1)", border:"1px solid rgba(99,102,241,0.15)" }}>📊</div>
             <div>
-              <h3 className="font-bold text-codex-dark text-sm">Status Pesanan</h3>
-              <p className="text-[11px] text-gray-400">Distribusi status</p>
+              <h3 className="font-bold text-codex-text text-sm">Status Pesanan</h3>
+              <p className="text-[11px] text-codex-muted">Distribusi status</p>
             </div>
           </div>
           <DonutChart data={stats?.statusBreakdown || []} />
         </div>
       </div>
 
-      {/* Bottom Row */}
+      {/* Bottom */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Top Products */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        <div className="rounded-2xl p-6" style={S.card}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 flex items-center justify-center text-base border border-amber-100">🏆</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(245,158,11,0.1)", border:"1px solid rgba(245,158,11,0.15)" }}>🏆</div>
             <div>
-              <h3 className="font-bold text-codex-dark text-sm">Produk Terlaris</h3>
-              <p className="text-[11px] text-gray-400">Berdasarkan jumlah terjual</p>
+              <h3 className="font-bold text-codex-text text-sm">Produk Terlaris</h3>
+              <p className="text-[11px] text-codex-muted">Berdasarkan jumlah terjual</p>
             </div>
           </div>
-          <TopProductsList products={stats?.topProducts || []} />
+          <TopProducts products={stats?.topProducts || []} />
         </div>
 
-        {/* Order Type Breakdown */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        <div className="rounded-2xl p-6" style={S.card}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100/50 flex items-center justify-center text-base border border-purple-100">🚀</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(139,92,246,0.1)", border:"1px solid rgba(139,92,246,0.15)" }}>🚀</div>
             <div>
-              <h3 className="font-bold text-codex-dark text-sm">Tipe Pesanan</h3>
-              <p className="text-[11px] text-gray-400">Pickup vs Delivery</p>
+              <h3 className="font-bold text-codex-text text-sm">Tipe Pesanan</h3>
+              <p className="text-[11px] text-codex-muted">Pickup vs Delivery</p>
             </div>
           </div>
           {stats?.orderTypeBreakdown?.length > 0 ? (
             <div className="space-y-3">
               {stats.orderTypeBreakdown.map((t, i) => (
-                <div key={i} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100/80 transition-colors duration-200 border border-gray-100">
+                <div key={i} className="rounded-xl p-4 transition-colors duration-200" style={{ background:"#1C1410", border:"1px solid #3D2E22" }}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{t.order_type === "pickup" ? "🏪" : "🛵"}</span>
-                      <span className="text-sm font-semibold text-codex-dark capitalize">{t.order_type}</span>
+                      <span className="text-sm font-semibold text-codex-text capitalize">{t.order_type}</span>
                     </div>
                     <span className="text-xs font-bold text-codex-accent">{Number(t.count)} orders</span>
                   </div>
-                  <p className="text-xs text-gray-400">{fmt(Number(t.revenue))} revenue</p>
+                  <p className="text-xs text-codex-muted">{fmt(Number(t.revenue))} revenue</p>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-              <span className="text-2xl mb-2 opacity-30">📦</span>
-              <p className="text-sm">No completed orders yet</p>
+            <div className="flex flex-col items-center justify-center py-8 text-codex-muted">
+              <span className="text-2xl mb-2 opacity-30">📦</span><p className="text-sm">No completed orders yet</p>
             </div>
           )}
         </div>
 
-        {/* Recent Orders */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-100">
+        <div className="rounded-2xl p-6" style={S.card}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 flex items-center justify-center text-base border border-emerald-100">📋</div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-base" style={{ background:"rgba(16,185,129,0.1)", border:"1px solid rgba(16,185,129,0.15)" }}>📋</div>
             <div>
-              <h3 className="font-bold text-codex-dark text-sm">Pesanan Terbaru</h3>
-              <p className="text-[11px] text-gray-400">5 pesanan terakhir</p>
+              <h3 className="font-bold text-codex-text text-sm">Pesanan Terbaru</h3>
+              <p className="text-[11px] text-codex-muted">5 pesanan terakhir</p>
             </div>
           </div>
           {stats?.recentOrders?.length > 0 ? (
             <div className="space-y-2">
               {stats.recentOrders.map((o) => (
-                <div key={o.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
-                  <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-[10px] font-mono text-gray-500 group-hover:bg-codex-accent/10 group-hover:text-codex-accent group-hover:border-codex-accent/20 transition-colors duration-200">
+                <div key={o.id} className="flex items-center gap-3 p-2.5 rounded-xl transition-colors duration-200 group"
+                  style={{ background:"transparent" }}
+                  onMouseEnter={e => e.currentTarget.style.background="#1C1410"}
+                  onMouseLeave={e => e.currentTarget.style.background="transparent"}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-mono transition-colors duration-200"
+                    style={{ background:"#1C1410", border:"1px solid #3D2E22", color:"#8A7060" }}>
                     #{o.id}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-codex-dark truncate">{o.customer_name}</p>
-                    <p className="text-[10px] text-gray-400">{fmt(o.total_amount)}</p>
+                    <p className="text-xs font-medium text-codex-text truncate">{o.customer_name}</p>
+                    <p className="text-[10px] text-codex-muted">{fmt(o.total_amount)}</p>
                   </div>
                   <StatusBadge status={o.status} />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8 text-gray-400">
-              <span className="text-2xl mb-2 opacity-30">📦</span>
-              <p className="text-sm">No orders yet</p>
+            <div className="flex flex-col items-center justify-center py-8 text-codex-muted">
+              <span className="text-2xl mb-2 opacity-30">📦</span><p className="text-sm">No orders yet</p>
             </div>
           )}
         </div>
