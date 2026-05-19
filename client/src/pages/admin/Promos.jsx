@@ -3,7 +3,7 @@ import { getPromos, createPromo, updatePromo, deletePromo } from "../../api";
 
 const EMPTY = { code:"", description:"", type:"percent", value:"", max_discount:"", min_order:0, is_active:true };
 const fmt = (n) => new Intl.NumberFormat("id-ID", { style:"currency", currency:"IDR", minimumFractionDigits:0 }).format(n);
-const card = { background:"#251C16", border:"1px solid #3D2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
+const card = { background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
 
 export default function AdminPromos() {
   const [promos, setPromos] = useState([]);
@@ -59,10 +59,10 @@ export default function AdminPromos() {
         {promos.map(p => (
           <div key={p.id} className={`rounded-2xl p-5 relative overflow-hidden group transition-all duration-500 ${!p.is_active?"opacity-50":""}`}
             style={card}
-            onMouseEnter={e=>{ e.currentTarget.style.border="1px solid rgba(232,160,69,0.2)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(0,0,0,0.5)"; }}
-            onMouseLeave={e=>{ e.currentTarget.style.border="1px solid #3D2E22"; e.currentTarget.style.boxShadow="0 2px 16px rgba(0,0,0,0.35)"; }}>
+            onMouseEnter={e=>{ e.currentTarget.style.border="1px solid rgba(232,155,61,0.2)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(0,0,0,0.5)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.border="1px solid #3F2E22"; e.currentTarget.style.boxShadow="0 2px 16px rgba(0,0,0,0.35)"; }}>
             <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{background:"rgba(232,160,69,0.06)"}} />
+              style={{background:"rgba(232,155,61,0.06)"}} />
             <div className="flex justify-between items-start mb-3 relative z-10">
               <div>
                 <span className="text-xl font-bold text-codex-text tracking-wider">{p.code}</span>
@@ -71,11 +71,11 @@ export default function AdminPromos() {
                     style={p.type==="percent" ? {background:"rgba(99,102,241,0.15)",color:"#818CF8",border:"1px solid rgba(99,102,241,0.2)"} : {background:"rgba(16,185,129,0.15)",color:"#6EE7B7",border:"1px solid rgba(16,185,129,0.2)"}}>
                     {p.type==="percent" ? `${p.value}% off` : fmt(p.value)+" off"}
                   </span>
-                  {p.max_discount && <span className="text-[10px] px-2 py-1 rounded-full text-codex-muted" style={{background:"#1C1410",border:"1px solid #3D2E22"}}>max {fmt(p.max_discount)}</span>}
+                  {p.max_discount && <span className="text-[10px] px-2 py-1 rounded-full text-codex-muted" style={{background:"#1B1410",border:"1px solid #3F2E22"}}>max {fmt(p.max_discount)}</span>}
                 </div>
               </div>
               <button onClick={()=>toggleActive(p)} className="text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all"
-                style={p.is_active ? {background:"rgba(16,185,129,0.15)",color:"#6EE7B7",border:"1px solid rgba(16,185,129,0.2)"} : {background:"#1C1410",color:"#8A7060",border:"1px solid #3D2E22"}}>
+                style={p.is_active ? {background:"rgba(16,185,129,0.15)",color:"#6EE7B7",border:"1px solid rgba(16,185,129,0.2)"} : {background:"#1B1410",color:"#A08770",border:"1px solid #3F2E22"}}>
                 {p.is_active?"Active":"Inactive"}
               </button>
             </div>
@@ -90,34 +90,34 @@ export default function AdminPromos() {
       </div>
 
       <div className="flex justify-center gap-2">
-        <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#251C16",border:"1px solid #3D2E22",color:"#B09880"}} onMouseEnter={e=>e.currentTarget.style.background="#2E2218"} onMouseLeave={e=>e.currentTarget.style.background="#251C16"}>← Prev</button>
-        <button onClick={()=>setPage(p=>p+1)} disabled={page*LIMIT>=total} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#251C16",border:"1px solid #3D2E22",color:"#B09880"}} onMouseEnter={e=>e.currentTarget.style.background="#2E2218"} onMouseLeave={e=>e.currentTarget.style.background="#251C16"}>Next →</button>
+        <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}} onMouseEnter={e=>e.currentTarget.style.background="#2D2118"} onMouseLeave={e=>e.currentTarget.style.background="#241A14"}>← Prev</button>
+        <button onClick={()=>setPage(p=>p+1)} disabled={page*LIMIT>=total} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}} onMouseEnter={e=>e.currentTarget.style.background="#2D2118"} onMouseLeave={e=>e.currentTarget.style.background="#241A14"}>Next →</button>
       </div>
 
       {modal && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{background:"rgba(0,0,0,0.7)"}} onClick={()=>setModal(null)}>
-          <div className="rounded-2xl w-[420px] animate-slide-up" style={{background:"#251C16",border:"1px solid #3D2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
-            <div className="p-6" style={{borderBottom:"1px solid #3D2E22"}}>
+          <div className="rounded-2xl w-[420px] animate-slide-up" style={{background:"#241A14",border:"1px solid #3F2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
+            <div className="p-6" style={{borderBottom:"1px solid #3F2E22"}}>
               <h2 className="text-xl font-bold text-codex-text">{modal.mode==="create"?"Add Promo":"Edit Promo"}</h2>
             </div>
             <div className="p-6">
               {error && <p className="text-red-400 text-sm mb-4 px-4 py-2.5 rounded-xl" style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)"}}>{error}</p>}
               <form onSubmit={handleSave} className="space-y-4">
-                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Code *</label>
+                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Code *</label>
                   <input value={form.code} onChange={e=>setForm({...form,code:e.target.value.toUpperCase()})} required placeholder="e.g. SAVE20" className="input-field uppercase" /></div>
-                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Description *</label>
+                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Description *</label>
                   <input value={form.description} onChange={e=>setForm({...form,description:e.target.value})} required className="input-field" /></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Type *</label>
+                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Type *</label>
                     <select value={form.type} onChange={e=>setForm({...form,type:e.target.value})} className="input-field">
                       <option value="percent">Percentage (%)</option>
                       <option value="fixed">Fixed (Rp)</option>
                     </select></div>
-                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Value *</label>
+                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Value *</label>
                     <input type="number" value={form.value} onChange={e=>setForm({...form,value:e.target.value})} required className="input-field" /></div>
-                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Max Discount</label>
+                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Max Discount</label>
                     <input type="number" value={form.max_discount} onChange={e=>setForm({...form,max_discount:e.target.value})} placeholder="Optional" className="input-field" /></div>
-                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Min Order</label>
+                  <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Min Order</label>
                     <input type="number" value={form.min_order} onChange={e=>setForm({...form,min_order:e.target.value})} className="input-field" /></div>
                 </div>
                 <div className="flex items-center gap-2">

@@ -3,7 +3,7 @@ import { getCategories, createCategory, updateCategory, deleteCategory } from ".
 
 const EMPTY = { name:"", description:"", icon:"☕" };
 const ICONS = ["☕","🍵","🥐","🍫","🧋","🥤","✨","🌿","🍰","🧁"];
-const card = { background:"#251C16", border:"1px solid #3D2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
+const card = { background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -48,13 +48,13 @@ export default function AdminCategories() {
         {categories.map(cat => (
           <div key={cat.id} className="rounded-2xl p-5 relative overflow-hidden group transition-all duration-500 cursor-default"
             style={card}
-            onMouseEnter={e=>{ e.currentTarget.style.border="1px solid rgba(232,160,69,0.2)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(0,0,0,0.5)"; }}
-            onMouseLeave={e=>{ e.currentTarget.style.border="1px solid #3D2E22"; e.currentTarget.style.boxShadow="0 2px 16px rgba(0,0,0,0.35)"; }}>
+            onMouseEnter={e=>{ e.currentTarget.style.border="1px solid rgba(232,155,61,0.2)"; e.currentTarget.style.boxShadow="0 8px 32px rgba(0,0,0,0.5)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.border="1px solid #3F2E22"; e.currentTarget.style.boxShadow="0 2px 16px rgba(0,0,0,0.35)"; }}>
             <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{background:"rgba(232,160,69,0.08)"}} />
+              style={{background:"rgba(232,155,61,0.08)"}} />
             <div className="flex justify-between items-start mb-3 relative z-10">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300"
-                style={{background:"rgba(232,160,69,0.1)",border:"1px solid rgba(232,160,69,0.15)"}}>
+                style={{background:"rgba(232,155,61,0.1)",border:"1px solid rgba(232,155,61,0.15)"}}>
                 {cat.icon||"☕"}
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -70,25 +70,25 @@ export default function AdminCategories() {
 
       {modal && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{background:"rgba(0,0,0,0.7)"}} onClick={()=>setModal(null)}>
-          <div className="rounded-2xl w-[400px] animate-slide-up" style={{background:"#251C16",border:"1px solid #3D2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
-            <div className="p-6" style={{borderBottom:"1px solid #3D2E22"}}>
+          <div className="rounded-2xl w-[400px] animate-slide-up" style={{background:"#241A14",border:"1px solid #3F2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
+            <div className="p-6" style={{borderBottom:"1px solid #3F2E22"}}>
               <h2 className="text-xl font-bold text-codex-text">{modal.mode==="create"?"Add Category":"Edit Category"}</h2>
             </div>
             <div className="p-6">
               {error && <p className="text-red-400 text-sm mb-4 px-4 py-2.5 rounded-xl" style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)"}}>{error}</p>}
               <form onSubmit={handleSave} className="space-y-4">
-                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Name *</label>
+                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Name *</label>
                   <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required className="input-field" /></div>
-                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Description</label>
+                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Description</label>
                   <input value={form.description} onChange={e=>setForm({...form,description:e.target.value})} className="input-field" /></div>
-                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>Icon</label>
+                <div><label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>Icon</label>
                   <div className="flex flex-wrap gap-2">
                     {ICONS.map(ic => (
                       <button type="button" key={ic} onClick={()=>setForm({...form,icon:ic})}
                         className="text-2xl p-2 rounded-xl transition-all duration-200"
-                        style={form.icon===ic ? {border:"2px solid #E8A045",background:"rgba(232,160,69,0.1)"} : {border:"2px solid #3D2E22",background:"transparent"}}
-                        onMouseEnter={e=>{ if(form.icon!==ic) e.currentTarget.style.borderColor="#8A7060"; }}
-                        onMouseLeave={e=>{ if(form.icon!==ic) e.currentTarget.style.borderColor="#3D2E22"; }}
+                        style={form.icon===ic ? {border:"2px solid #E89B3D",background:"rgba(232,155,61,0.1)"} : {border:"2px solid #3F2E22",background:"transparent"}}
+                        onMouseEnter={e=>{ if(form.icon!==ic) e.currentTarget.style.borderColor="#A08770"; }}
+                        onMouseLeave={e=>{ if(form.icon!==ic) e.currentTarget.style.borderColor="#3F2E22"; }}
                       >{ic}</button>
                     ))}
                   </div>

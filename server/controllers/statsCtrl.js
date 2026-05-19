@@ -1,95 +1,82 @@
 const { sequelize } = require("../models/index");
 const { QueryTypes } = require("sequelize");
 
-const getDashboardStats = async (req, res, next) => {
+/**
+ * Returns dialect-aware SQL helpers for date functions.
+ * Postgres uses CURRENT_DATE / INTERVAL; SQLite uses DATE('now').
+ */
+const getDialectHelpers = () => {
+  const isPg = sequelize.getDialect() === "postgres";
+  return {
+    todayDate: isPg ? "CURRENT_DATE" : "DATE('now')",
+    last7Days: isPg
+      ? "DATE(created_at) >= CURRENT_DATE - INTERVAL '7 days'"
+      : "DATE(created_at) >= DATE('now', '-7 days')",
+  };
+};
+
+const q = (sql, opts = {}) => sequelize.query(sql, { type: QueryTypes.SELECT, ...opts });
+
+const getDashboardStats = async (_req, res, next) => {
   try {
-    const dialect = sequelize.getDialect();
-    const isPostgres = dialect === "postgres";
+    const { todayDate, last7Days } = getDialectHelpers();
 
-    // Date functions differ between SQLite and PostgreSQL
-    const dateFunc = isPostgres ? "CURRENT_DATE" : "DATE('now')";
-    const dateCast = (col) => isPostgres ? `DATE(${col})` : `DATE(${col})`;
-    const dateInterval7 = isPostgres
-      ? `${dateCast("created_at")} >= CURRENT_DATE - INTERVAL '7 days'`
-      : `${dateCast("created_at")} >= DATE('now', '-7 days')`;
-
-    const [totalOrders] = await sequelize.query(
-      "SELECT COUNT(*) as count FROM orders", { type: QueryTypes.SELECT }
-    );
-    const [totalRevenue] = await sequelize.query(
-      "SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE status = 'completed'",
-      { type: QueryTypes.SELECT }
-    );
-    const [totalProducts] = await sequelize.query(
-      "SELECT COUNT(*) as count FROM products", { type: QueryTypes.SELECT }
-    );
-    const [totalUsers] = await sequelize.query(
-      "SELECT COUNT(*) as count FROM users WHERE role = 'customer'", { type: QueryTypes.SELECT }
-    );
-    const [pendingOrders] = await sequelize.query(
-      "SELECT COUNT(*) as count FROM orders WHERE status = 'pending'", { type: QueryTypes.SELECT }
-    );
-    const recentOrders = await sequelize.query(
-      "SELECT * FROM orders ORDER BY created_at DESC LIMIT 5", { type: QueryTypes.SELECT }
-    );
-
-    // Daily revenue for the last 7 days
-    const dailyRevenue = await sequelize.query(
-      `SELECT ${dateCast("created_at")} as date, 
-              COALESCE(SUM(total_amount), 0) as revenue,
-              COUNT(*) as orders
-       FROM orders 
-       WHERE status = 'completed' 
-         AND ${dateInterval7}
-       GROUP BY ${dateCast("created_at")}
-       ORDER BY date ASC`,
-      { type: QueryTypes.SELECT }
-    );
-
-    // Top selling products (by quantity sold)
-    const topProducts = await sequelize.query(
-      `SELECT p.name, p.image, SUM(oi.quantity) as total_sold, SUM(oi.subtotal) as total_revenue
-       FROM order_items oi
-       JOIN products p ON oi.product_id = p.id
-       JOIN orders o ON oi.order_id = o.id
-       WHERE o.status = 'completed'
-       GROUP BY oi.product_id, p.name, p.image
-       ORDER BY total_sold DESC
-       LIMIT 5`,
-      { type: QueryTypes.SELECT }
-    );
-
-    // Order type breakdown
-    const orderTypeBreakdown = await sequelize.query(
-      `SELECT order_type, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as revenue
-       FROM orders
-       WHERE status = 'completed'
-       GROUP BY order_type`,
-      { type: QueryTypes.SELECT }
-    );
-
-    // Order status breakdown
-    const statusBreakdown = await sequelize.query(
-      `SELECT status, COUNT(*) as count
-       FROM orders
-       GROUP BY status`,
-      { type: QueryTypes.SELECT }
-    );
-
-    // Today's stats
-    const [todayStats] = await sequelize.query(
-      `SELECT COUNT(*) as orders, COALESCE(SUM(total_amount), 0) as revenue
-       FROM orders
-       WHERE ${dateCast("created_at")} = ${dateFunc} AND status != 'cancelled'`,
-      { type: QueryTypes.SELECT }
-    );
-
-    // Average order value
-    const [avgOrder] = await sequelize.query(
-      `SELECT COALESCE(AVG(total_amount), 0) as avg_value
-       FROM orders WHERE status = 'completed'`,
-      { type: QueryTypes.SELECT }
-    );
+    // Run ALL queries in parallel — major perf win vs sequential awaits
+    const [
+      [totalOrders],
+      [totalRevenue],
+      [totalProducts],
+      [totalUsers],
+      [pendingOrders],
+      recentOrders,
+      dailyRevenue,
+      topProducts,
+      orderTypeBreakdown,
+      statusBreakdown,
+      [todayStats],
+      [avgOrder],
+    ] = await Promise.all([
+      q("SELECT COUNT(*) as count FROM orders"),
+      q("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE status = 'completed'"),
+      q("SELECT COUNT(*) as count FROM products"),
+      q("SELECT COUNT(*) as count FROM users WHERE role = 'customer'"),
+      q("SELECT COUNT(*) as count FROM orders WHERE status = 'pending'"),
+      q("SELECT id, customer_name, total_amount, status, order_type, created_at FROM orders ORDER BY created_at DESC LIMIT 5"),
+      q(
+        `SELECT DATE(created_at) AS date,
+                COALESCE(SUM(total_amount), 0) AS revenue,
+                COUNT(*) AS orders
+         FROM orders
+         WHERE status = 'completed' AND ${last7Days}
+         GROUP BY DATE(created_at)
+         ORDER BY date ASC`
+      ),
+      q(
+        `SELECT p.name, p.image,
+                SUM(oi.quantity) AS total_sold,
+                SUM(oi.subtotal) AS total_revenue
+         FROM order_items oi
+         JOIN products p ON oi.product_id = p.id
+         JOIN orders o ON oi.order_id = o.id
+         WHERE o.status = 'completed'
+         GROUP BY oi.product_id, p.name, p.image
+         ORDER BY total_sold DESC
+         LIMIT 5`
+      ),
+      q(
+        `SELECT order_type, COUNT(*) AS count, COALESCE(SUM(total_amount), 0) AS revenue
+         FROM orders
+         WHERE status = 'completed'
+         GROUP BY order_type`
+      ),
+      q("SELECT status, COUNT(*) AS count FROM orders GROUP BY status"),
+      q(
+        `SELECT COUNT(*) AS orders, COALESCE(SUM(total_amount), 0) AS revenue
+         FROM orders
+         WHERE DATE(created_at) = ${todayDate} AND status != 'cancelled'`
+      ),
+      q("SELECT COALESCE(AVG(total_amount), 0) AS avg_value FROM orders WHERE status = 'completed'"),
+    ]);
 
     res.json({
       success: true,

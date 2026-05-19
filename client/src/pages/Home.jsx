@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ProductList from "../components/Products";
@@ -7,7 +7,10 @@ import AuthModal from "../components/AuthModal";
 import PaymentModal from "../components/PaymentModal";
 import Toast from "../components/Toast";
 import { useToast } from "../hooks/useToast";
+import { useDebounce } from "../hooks/useDebounce";
 import * as api from "../api";
+
+const ALL_CATEGORY = { id: null, name: "All", icon: "🍽️" };
 
 const fmt = (n) =>
   new Intl.NumberFormat("id-ID", {
@@ -17,44 +20,65 @@ const fmt = (n) =>
   }).format(n);
 
 function Home() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    // Persist cart to localStorage
+    try {
+      const stored = localStorage.getItem("codex_cart");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategoryId, setActiveCategoryId] = useState(null); // null = "All"
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([ALL_CATEGORY]);
   const [loading, setLoading] = useState(false);
 
   const { toast, showToast } = useToast();
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // Fetch categories once
+  // Persist cart on change
   useEffect(() => {
+    localStorage.setItem("codex_cart", JSON.stringify(cart));
+  }, [cart]);
+
+  // Fetch categories once on mount
+  useEffect(() => {
+    const ac = new AbortController();
     api
-      .getCategories()
-      .then((data) => setCategories([{ id: null, name: "All", icon: "🍽️" }, ...(data.data || [])]))
-      .catch((err) => console.error("Failed to load categories:", err));
+      .getCategories(ac.signal)
+      .then((data) => setCategories([ALL_CATEGORY, ...(data.data || [])]))
+      .catch((err) => {
+        if (err.name !== "AbortError") console.error("Failed to load categories:", err);
+      });
+    return () => ac.abort();
   }, []);
 
-  // Fetch products when filters change
+  // Fetch products when filters change (NOT when categories array changes)
   useEffect(() => {
+    const ac = new AbortController();
     setLoading(true);
-    const params = { page: 1, limit: 20 };
-    if (searchQuery) params.search = searchQuery;
-    if (activeCategory !== "All") {
-      const cat = categories.find((c) => c.name === activeCategory);
-      if (cat?.id) params.category_id = cat.id;
-    }
+
+    const params = { page: 1, limit: 24 };
+    if (debouncedSearch) params.search = debouncedSearch;
+    if (activeCategoryId) params.category_id = activeCategoryId;
+
     api
-      .getProducts(params)
+      .getProducts(params, ac.signal)
       .then((data) => setProducts(data.data || []))
       .catch((err) => {
+        if (err.name === "AbortError") return;
         console.error(err);
         showToast("Failed to load products", "error");
       })
       .finally(() => setLoading(false));
-  }, [searchQuery, activeCategory, categories, showToast]);
+
+    return () => ac.abort();
+  }, [debouncedSearch, activeCategoryId, showToast]);
 
   const cartCount = useMemo(() => cart.reduce((s, i) => s + i.quantity, 0), [cart]);
   const cartTotal = useMemo(
@@ -62,21 +86,25 @@ function Home() {
     [cart]
   );
 
-  const handleProductAdded = (item) => {
-    showToast(`${item.name} added to cart`, "added", 1800);
-  };
+  const handleProductAdded = useCallback(
+    (item) => showToast(`${item.name} added to cart`, "added", 1800),
+    [showToast]
+  );
 
-  const handleCheckout = async (orderData) => {
-    try {
-      await api.createOrder(orderData);
-      setIsPaymentOpen(false);
-      setIsMobileCartOpen(false);
-      setCart([]);
-      showToast("Order placed successfully! Thank you ☕", "success", 3000);
-    } catch (err) {
-      showToast(err.message || "Checkout failed", "error", 3500);
-    }
-  };
+  const handleCheckout = useCallback(
+    async (orderData) => {
+      try {
+        await api.createOrder(orderData);
+        setIsPaymentOpen(false);
+        setIsMobileCartOpen(false);
+        setCart([]);
+        showToast("Order placed successfully! Thank you ☕", "success", 3000);
+      } catch (err) {
+        showToast(err.message || "Checkout failed", "error", 3500);
+      }
+    },
+    [showToast]
+  );
 
   return (
     <div
@@ -97,8 +125,8 @@ function Home() {
           <div className="w-48 lg:w-52 shrink-0 hidden md:block">
             <Sidebar
               categories={categories}
-              activeCategory={activeCategory}
-              setActiveCategory={setActiveCategory}
+              activeCategoryId={activeCategoryId}
+              setActiveCategoryId={setActiveCategoryId}
             />
           </div>
 
@@ -107,20 +135,22 @@ function Home() {
             {/* Mobile category pills */}
             <div className="md:hidden flex gap-2 overflow-x-auto pb-3 mb-1 scrollbar-hide">
               {categories.map((cat) => {
-                const active = activeCategory === cat.name;
+                const active = activeCategoryId === cat.id;
                 return (
                   <button
-                    key={cat.name}
-                    onClick={() => setActiveCategory(cat.name)}
-                    className="shrink-0 text-xs font-semibold px-3.5 py-2 rounded-full transition-all duration-200 flex items-center gap-1.5"
+                    key={cat.id ?? "all"}
+                    onClick={() => setActiveCategoryId(cat.id)}
+                    className={`shrink-0 text-xs font-semibold px-3.5 py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 ${
+                      active ? "nav-pill nav-pill-active" : ""
+                    }`}
                     style={
                       active
-                        ? {
-                            background: "linear-gradient(135deg, #E8A045, #C8832A)",
-                            color: "#1C1410",
-                            boxShadow: "0 4px 14px rgba(232,160,69,0.3)",
+                        ? undefined
+                        : {
+                            background: "linear-gradient(180deg, #2D2118, #241A14)",
+                            color: "#A08770",
+                            border: "1px solid #3F2E22",
                           }
-                        : { background: "#251C16", color: "#B09880", border: "1px solid #3D2E22" }
                     }
                   >
                     <span>{cat.icon}</span>
@@ -148,12 +178,12 @@ function Home() {
         </div>
       </div>
 
-      {/* Mobile cart drawer (slides in from right) */}
+      {/* Mobile cart drawer */}
       {isMobileCartOpen && (
         <div
           className="lg:hidden fixed inset-0 z-50 animate-fade-in"
           onClick={() => setIsMobileCartOpen(false)}
-          style={{ background: "rgba(0,0,0,0.6)" }}
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
         >
           <div
             className="absolute right-0 top-0 bottom-0 w-[90vw] max-w-[340px] p-3 animate-slide-up"
@@ -175,11 +205,10 @@ function Home() {
       {cart.length > 0 && !isMobileCartOpen && (
         <button
           onClick={() => setIsMobileCartOpen(true)}
-          className="lg:hidden fixed bottom-5 right-5 px-4 py-3 rounded-2xl flex items-center gap-3 z-40 animate-slide-up active:scale-95 transition-transform"
+          className="lg:hidden fixed bottom-5 right-5 px-4 py-3 rounded-2xl flex items-center gap-3 z-40 animate-slide-up active:scale-95 transition-transform shadow-accent-lg"
           style={{
-            background: "linear-gradient(135deg, #E8A045, #C8832A)",
-            color: "#1C1410",
-            boxShadow: "0 8px 28px rgba(232,160,69,0.45)",
+            background: "linear-gradient(135deg, #F4B96A 0%, #E89B3D 50%, #C8832A 100%)",
+            color: "#1B1410",
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -189,7 +218,7 @@ function Home() {
           </svg>
           <span className="font-bold text-sm">{cartCount}</span>
           <span className="text-xs opacity-70">·</span>
-          <span className="font-bold text-sm">{fmt(cartTotal)}</span>
+          <span className="font-bold text-sm tabular">{fmt(cartTotal)}</span>
         </button>
       )}
 

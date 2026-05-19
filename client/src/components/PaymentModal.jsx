@@ -10,7 +10,7 @@ const fmt = (n) =>
   }).format(n);
 
 const Label = ({ children }) => (
-  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#8A7060" }}>
+  <label className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "#A08770" }}>
     {children}
   </label>
 );
@@ -79,22 +79,22 @@ function PaymentModal({ cart, close, onSuccess }) {
         onClick={(e) => e.stopPropagation()}
         className="w-full sm:w-[440px] rounded-t-3xl sm:rounded-2xl relative flex flex-col max-h-[92vh] sm:max-h-[90vh] overflow-hidden animate-slide-up"
         style={{
-          background: "#251C16",
-          border: "1px solid #3D2E22",
+          background: "#241A14",
+          border: "1px solid #3F2E22",
           boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
         }}
       >
         {/* Header */}
         <div
           className="relative px-6 sm:px-7 pt-6 pb-5 overflow-hidden shrink-0"
-          style={{ background: "#1A1208", borderBottom: "1px solid #3D2E22" }}
+          style={{ background: "#15100C", borderBottom: "1px solid #3F2E22" }}
         >
-          <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full blur-3xl" style={{ background: "rgba(232,160,69,0.1)" }} />
+          <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full blur-3xl" style={{ background: "rgba(232,155,61,0.1)" }} />
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-codex-accent/70 to-transparent" />
           <button
             onClick={close}
             className="absolute top-4 right-4 text-codex-muted hover:text-codex-text transition w-8 h-8 flex items-center justify-center rounded-lg"
-            style={{ background: "#251C16" }}
+            style={{ background: "#241A14" }}
             aria-label="Close"
           >
             ✕
@@ -122,7 +122,7 @@ function PaymentModal({ cart, close, onSuccess }) {
           {/* Order Type */}
           <div>
             <Label>Order Type</Label>
-            <div className="flex rounded-xl p-1 gap-1" style={{ background: "#1C1410", border: "1px solid #3D2E22" }}>
+            <div className="flex rounded-xl p-1 gap-1" style={{ background: "#1B1410", border: "1px solid #3F2E22" }}>
               {[
                 { val: "pickup", label: "🏪 Pickup", sub: "Free" },
                 { val: "delivery", label: "🛵 Delivery", sub: "+Rp 15K" },
@@ -133,8 +133,8 @@ function PaymentModal({ cart, close, onSuccess }) {
                   className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex flex-col items-center gap-0.5"
                   style={
                     orderType === t.val
-                      ? { background: "linear-gradient(135deg, #E8A045, #C8832A)", color: "#1C1410" }
-                      : { color: "#8A7060" }
+                      ? { background: "linear-gradient(135deg, #E89B3D, #A86519)", color: "#1B1410" }
+                      : { color: "#A08770" }
                   }
                 >
                   <span>{t.label}</span>
@@ -181,14 +181,14 @@ function PaymentModal({ cart, close, onSuccess }) {
                     style={
                       promoCode === p.code
                         ? {
-                            border: "1px solid #E8A045",
-                            background: "rgba(232,160,69,0.12)",
-                            color: "#E8A045",
+                            border: "1px solid #E89B3D",
+                            background: "rgba(232,155,61,0.12)",
+                            color: "#E89B3D",
                           }
                         : {
-                            border: "1px solid #3D2E22",
+                            border: "1px solid #3F2E22",
                             background: "transparent",
-                            color: "#8A7060",
+                            color: "#A08770",
                           }
                     }
                   >
@@ -229,17 +229,17 @@ function PaymentModal({ cart, close, onSuccess }) {
         {/* Footer Summary */}
         <div
           className="px-6 sm:px-7 pb-6 pt-3 space-y-3 shrink-0"
-          style={{ background: "#1A1208", borderTop: "1px solid #3D2E22" }}
+          style={{ background: "#15100C", borderTop: "1px solid #3F2E22" }}
         >
-          <div className="rounded-xl p-4 space-y-2 text-sm" style={{ background: "#251C16", border: "1px solid #3D2E22" }}>
+          <div className="rounded-xl p-4 space-y-2 text-sm" style={{ background: "#241A14", border: "1px solid #3F2E22" }}>
             <div className="flex justify-between text-codex-muted">
               <span>Subtotal</span>
-              <span className="text-codex-text-dim">{fmt(subtotal)}</span>
+              <span className="text-codex-text-soft">{fmt(subtotal)}</span>
             </div>
             {deliveryFee > 0 && (
               <div className="flex justify-between text-codex-muted">
                 <span>Delivery</span>
-                <span className="text-codex-text-dim">{fmt(deliveryFee)}</span>
+                <span className="text-codex-text-soft">{fmt(deliveryFee)}</span>
               </div>
             )}
             {discount > 0 && (
@@ -250,7 +250,7 @@ function PaymentModal({ cart, close, onSuccess }) {
             )}
             <div
               className="flex justify-between font-bold text-base pt-2.5 mt-2"
-              style={{ borderTop: "1px solid #3D2E22" }}
+              style={{ borderTop: "1px solid #3F2E22" }}
             >
               <span className="text-codex-text">Total</span>
               <span className="text-codex-accent text-lg">{fmt(finalTotal)}</span>

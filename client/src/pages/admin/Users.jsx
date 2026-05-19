@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getUsers, updateUser, deleteUser } from "../../api";
 
-const card = { background:"#251C16", border:"1px solid #3D2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
+const card = { background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -45,7 +45,7 @@ export default function AdminUsers() {
 
       <div className="rounded-2xl p-4 mb-5" style={card}>
         <div className="relative max-w-sm">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{color:"#8A7060"}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{color:"#A08770"}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" placeholder="Search users..." value={search}
             onChange={e=>{ setSearch(e.target.value); setPage(1); }} className="input-field pl-10" />
         </div>
@@ -54,22 +54,22 @@ export default function AdminUsers() {
       <div className="rounded-2xl overflow-hidden" style={card}>
         {loading ? (
           <div className="p-12 text-center text-codex-muted flex flex-col items-center">
-            <div className="w-8 h-8 border-2 rounded-full animate-spin mb-3" style={{borderColor:"rgba(232,160,69,0.3)",borderTopColor:"#E8A045"}} />
+            <div className="w-8 h-8 border-2 rounded-full animate-spin mb-3" style={{borderColor:"rgba(232,155,61,0.3)",borderTopColor:"#E89B3D"}} />
             <span className="text-sm">Loading...</span>
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead style={{background:"#1A1208",borderBottom:"1px solid #3D2E22"}}>
+            <thead style={{background:"#15100C",borderBottom:"1px solid #3F2E22"}}>
               <tr>{["Avatar","Name","Email","Role","Joined","Actions"].map(h => (
-                <th key={h} className="text-left px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider" style={{color:"#8A7060"}}>{h}</th>
+                <th key={h} className="text-left px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider" style={{color:"#A08770"}}>{h}</th>
               ))}</tr>
             </thead>
             <tbody>
               {users.length===0 ? (
                 <tr><td colSpan={6} className="text-center py-12 text-codex-muted">No users found</td></tr>
               ) : users.map(u => (
-                <tr key={u.id} className="transition-colors duration-200" style={{borderBottom:"1px solid #3D2E22"}}
-                  onMouseEnter={e=>e.currentTarget.style.background="rgba(232,160,69,0.02)"}
+                <tr key={u.id} className="transition-colors duration-200" style={{borderBottom:"1px solid #3F2E22"}}
+                  onMouseEnter={e=>e.currentTarget.style.background="rgba(232,155,61,0.02)"}
                   onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                   <td className="px-5 py-3.5">
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-codex-accent to-codex-accent-dark flex items-center justify-center text-codex-bg font-bold text-sm shadow-sm">
@@ -98,11 +98,11 @@ export default function AdminUsers() {
             </tbody>
           </table>
         )}
-        <div className="flex justify-between items-center px-5 py-3.5" style={{borderTop:"1px solid #3D2E22",background:"#1A1208"}}>
+        <div className="flex justify-between items-center px-5 py-3.5" style={{borderTop:"1px solid #3F2E22",background:"#15100C"}}>
           <span className="text-xs text-codex-muted">Page {page} of {Math.ceil(total/LIMIT)||1}</span>
           <div className="flex gap-2">
-            <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#251C16",border:"1px solid #3D2E22",color:"#B09880"}} onMouseEnter={e=>e.currentTarget.style.background="#2E2218"} onMouseLeave={e=>e.currentTarget.style.background="#251C16"}>← Prev</button>
-            <button onClick={()=>setPage(p=>p+1)} disabled={page*LIMIT>=total} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#251C16",border:"1px solid #3D2E22",color:"#B09880"}} onMouseEnter={e=>e.currentTarget.style.background="#2E2218"} onMouseLeave={e=>e.currentTarget.style.background="#251C16"}>Next →</button>
+            <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}} onMouseEnter={e=>e.currentTarget.style.background="#2D2118"} onMouseLeave={e=>e.currentTarget.style.background="#241A14"}>← Prev</button>
+            <button onClick={()=>setPage(p=>p+1)} disabled={page*LIMIT>=total} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}} onMouseEnter={e=>e.currentTarget.style.background="#2D2118"} onMouseLeave={e=>e.currentTarget.style.background="#241A14"}>Next →</button>
           </div>
         </div>
       </div>

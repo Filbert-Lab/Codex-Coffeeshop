@@ -3,7 +3,7 @@ import { getProducts, getCategories, createProduct, updateProduct, deleteProduct
 
 const EMPTY = { name:"", category_id:"", description:"", price:"", image:"", stock:99, is_available:true };
 const fmt = (n) => new Intl.NumberFormat("id-ID", { style:"currency", currency:"IDR", minimumFractionDigits:0 }).format(n);
-const card = { background:"#251C16", border:"1px solid #3D2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
+const card = { background:"#241A14", border:"1px solid #3F2E22", boxShadow:"0 2px 16px rgba(0,0,0,0.35)" };
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -48,7 +48,7 @@ export default function AdminProducts() {
     try { await deleteProduct(id); load(); } catch(err) { alert(err.message); }
   };
 
-  const Label = ({children}) => <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#8A7060"}}>{children}</label>;
+  const Label = ({children}) => <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{color:"#A08770"}}>{children}</label>;
 
   return (
     <div className="p-8">
@@ -66,36 +66,36 @@ export default function AdminProducts() {
       <div className="rounded-2xl p-4 mb-5" style={card}>
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-sm">
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{color:"#8A7060"}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{color:"#A08770"}}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <input type="text" placeholder="Search products..." value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }} className="input-field pl-10" />
           </div>
-          <span className="text-xs px-3 py-1.5 rounded-lg" style={{background:"#1C1410",border:"1px solid #3D2E22",color:"#8A7060"}}>{products.length} shown</span>
+          <span className="text-xs px-3 py-1.5 rounded-lg" style={{background:"#1B1410",border:"1px solid #3F2E22",color:"#A08770"}}>{products.length} shown</span>
         </div>
       </div>
 
       <div className="rounded-2xl overflow-hidden" style={card}>
         {loading ? (
           <div className="p-12 text-center text-codex-muted flex flex-col items-center">
-            <div className="w-8 h-8 border-2 rounded-full animate-spin mb-3" style={{borderColor:"rgba(232,160,69,0.3)",borderTopColor:"#E8A045"}} />
+            <div className="w-8 h-8 border-2 rounded-full animate-spin mb-3" style={{borderColor:"rgba(232,155,61,0.3)",borderTopColor:"#E89B3D"}} />
             <span className="text-sm">Loading...</span>
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead style={{background:"#1A1208",borderBottom:"1px solid #3D2E22"}}>
+            <thead style={{background:"#15100C",borderBottom:"1px solid #3F2E22"}}>
               <tr>{["Image","Name","Category","Price","Stock","Status","Actions"].map(h => (
-                <th key={h} className="text-left px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider" style={{color:"#8A7060"}}>{h}</th>
+                <th key={h} className="text-left px-5 py-3.5 font-semibold text-[11px] uppercase tracking-wider" style={{color:"#A08770"}}>{h}</th>
               ))}</tr>
             </thead>
             <tbody>
               {products.length===0 ? (
                 <tr><td colSpan={7} className="text-center py-12 text-codex-muted"><span className="text-3xl block mb-2 opacity-30">☕</span>No products found</td></tr>
               ) : products.map(p => (
-                <tr key={p.id} className="transition-colors duration-200" style={{borderBottom:"1px solid #3D2E22"}}
-                  onMouseEnter={e=>e.currentTarget.style.background="rgba(232,160,69,0.02)"}
+                <tr key={p.id} className="transition-colors duration-200" style={{borderBottom:"1px solid #3F2E22"}}
+                  onMouseEnter={e=>e.currentTarget.style.background="rgba(232,155,61,0.02)"}
                   onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                   <td className="px-5 py-3.5">
-                    <img src={p.image||"https://via.placeholder.com/40"} alt={p.name} className="w-10 h-10 rounded-xl object-cover" style={{border:"1px solid #3D2E22"}} onError={e=>{e.target.src="https://via.placeholder.com/40";}} />
+                    <img src={p.image||"https://via.placeholder.com/40"} alt={p.name} className="w-10 h-10 rounded-xl object-cover" style={{border:"1px solid #3F2E22"}} onError={e=>{e.target.src="https://via.placeholder.com/40";}} />
                   </td>
                   <td className="px-5 py-3.5 font-medium max-w-[160px] truncate text-codex-text">{p.name}</td>
                   <td className="px-5 py-3.5 text-[12px] text-codex-muted">{p.category?.name||"—"}</td>
@@ -103,7 +103,7 @@ export default function AdminProducts() {
                   <td className="px-5 py-3.5 text-codex-muted">{p.stock}</td>
                   <td className="px-5 py-3.5">
                     <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full"
-                      style={p.is_available ? {background:"rgba(16,185,129,0.15)",color:"#6EE7B7",border:"1px solid rgba(16,185,129,0.2)"} : {background:"rgba(61,46,34,0.5)",color:"#8A7060",border:"1px solid #3D2E22"}}>
+                      style={p.is_available ? {background:"rgba(16,185,129,0.15)",color:"#6EE7B7",border:"1px solid rgba(16,185,129,0.2)"} : {background:"rgba(61,46,34,0.5)",color:"#A08770",border:"1px solid #3F2E22"}}>
                       {p.is_available?"Available":"Hidden"}
                     </span>
                   </td>
@@ -118,19 +118,19 @@ export default function AdminProducts() {
             </tbody>
           </table>
         )}
-        <div className="flex justify-between items-center px-5 py-3.5" style={{borderTop:"1px solid #3D2E22",background:"#1A1208"}}>
+        <div className="flex justify-between items-center px-5 py-3.5" style={{borderTop:"1px solid #3F2E22",background:"#15100C"}}>
           <span className="text-xs text-codex-muted">Page {page} of {Math.ceil(total/LIMIT)||1}</span>
           <div className="flex gap-2">
-            <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#251C16",border:"1px solid #3D2E22",color:"#B09880"}} onMouseEnter={e=>e.currentTarget.style.background="#2E2218"} onMouseLeave={e=>e.currentTarget.style.background="#251C16"}>← Prev</button>
-            <button onClick={()=>setPage(p=>p+1)} disabled={page*LIMIT>=total} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#251C16",border:"1px solid #3D2E22",color:"#B09880"}} onMouseEnter={e=>e.currentTarget.style.background="#2E2218"} onMouseLeave={e=>e.currentTarget.style.background="#251C16"}>Next →</button>
+            <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}} onMouseEnter={e=>e.currentTarget.style.background="#2D2118"} onMouseLeave={e=>e.currentTarget.style.background="#241A14"}>← Prev</button>
+            <button onClick={()=>setPage(p=>p+1)} disabled={page*LIMIT>=total} className="text-xs px-3.5 py-1.5 rounded-lg font-medium transition-all disabled:opacity-30" style={{background:"#241A14",border:"1px solid #3F2E22",color:"#D4C5B0"}} onMouseEnter={e=>e.currentTarget.style.background="#2D2118"} onMouseLeave={e=>e.currentTarget.style.background="#241A14"}>Next →</button>
           </div>
         </div>
       </div>
 
       {modal && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{background:"rgba(0,0,0,0.7)"}} onClick={()=>setModal(null)}>
-          <div className="rounded-2xl w-[500px] max-h-[90vh] overflow-y-auto animate-slide-up" style={{background:"#251C16",border:"1px solid #3D2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
-            <div className="p-6" style={{borderBottom:"1px solid #3D2E22"}}>
+          <div className="rounded-2xl w-[500px] max-h-[90vh] overflow-y-auto animate-slide-up" style={{background:"#241A14",border:"1px solid #3F2E22",boxShadow:"0 24px 64px rgba(0,0,0,0.6)"}} onClick={e=>e.stopPropagation()}>
+            <div className="p-6" style={{borderBottom:"1px solid #3F2E22"}}>
               <h2 className="text-xl font-bold text-codex-text">{modal.mode==="create"?"Add Product":"Edit Product"}</h2>
             </div>
             <div className="p-6">

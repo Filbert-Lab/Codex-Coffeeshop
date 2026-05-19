@@ -21,28 +21,24 @@ export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem("codex_admin_collapsed") === "true");
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close mobile drawer on route change
   useEffect(() => setMobileOpen(false), [location.pathname]);
-
-  // Persist collapsed state
-  useEffect(() => {
-    const stored = localStorage.getItem("codex_admin_collapsed");
-    if (stored === "true") setCollapsed(true);
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("codex_admin_collapsed", String(collapsed));
-  }, [collapsed]);
+  useEffect(() => localStorage.setItem("codex_admin_collapsed", String(collapsed)), [collapsed]);
 
   return (
-    <div className="flex h-screen font-sans overflow-hidden" style={{ background: "#1C1410" }}>
+    <div className="flex h-screen font-sans overflow-hidden" style={{ background: "#15100C" }}>
       {/* Mobile menu button */}
       <button
         onClick={() => setMobileOpen(true)}
         className="md:hidden fixed top-4 left-4 z-30 w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-        style={{ background: "#2E2218", border: "1px solid #3D2E22", color: "#F0E6D8" }}
+        style={{
+          background: "linear-gradient(180deg, #36281D, #2D2118)",
+          border: "1px solid #4F3A2A",
+          color: "#F5EBDC",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+        }}
         aria-label="Open menu"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -52,11 +48,11 @@ export default function AdminLayout() {
         </svg>
       </button>
 
-      {/* Mobile drawer overlay */}
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="md:hidden fixed inset-0 z-40 animate-fade-in"
-          style={{ background: "rgba(0,0,0,0.6)" }}
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -64,23 +60,38 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <aside
         className={`flex flex-col shrink-0 relative overflow-hidden transition-all duration-300 z-50 ${
-          mobileOpen
-            ? "fixed inset-y-0 left-0 w-[280px] animate-slide-up"
-            : "hidden md:flex"
+          mobileOpen ? "fixed inset-y-0 left-0 w-[280px]" : "hidden md:flex"
         } ${collapsed ? "md:w-[72px]" : "md:w-[250px]"}`}
-        style={{ background: "#1A1208", borderRight: "1px solid #3D2E22" }}
+        style={{
+          background: "linear-gradient(180deg, #15100C 0%, #1B1410 100%)",
+          borderRight: "1px solid #3F2E22",
+          boxShadow: "1px 0 0 rgba(255,255,255,0.02) inset",
+        }}
       >
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-codex-accent/70 to-transparent z-10" />
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] z-10"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(232,155,61,0.7), transparent)" }} />
+        {/* Decorative orbs */}
         <div
-          className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full blur-3xl pointer-events-none"
-          style={{ background: "rgba(232,160,69,0.04)" }}
+          className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(232,155,61,0.08), transparent 70%)" }}
+        />
+        <div
+          className="absolute top-1/3 -right-20 w-32 h-32 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(168,101,25,0.06), transparent 70%)" }}
         />
 
-        {/* Header with logo + back-to-store button */}
-        <div className={`${collapsed ? "p-3" : "p-4 px-5"} relative z-10`} style={{ borderBottom: "1px solid #3D2E22" }}>
+        {/* Header */}
+        <div className={`${collapsed ? "p-3" : "p-4 px-5"} relative z-10`} style={{ borderBottom: "1px solid #3F2E22" }}>
           <div className="flex items-center justify-between gap-2">
             <button onClick={() => navigate("/")} className="flex items-center gap-3 group min-w-0" aria-label="Back to store">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-codex-accent to-codex-accent-dark flex items-center justify-center shadow-lg shadow-codex-accent/25 group-hover:shadow-codex-accent/40 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3 shrink-0">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:rotate-3 shrink-0"
+                style={{
+                  background: "linear-gradient(135deg, #F4B96A 0%, #E89B3D 50%, #C8832A 100%)",
+                  boxShadow: "0 4px 14px rgba(232,155,61,0.35), 0 1px 0 rgba(255,255,255,0.2) inset",
+                }}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-codex-bg">
                   <path d="M17 8h1a4 4 0 0 1 0 8h-1" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                   <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -99,12 +110,11 @@ export default function AdminLayout() {
               )}
             </button>
 
-            {/* Close mobile drawer */}
             {mobileOpen && (
               <button
                 onClick={() => setMobileOpen(false)}
                 className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                style={{ background: "#2E2218", color: "#8A7060" }}
+                style={{ background: "#241A14", color: "#A08770", border: "1px solid #3F2E22" }}
                 aria-label="Close menu"
               >
                 ✕
@@ -112,21 +122,25 @@ export default function AdminLayout() {
             )}
           </div>
 
-          {/* Back to Store button */}
+          {/* Back to Store */}
           {!collapsed && (
             <button
               onClick={() => navigate("/")}
               className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all duration-300 group"
-              style={{ background: "#2E2218", color: "#B09880", border: "1px solid #3D2E22" }}
+              style={{
+                background: "linear-gradient(180deg, #2D2118, #241A14)",
+                color: "#A08770",
+                border: "1px solid #3F2E22",
+              }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(232,160,69,0.08)";
-                e.currentTarget.style.color = "#E8A045";
-                e.currentTarget.style.borderColor = "rgba(232,160,69,0.3)";
+                e.currentTarget.style.background = "linear-gradient(180deg, rgba(232,155,61,0.12), rgba(232,155,61,0.04))";
+                e.currentTarget.style.color = "#E89B3D";
+                e.currentTarget.style.borderColor = "rgba(232,155,61,0.3)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#2E2218";
-                e.currentTarget.style.color = "#B09880";
-                e.currentTarget.style.borderColor = "#3D2E22";
+                e.currentTarget.style.background = "linear-gradient(180deg, #2D2118, #241A14)";
+                e.currentTarget.style.color = "#A08770";
+                e.currentTarget.style.borderColor = "#3F2E22";
               }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="group-hover:-translate-x-0.5 transition-transform">
@@ -138,18 +152,23 @@ export default function AdminLayout() {
           )}
         </div>
 
-        {/* Collapse toggle (desktop only) */}
+        {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden md:flex absolute top-7 -right-3 w-6 h-6 rounded-full items-center justify-center transition-all duration-200 z-20 shadow-md"
-          style={{ background: "#2E2218", border: "1px solid #3D2E22", color: "#8A7060" }}
+          className="hidden md:flex absolute top-7 -right-3 w-6 h-6 rounded-full items-center justify-center transition-all duration-200 z-20"
+          style={{
+            background: "linear-gradient(180deg, #36281D, #2D2118)",
+            border: "1px solid #4F3A2A",
+            color: "#A08770",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+          }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.color = "#E8A045";
-            e.currentTarget.style.borderColor = "rgba(232,160,69,0.3)";
+            e.currentTarget.style.color = "#E89B3D";
+            e.currentTarget.style.borderColor = "rgba(232,155,61,0.4)";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.color = "#8A7060";
-            e.currentTarget.style.borderColor = "#3D2E22";
+            e.currentTarget.style.color = "#A08770";
+            e.currentTarget.style.borderColor = "#4F3A2A";
           }}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
@@ -161,7 +180,7 @@ export default function AdminLayout() {
         {/* Navigation */}
         <nav className={`flex-1 ${collapsed ? "p-2" : "p-3"} space-y-1 overflow-y-auto relative z-10 mt-2`}>
           {!collapsed && (
-            <p className="text-[9px] text-codex-muted uppercase tracking-[0.2em] font-semibold px-4 mb-3">
+            <p className="text-[9px] text-codex-subtle uppercase tracking-[0.2em] font-semibold px-4 mb-3">
               Navigation
             </p>
           )}
@@ -171,11 +190,17 @@ export default function AdminLayout() {
         </nav>
 
         {/* User section */}
-        <div className={`${collapsed ? "p-3" : "p-4"} relative z-10`} style={{ borderTop: "1px solid #3D2E22" }}>
+        <div className={`${collapsed ? "p-3" : "p-4"} relative z-10`} style={{ borderTop: "1px solid #3F2E22" }}>
           {!collapsed ? (
             <>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-codex-accent to-codex-accent-dark flex items-center justify-center text-codex-bg font-bold text-sm shadow-md shadow-codex-accent/15 shrink-0">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-codex-bg font-bold text-sm shrink-0"
+                  style={{
+                    background: "linear-gradient(135deg, #F4B96A, #C8832A)",
+                    boxShadow: "0 3px 8px rgba(232,155,61,0.3), 0 1px 0 rgba(255,255,255,0.2) inset",
+                  }}
+                >
                   {user?.name?.[0]?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -185,14 +210,14 @@ export default function AdminLayout() {
               </div>
               <button
                 onClick={() => { logout(); navigate("/"); }}
-                className="w-full text-center text-xs text-codex-muted hover:text-red-400 py-2 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
-                style={{ border: "1px solid #3D2E22" }}
+                className="w-full text-center text-xs text-codex-muted hover:text-codex-danger py-2 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                style={{ border: "1px solid #3F2E22" }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)";
-                  e.currentTarget.style.background = "rgba(239,68,68,0.05)";
+                  e.currentTarget.style.borderColor = "rgba(242,107,107,0.3)";
+                  e.currentTarget.style.background = "rgba(242,107,107,0.05)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#3D2E22";
+                  e.currentTarget.style.borderColor = "#3F2E22";
                   e.currentTarget.style.background = "transparent";
                 }}
               >
@@ -206,12 +231,15 @@ export default function AdminLayout() {
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-codex-accent to-codex-accent-dark flex items-center justify-center text-codex-bg font-bold text-xs shadow-md">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-codex-bg font-bold text-xs"
+                style={{ background: "linear-gradient(135deg, #F4B96A, #C8832A)" }}
+              >
                 {user?.name?.[0]?.toUpperCase()}
               </div>
               <button
                 onClick={() => { logout(); navigate("/"); }}
-                className="text-codex-muted hover:text-red-400 transition-colors"
+                className="text-codex-muted hover:text-codex-danger transition-colors"
                 title="Sign Out"
                 aria-label="Sign Out"
               >
@@ -226,7 +254,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto relative" style={{ background: "#1C1410" }}>
+      <main className="flex-1 overflow-y-auto relative" style={{ background: "#1B1410" }}>
         <Outlet />
       </main>
     </div>
@@ -245,22 +273,22 @@ function NavItem({ item, collapsed }) {
       style={({ isActive }) =>
         isActive
           ? {
-              background: "linear-gradient(135deg, #E8A045, #C8832A)",
-              color: "#1C1410",
-              boxShadow: "0 4px 16px rgba(232,160,69,0.25)",
+              background: "linear-gradient(135deg, #F4B96A 0%, #E89B3D 50%, #C8832A 100%)",
+              color: "#1B1410",
+              boxShadow: "0 4px 14px rgba(232,155,61,0.3), 0 1px 0 rgba(255,255,255,0.2) inset",
             }
-          : { color: "#8A7060" }
+          : { color: "#A08770" }
       }
       onMouseEnter={(e) => {
         if (!e.currentTarget.style.background.includes("gradient")) {
-          e.currentTarget.style.background = "rgba(232,160,69,0.06)";
-          e.currentTarget.style.color = "#F0E6D8";
+          e.currentTarget.style.background = "rgba(232,155,61,0.06)";
+          e.currentTarget.style.color = "#F5EBDC";
         }
       }}
       onMouseLeave={(e) => {
-        if (!e.currentTarget.style.background.includes("gradient")) {
+        if (!e.currentTarget.style.background.includes("gradient(135deg")) {
           e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "#8A7060";
+          e.currentTarget.style.color = "#A08770";
         }
       }}
     >

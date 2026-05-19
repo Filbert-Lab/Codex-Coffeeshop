@@ -1,114 +1,98 @@
 /**
  * api/index.js — Centralized API helper using async/await fetch.
- * Uses relative /api paths — Vite proxies to :5000 in dev,
- * and Vercel routes to serverless function in production.
+ *
+ * Features:
+ * - Automatic JSON serialization
+ * - JWT token injection from localStorage
+ * - Centralized error handling
+ * - AbortSignal support for cancellation
+ * - 401 auto-logout on token expiry
+ *
+ * Vite proxies /api → :5000 in dev; Vercel routes to serverless in prod.
  */
 
 const BASE = "/api";
 
 const getToken = () => localStorage.getItem("codex_token");
 
-const headers = (extra = {}) => ({
-  "Content-Type": "application/json",
-  ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
-  ...extra,
-});
+const buildHeaders = (extra = {}) => {
+  const headers = { "Content-Type": "application/json", ...extra };
+  const token = getToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+};
 
+/** Centralized response handler — throws on !ok with message */
 const handleRes = async (res) => {
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Request failed");
+  // 401 → token expired or invalid → clear and reload
+  if (res.status === 401) {
+    localStorage.removeItem("codex_token");
+    localStorage.removeItem("codex_user");
+    // Don't redirect on login/register endpoints (they expected to fail)
+    if (!res.url.includes("/users/login") && !res.url.includes("/users/register")) {
+      window.location.href = "/";
+    }
+  }
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server returned ${res.status}`);
+  }
+  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
   return data;
 };
 
-// AUTH
-export const login = (email, password) =>
-  fetch(`${BASE}/users/login`, { method: "POST", headers: headers(), body: JSON.stringify({ email, password }) }).then(handleRes);
-
-export const register = (name, email, password) =>
-  fetch(`${BASE}/users/register`, { method: "POST", headers: headers(), body: JSON.stringify({ name, email, password }) }).then(handleRes);
-
-// PRODUCTS
-export const getProducts = (params = {}) => {
-  const q = new URLSearchParams(params).toString();
-  return fetch(`${BASE}/products?${q}`, { headers: headers() }).then(handleRes);
+const buildQuery = (params) => {
+  const filtered = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "");
+  return filtered.length ? "?" + new URLSearchParams(filtered).toString() : "";
 };
 
-export const getProductById = (id) =>
-  fetch(`${BASE}/products/${id}`, { headers: headers() }).then(handleRes);
+const request = (url, options = {}) =>
+  fetch(`${BASE}${url}`, { ...options, headers: buildHeaders(options.headers) }).then(handleRes);
 
-export const createProduct = (data) =>
-  fetch(`${BASE}/products`, { method: "POST", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
+const get = (url, signal) => request(url, { method: "GET", signal });
+const post = (url, body, signal) => request(url, { method: "POST", body: JSON.stringify(body), signal });
+const put = (url, body, signal) => request(url, { method: "PUT", body: JSON.stringify(body), signal });
+const patch = (url, body, signal) => request(url, { method: "PATCH", body: JSON.stringify(body), signal });
+const del = (url, signal) => request(url, { method: "DELETE", signal });
 
-export const updateProduct = (id, data) =>
-  fetch(`${BASE}/products/${id}`, { method: "PUT", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
+// ─── AUTH ───
+export const login = (email, password) => post("/users/login", { email, password });
+export const register = (name, email, password) => post("/users/register", { name, email, password });
 
-export const deleteProduct = (id) =>
-  fetch(`${BASE}/products/${id}`, { method: "DELETE", headers: headers() }).then(handleRes);
+// ─── PRODUCTS ───
+export const getProducts = (params = {}, signal) => get(`/products${buildQuery(params)}`, signal);
+export const getProductById = (id, signal) => get(`/products/${id}`, signal);
+export const createProduct = (data) => post("/products", data);
+export const updateProduct = (id, data) => put(`/products/${id}`, data);
+export const deleteProduct = (id) => del(`/products/${id}`);
 
-// CATEGORIES
-export const getCategories = () =>
-  fetch(`${BASE}/categories`, { headers: headers() }).then(handleRes);
+// ─── CATEGORIES ───
+export const getCategories = (signal) => get("/categories", signal);
+export const createCategory = (data) => post("/categories", data);
+export const updateCategory = (id, data) => put(`/categories/${id}`, data);
+export const deleteCategory = (id) => del(`/categories/${id}`);
 
-export const createCategory = (data) =>
-  fetch(`${BASE}/categories`, { method: "POST", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
+// ─── ORDERS ───
+export const createOrder = (data) => post("/orders", data);
+export const getOrders = (params = {}, signal) => get(`/orders${buildQuery(params)}`, signal);
+export const getOrderById = (id, signal) => get(`/orders/${id}`, signal);
+export const updateOrderStatus = (id, status) => patch(`/orders/${id}/status`, { status });
+export const deleteOrder = (id) => del(`/orders/${id}`);
 
-export const updateCategory = (id, data) =>
-  fetch(`${BASE}/categories/${id}`, { method: "PUT", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
+// ─── PROMOS ───
+export const getActivePromos = (signal) => get("/promos/active", signal);
+export const validatePromo = (code, subtotal) => post("/promos/validate", { code, subtotal });
+export const getPromos = (params = {}, signal) => get(`/promos${buildQuery(params)}`, signal);
+export const createPromo = (data) => post("/promos", data);
+export const updatePromo = (id, data) => put(`/promos/${id}`, data);
+export const deletePromo = (id) => del(`/promos/${id}`);
 
-export const deleteCategory = (id) =>
-  fetch(`${BASE}/categories/${id}`, { method: "DELETE", headers: headers() }).then(handleRes);
+// ─── USERS (admin) ───
+export const getUsers = (params = {}, signal) => get(`/users${buildQuery(params)}`, signal);
+export const updateUser = (id, data) => put(`/users/${id}`, data);
+export const deleteUser = (id) => del(`/users/${id}`);
 
-// ORDERS
-export const createOrder = (data) =>
-  fetch(`${BASE}/orders`, { method: "POST", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
-
-export const getOrders = (params = {}) => {
-  const q = new URLSearchParams(params).toString();
-  return fetch(`${BASE}/orders?${q}`, { headers: headers() }).then(handleRes);
-};
-
-export const getOrderById = (id) =>
-  fetch(`${BASE}/orders/${id}`, { headers: headers() }).then(handleRes);
-
-export const updateOrderStatus = (id, status) =>
-  fetch(`${BASE}/orders/${id}/status`, { method: "PATCH", headers: headers(), body: JSON.stringify({ status }) }).then(handleRes);
-
-export const deleteOrder = (id) =>
-  fetch(`${BASE}/orders/${id}`, { method: "DELETE", headers: headers() }).then(handleRes);
-
-// PROMOS
-export const getActivePromos = () =>
-  fetch(`${BASE}/promos/active`, { headers: headers() }).then(handleRes);
-
-export const validatePromo = (code, subtotal) =>
-  fetch(`${BASE}/promos/validate`, { method: "POST", headers: headers(), body: JSON.stringify({ code, subtotal }) }).then(handleRes);
-
-export const getPromos = (params = {}) => {
-  const q = new URLSearchParams(params).toString();
-  return fetch(`${BASE}/promos?${q}`, { headers: headers() }).then(handleRes);
-};
-
-export const createPromo = (data) =>
-  fetch(`${BASE}/promos`, { method: "POST", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
-
-export const updatePromo = (id, data) =>
-  fetch(`${BASE}/promos/${id}`, { method: "PUT", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
-
-export const deletePromo = (id) =>
-  fetch(`${BASE}/promos/${id}`, { method: "DELETE", headers: headers() }).then(handleRes);
-
-// USERS (admin)
-export const getUsers = (params = {}) => {
-  const q = new URLSearchParams(params).toString();
-  return fetch(`${BASE}/users?${q}`, { headers: headers() }).then(handleRes);
-};
-
-export const updateUser = (id, data) =>
-  fetch(`${BASE}/users/${id}`, { method: "PUT", headers: headers(), body: JSON.stringify(data) }).then(handleRes);
-
-export const deleteUser = (id) =>
-  fetch(`${BASE}/users/${id}`, { method: "DELETE", headers: headers() }).then(handleRes);
-
-// STATS
-export const getDashboardStats = () =>
-  fetch(`${BASE}/stats`, { headers: headers() }).then(handleRes);
+// ─── STATS ───
+export const getDashboardStats = (signal) => get("/stats", signal);
