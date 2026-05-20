@@ -10,7 +10,8 @@
     "start": "node server/server.js",
     "build": "cd client && npx vite build",
     "db:seed": "node server/config/seed.js",
-    "db:fix": "node server/config/fixdata.js"
+    "db:fix": "node server/config/fixdata.js",
+    "db:update-icons": "node server/config/updateCategoryIcons.js"
   },
   "keywords": [
     "coffee",
