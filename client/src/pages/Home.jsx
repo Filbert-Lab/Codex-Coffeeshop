@@ -53,7 +53,8 @@ function Home() {
       .getCategories(ac.signal)
       .then((data) => setCategories([ALL_CATEGORY, ...(data.data || [])]))
       .catch((err) => {
-        if (err.name !== "AbortError") console.error("Failed to load categories:", err);
+        if (err.name !== "AbortError")
+          console.error("Failed to load categories:", err);
       });
     return () => ac.abort();
   }, []);
@@ -80,15 +81,27 @@ function Home() {
     return () => ac.abort();
   }, [debouncedSearch, activeCategoryId, showToast]);
 
-  const cartCount = useMemo(() => cart.reduce((s, i) => s + i.quantity, 0), [cart]);
+  const cartCount = useMemo(
+    () => cart.reduce((s, i) => s + i.quantity, 0),
+    [cart],
+  );
   const cartTotal = useMemo(
     () => cart.reduce((s, i) => s + Number(i.price) * i.quantity, 0),
-    [cart]
+    [cart],
   );
 
   const handleProductAdded = useCallback(
     (item) => showToast(`${item.name} added to cart`, "added", 1800),
-    [showToast]
+    [showToast],
+  );
+
+  const handleAuthenticated = useCallback(
+    (authenticatedUser, mode) => {
+      const name = authenticatedUser?.name?.trim();
+      const greeting = mode === "login" ? "Welcome back" : "Welcome to Codex";
+      showToast(`${greeting}${name ? `, ${name}` : ""}!`, "success", 3000);
+    },
+    [showToast],
   );
 
   const handleCheckout = useCallback(
@@ -103,7 +116,7 @@ function Home() {
         showToast(err.message || "Checkout failed", "error", 3500);
       }
     },
-    [showToast]
+    [showToast],
   );
 
   return (
@@ -173,7 +186,11 @@ function Home() {
 
           {/* Desktop cart */}
           <div className="w-[280px] xl:w-[300px] shrink-0 hidden lg:block">
-            <Cart cart={cart} setCart={setCart} openPayment={() => setIsPaymentOpen(true)} />
+            <Cart
+              cart={cart}
+              setCart={setCart}
+              openPayment={() => setIsPaymentOpen(true)}
+            />
           </div>
         </div>
       </div>
@@ -183,7 +200,10 @@ function Home() {
         <div
           className="lg:hidden fixed inset-0 z-50 animate-fade-in"
           onClick={() => setIsMobileCartOpen(false)}
-          style={{ background: "rgba(42,27,14,0.5)", backdropFilter: "blur(4px)" }}
+          style={{
+            background: "rgba(42,27,14,0.5)",
+            backdropFilter: "blur(4px)",
+          }}
         >
           <div
             className="absolute right-0 top-0 bottom-0 w-[90vw] max-w-[340px] p-3 animate-slide-up"
@@ -207,12 +227,22 @@ function Home() {
           onClick={() => setIsMobileCartOpen(true)}
           className="lg:hidden fixed bottom-5 right-5 px-4 py-3 rounded-2xl flex items-center gap-3 z-40 animate-slide-up active:scale-95 transition-transform"
           style={{
-            background: "linear-gradient(135deg, #B88B5A 0%, #9C6B3F 50%, #5A3920 100%)",
+            background:
+              "linear-gradient(135deg, #B88B5A 0%, #9C6B3F 50%, #5A3920 100%)",
             color: "#FAF6EF",
-            boxShadow: "0 8px 28px rgba(156,107,63,0.45), 0 1px 0 rgba(255,255,255,0.2) inset",
+            boxShadow:
+              "0 8px 28px rgba(156,107,63,0.45), 0 1px 0 rgba(255,255,255,0.2) inset",
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
             <line x1="3" x2="21" y1="6" y2="6" />
             <path d="M16 10a4 4 0 0 1-8 0" />
@@ -223,7 +253,12 @@ function Home() {
         </button>
       )}
 
-      {isAuthOpen && <AuthModal close={() => setIsAuthOpen(false)} />}
+      {isAuthOpen && (
+        <AuthModal
+          close={() => setIsAuthOpen(false)}
+          onAuthenticated={handleAuthenticated}
+        />
+      )}
       {isPaymentOpen && (
         <PaymentModal
           cart={cart}
