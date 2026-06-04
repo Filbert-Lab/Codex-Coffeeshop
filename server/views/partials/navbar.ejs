@@ -1,0 +1,88 @@
+<nav
+  class="rounded-2xl px-3 sm:px-5 py-3 flex justify-between items-center gap-3 shrink-0 relative overflow-hidden surface-1"
+>
+  <div
+    class="absolute top-0 left-0 right-0 h-[2px]"
+    style="
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(156, 107, 63, 0.4),
+        transparent
+      );
+    "
+  ></div>
+  <div class="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+    <button
+      type="button"
+      class="flex items-center gap-2.5 group shrink-0"
+      aria-label="Home"
+    >
+      <div
+        class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:rotate-3"
+        style="
+          background: linear-gradient(
+            135deg,
+            #b88b5a 0%,
+            #9c6b3f 50%,
+            #5a3920 100%
+          );
+          box-shadow:
+            0 4px 14px rgba(156, 107, 63, 0.35),
+            0 1px 0 rgba(255, 255, 255, 0.2) inset;
+        "
+      >
+        <span style="color: #faf6ef; font-size: 20px">☕</span>
+      </div>
+      <div class="hidden sm:block">
+        <span
+          class="font-display text-lg font-bold text-codex-text tracking-tight group-hover:text-codex-accent transition-colors duration-300"
+          >Codex</span
+        >
+        <span
+          class="text-codex-muted text-[9px] block -mt-0.5 tracking-widest uppercase font-semibold"
+          >Coffee</span
+        >
+      </div>
+    </button>
+    <div class="relative flex-1 min-w-0 max-w-xs">
+      <span
+        class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-codex-subtle"
+        style="font-size: 15px"
+        >⌕</span
+      >
+      <input
+        type="text"
+        placeholder="Cari menu..."
+        value=""
+        readonly
+        class="input-field pl-10 pr-9 text-sm py-2.5"
+      />
+    </div>
+  </div>
+  <div class="flex items-center gap-2 shrink-0">
+    <button type="button" class="btn-primary flex items-center gap-2 text-sm">
+      <span style="font-size: 14px">⎋</span>
+      <span class="hidden sm:inline">Sign In</span>
+    </button>
+    <button
+      type="button"
+      class="relative w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 active:scale-95 lg:cursor-pointer"
+      style="
+        background: linear-gradient(
+          135deg,
+          #b88b5a 0%,
+          #9c6b3f 50%,
+          #5a3920 100%
+        );
+        color: #faf6ef;
+        box-shadow:
+          0 4px 14px rgba(156, 107, 63, 0.35),
+          0 1px 0 rgba(255, 255, 255, 0.2) inset;
+      "
+      aria-label="Open cart"
+    >
+      <span style="font-size: 17px">🛒</span>
+    </button>
+  </div>
+</nav>

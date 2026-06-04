@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Codex Coffee - Premium artisan coffee, handcrafted with passion. Order online or visit our cafe." />
+    <meta name="theme-color" content="#1A1714" />
+    <title>Codex Coffee - Artisan Coffee Experience</title>
+    <link rel="stylesheet" href="/assets/app.css" />
+  </head>
+  <body>
+    <div id="root">
+      <% if (isHome && homeData) { %>
+        <%- include("../partials/home", { homeData, helpers }) %>
+      <% } else { %>
+        <%- include("../partials/loading") %>
+      <% } %>
+    </div>
+    <script>window.__INITIAL_DATA__=<%- helpers.serializeState(initialData) %>;</script>
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>

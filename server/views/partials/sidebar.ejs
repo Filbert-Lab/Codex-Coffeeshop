@@ -1,0 +1,24 @@
+<div class="surface-1 h-full rounded-2xl p-4 flex flex-col relative overflow-hidden">
+  <div class="absolute -bottom-12 -left-12 w-32 h-32 rounded-full pointer-events-none opacity-50" style="background:radial-gradient(circle, rgba(156,107,63,0.12), transparent 70%)"></div>
+  <div class="flex items-center gap-2 pb-3 mb-3" style="border-bottom:1px solid #E8DCC4">
+    <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg, rgba(156,107,63,0.15), rgba(156,107,63,0.05));border:1px solid rgba(156,107,63,0.2)">
+      <span style="color:#9C6B3F;font-size:14px">☰</span>
+    </div>
+    <h3 class="font-display text-sm font-bold text-codex-text tracking-tight">Menu</h3>
+  </div>
+  <ul class="list-none space-y-1 flex-1 relative z-10">
+    <% categories.forEach((category, index) => { %>
+      <% const active = category.id === null; %>
+      <li style="animation-delay:<%= index * 50 %>ms" class="flex items-center gap-3 cursor-pointer p-2.5 rounded-xl transition-all duration-300 animate-fade-in group <%= active ? 'nav-pill-active scale-[1.02]' : 'text-codex-text-soft hover:bg-codex-accent/10 hover:text-codex-text' %>">
+        <span class="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-lg" style="background:<%= active ? 'linear-gradient(135deg, #D7B56D 0%, #9C6B3F 55%, #4B2D17 100%)' : 'radial-gradient(circle at 30% 25%, #FFF8EA 0%, #EED7AD 42%, #B88B5A 100%)' %>;border:<%= active ? '1px solid rgba(255,248,234,0.45)' : '1px solid rgba(156,107,63,0.22)' %>;box-shadow:<%= active ? '0 8px 20px rgba(92,61,36,0.28), inset 0 1px 0 rgba(255,255,255,0.28)' : '0 6px 16px rgba(92,61,36,0.12), inset 0 1px 0 rgba(255,255,255,0.65)' %>">
+          <span style="color:<%= active ? '#FFF8EA' : '#5A3920' %>;font-size:12px"><%= helpers.iconGlyph(category.icon) %></span>
+        </span>
+        <span class="text-[13px] font-medium"><%= category.name %></span>
+        <% if (active) { %><div class="ml-auto w-1.5 h-1.5 rounded-full animate-scale-in" style="background:rgba(250,246,239,0.85)"></div><% } %>
+      </li>
+    <% }) %>
+  </ul>
+  <div class="pt-3 mt-2" style="border-top:1px solid #E8DCC4">
+    <div class="flex items-center gap-2 text-codex-subtle text-[10px]"><span style="color:#9C6B3F;font-size:12px">☕</span><span class="italic font-medium">Crafted with love</span></div>
+  </div>
+</div>

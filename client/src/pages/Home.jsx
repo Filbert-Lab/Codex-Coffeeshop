@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import ProductList from "../components/Products";
@@ -19,35 +19,55 @@ const fmt = (n) =>
     minimumFractionDigits: 0,
   }).format(n);
 
-function Home() {
-  const [cart, setCart] = useState(() => {
-    // Persist cart to localStorage
-    try {
-      const stored = localStorage.getItem("codex_cart");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+function Home({ initialData = null }) {
+  const hasInitialData = Boolean(initialData);
+  const skipInitialCategoriesFetch = useRef(hasInitialData);
+  const skipInitialProductsFetch = useRef(hasInitialData);
+
+  const [cart, setCart] = useState([]);
+  const [cartReady, setCartReady] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState(null); // null = "All"
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([ALL_CATEGORY]);
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState(() => initialData?.products ?? []);
+  const [categories, setCategories] = useState(() => [
+    ALL_CATEGORY,
+    ...(initialData?.categories ?? []),
+  ]);
+  const [loading, setLoading] = useState(!hasInitialData);
 
   const { toast, showToast } = useToast();
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // Persist cart on change
+  // Load cart after mount so SSR stays deterministic.
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem("codex_cart");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setCart(Array.isArray(parsed) ? parsed : []);
+      }
+    } catch {
+      setCart([]);
+    } finally {
+      setCartReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!cartReady) return;
     localStorage.setItem("codex_cart", JSON.stringify(cart));
-  }, [cart]);
+  }, [cart, cartReady]);
 
   // Fetch categories once on mount
   useEffect(() => {
+    if (skipInitialCategoriesFetch.current) {
+      skipInitialCategoriesFetch.current = false;
+      return;
+    }
+
     const ac = new AbortController();
     api
       .getCategories(ac.signal)
@@ -61,6 +81,11 @@ function Home() {
 
   // Fetch products when filters change (NOT when categories array changes)
   useEffect(() => {
+    if (skipInitialProductsFetch.current) {
+      skipInitialProductsFetch.current = false;
+      return;
+    }
+
     const ac = new AbortController();
     setLoading(true);
 

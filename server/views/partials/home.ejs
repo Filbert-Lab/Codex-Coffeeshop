@@ -1,0 +1,33 @@
+<%
+  const allCategory = { id: null, name: "All", icon: "🍽️" };
+  const categories = [allCategory, ...((homeData && homeData.categories) || [])];
+  const products = (homeData && homeData.products) || [];
+%>
+
+<div class="p-3 sm:p-4 md:p-5 font-sans relative flex flex-col" style="height:100vh;overflow:hidden">
+  <div class="relative z-10 flex flex-col h-full gap-3 sm:gap-4">
+    <%- include("navbar") %>
+    <div class="flex gap-3 sm:gap-4 flex-1 min-h-0">
+      <div class="w-48 lg:w-52 shrink-0 hidden md:block">
+        <%- include("sidebar", { categories, helpers }) %>
+      </div>
+      <div class="flex-1 overflow-hidden flex flex-col min-w-0">
+        <div class="md:hidden flex gap-2 overflow-x-auto pb-3 mb-1 scrollbar-hide">
+          <% categories.forEach((category) => { %>
+            <% const active = category.id === null; %>
+            <button type="button" class="shrink-0 text-xs font-semibold px-3.5 py-2 rounded-full transition-all duration-200 flex items-center gap-1.5 <%= active ? 'nav-pill-active' : '' %>" <%- active ? '' : 'style="background:#FFFBF3;color:#5C4530;border:1px solid #E8DCC4"' %>>
+              <span><%= helpers.iconGlyph(category.icon) %></span>
+              <span><%= category.name %></span>
+            </button>
+          <% }) %>
+        </div>
+        <div class="flex-1 overflow-hidden">
+          <%- include("products", { products, helpers }) %>
+        </div>
+      </div>
+      <div class="w-[280px] xl:w-[300px] shrink-0 hidden lg:block">
+        <%- include("cart", { helpers }) %>
+      </div>
+    </div>
+  </div>
+</div>

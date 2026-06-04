@@ -13,5 +13,19 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
+    cssCodeSplit: false,
+    rollupOptions: {
+      output: {
+        entryFileNames: "assets/app.js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith(".css")) {
+            return "assets/app.css";
+          }
+
+          return "assets/[name][extname]";
+        },
+      },
+    },
   },
 });

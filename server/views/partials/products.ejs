@@ -1,0 +1,49 @@
+<% if (!products.length) { %>
+  <div class="flex flex-col items-center justify-center h-full text-codex-muted">
+    <div class="w-20 h-20 rounded-full flex items-center justify-center mb-4 animate-float" style="background:radial-gradient(circle, rgba(156,107,63,0.15), rgba(156,107,63,0.04));border:1px solid rgba(156,107,63,0.2)">
+      <span style="color:rgba(156,107,63,0.6);font-size:36px">☕</span>
+    </div>
+    <p class="text-lg font-semibold text-codex-text-soft">No products found</p>
+    <p class="text-sm mt-1">Try a different search or category</p>
+  </div>
+<% } else { %>
+  <div class="h-full overflow-y-auto pr-1">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <% products.forEach((product, index) => { %>
+        <% const hasImage = product.image && String(product.image).trim() !== ""; %>
+        <div class="card group animate-fade-in flex flex-col" style="animation-delay:<%= index * 50 %>ms">
+          <div class="relative overflow-hidden h-44 shrink-0" style="background:#F4ECDF">
+            <% if (hasImage) { %>
+              <img src="<%= product.image %>" alt="<%= product.name %>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" loading="lazy" />
+            <% } else { %>
+              <div class="w-full h-full flex items-center justify-center" style="background:radial-gradient(circle at 50% 40%, #FBF4E6, #F4ECDF)">
+                <div class="text-center animate-float">
+                  <div class="mx-auto mb-2" style="color:rgba(156,107,63,0.4);font-size:40px">☕</div>
+                  <span class="text-codex-muted text-[10px] font-semibold uppercase tracking-wider px-2"><%= product.name %></span>
+                </div>
+              </div>
+            <% } %>
+            <div class="absolute inset-0 pointer-events-none" style="background:linear-gradient(180deg, transparent 60%, rgba(42,27,14,0.18) 100%)"></div>
+            <% if (product.category) { %>
+              <span class="absolute top-3 left-3 text-[10px] font-semibold pl-1 pr-2.5 py-1 rounded-full z-10 flex items-center gap-1.5" style="background:rgba(255,251,243,0.95);color:#3D2817;border:1px solid rgba(156,107,63,0.2);backdrop-filter:blur(8px);box-shadow:0 2px 6px rgba(61,40,23,0.1)">
+                <span style="font-size:10px"><%= helpers.iconGlyph(product.category.icon) %></span>
+                <span><%= product.category.name %></span>
+              </span>
+            <% } %>
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <h3 class="font-semibold text-codex-text text-[15px] mb-1 line-clamp-1 group-hover:text-codex-accent transition-colors duration-300"><%= product.name %></h3>
+            <p class="text-xs text-codex-muted mb-3 line-clamp-2 flex-1 leading-relaxed"><%= product.description || 'Freshly prepared with premium ingredients' %></p>
+            <div class="flex items-center justify-between mt-auto gap-3">
+              <span class="font-bold text-codex-accent text-[15px] tabular"><%= helpers.formatCurrency.format(Number(product.price) || 0) %></span>
+              <button type="button" class="text-xs font-bold px-4 py-2 rounded-lg transition-all duration-300 active:scale-95 flex items-center gap-1.5 shrink-0" style="background:linear-gradient(180deg, #3D2817, #2A1B0E);color:#FAF6EF;box-shadow:0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 6px rgba(61,40,23,0.25)">
+                <span style="font-size:13px">+</span>
+                <span>Add</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+<% } %>

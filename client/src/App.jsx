@@ -11,15 +11,20 @@ import AdminPromos from "./pages/admin/Promos";
 
 function ProtectedAdmin({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="flex h-screen items-center justify-center text-codex-muted">Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex h-screen items-center justify-center text-codex-muted">
+        Loading...
+      </div>
+    );
   if (!user || user.role !== "admin") return <Navigate to="/" replace />;
   return children;
 }
 
-function App() {
+function App({ initialHomeData = null }) {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Home initialData={initialHomeData} />} />
       <Route
         path="/admin"
         element={

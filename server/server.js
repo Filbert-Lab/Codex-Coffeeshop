@@ -3,6 +3,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
+const fs = require("fs");
+const path = require("path");
 
 dotenv.config();
 
@@ -12,16 +14,20 @@ const { sequelize } = require("./models/index");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProd = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
+const clientDistPath = path.join(__dirname, "../client/dist");
+const hasClientBuild = fs.existsSync(clientDistPath);
 
 // ─── Trust proxy (needed for rate-limit + req.ip behind Vercel/CDN) ───
 app.set("trust proxy", 1);
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 // ─── Security headers ───
 app.use(
   helmet({
     contentSecurityPolicy: false, // managed by frontend
     crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+  }),
 );
 
 // ─── CORS ───
@@ -44,7 +50,7 @@ app.use(
       : true, // dev: reflect any origin
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  })
+  }),
 );
 
 // ─── Body parsing with size limits ───
@@ -60,7 +66,10 @@ const authLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many auth attempts, please try again later" },
+  message: {
+    success: false,
+    message: "Too many auth attempts, please try again later",
+  },
 });
 
 const generalLimiter = rateLimit({
@@ -84,8 +93,23 @@ app.use("/api/stats", require("./routes/statsRoutes"));
 
 // Health check
 app.get("/api/health", (_req, res) => {
-  res.json({ success: true, message: "Codex Coffee API is running ☕", env: isProd ? "production" : "development" });
+  res.json({
+    success: true,
+    message: "Codex Coffee API is running ☕",
+    env: isProd ? "production" : "development",
+  });
 });
+
+if (hasClientBuild) {
+  app.use(
+    express.static(clientDistPath, {
+      index: false,
+      maxAge: isProd ? "1y" : 0,
+    }),
+  );
+}
+
+app.use(require("./routes/ssrRoutes"));
 
 // 404 for unknown /api routes
 app.use("/api", (_req, res) => {
@@ -98,7 +122,10 @@ app.use((err, _req, res, _next) => {
   console.error("[ERROR]", err.message, isProd ? "" : err.stack);
   res.status(err.status || 500).json({
     success: false,
-    message: isProd && (err.status || 500) >= 500 ? "Internal Server Error" : err.message,
+    message:
+      isProd && (err.status || 500) >= 500
+        ? "Internal Server Error"
+        : err.message,
   });
 });
 
