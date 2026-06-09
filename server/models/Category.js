@@ -9,7 +9,7 @@ Category.init(
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     name: { type: DataTypes.STRING(100), allowNull: false },
     description: { type: DataTypes.STRING(255), defaultValue: "" },
-    icon: { type: DataTypes.STRING(50), defaultValue: "☕" },
+    icon: { type: DataTypes.STRING(50), allowNull: false },
   },
   {
     sequelize,
@@ -18,7 +18,7 @@ Category.init(
     timestamps: true,
     createdAt: "created_at",
     updatedAt: false,
-  }
+  },
 );
 
 module.exports = Category;

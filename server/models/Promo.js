@@ -1,10 +1,17 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, Op } = require("sequelize");
 const sequelize = require("../config/sequelize");
 const BaseModel = require("./BaseModel");
 
 class Promo extends BaseModel {
   static async findByCode(code) {
-    return this.findOne({ where: { code: code.toUpperCase(), is_active: true } });
+    const now = new Date();
+    return this.findOne({
+      where: {
+        code: code.toUpperCase(),
+        is_active: true,
+        [Op.or]: [{ expires_at: null }, { expires_at: { [Op.gt]: now } }],
+      },
+    });
   }
 
   calculateDiscount(subtotal) {
@@ -29,6 +36,7 @@ Promo.init(
     max_discount: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
     min_order: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0 },
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
+    expires_at: { type: DataTypes.DATE, allowNull: true },
   },
   {
     sequelize,
@@ -37,7 +45,7 @@ Promo.init(
     timestamps: true,
     createdAt: "created_at",
     updatedAt: false,
-  }
+  },
 );
 
 module.exports = Promo;

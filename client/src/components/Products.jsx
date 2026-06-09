@@ -9,6 +9,8 @@ const fmt = (n) =>
   }).format(n);
 
 function ProductList({ products, cart, setCart, loading, onAdded }) {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const addToCart = (item) => {
     const exist = cart.find((x) => x.id === item.id);
     if (exist) {
@@ -36,14 +38,29 @@ function ProductList({ products, cart, setCart, loading, onAdded }) {
             index={i}
             inCart={cart.find((x) => x.id === item.id)}
             onAdd={() => addToCart(item)}
+            onDetails={() => setSelectedProduct(item)}
           />
         ))}
       </div>
+      {selectedProduct && (
+        <ProductDetailsModal
+          item={selectedProduct}
+          inCart={cart.find((x) => x.id === selectedProduct.id)}
+          onClose={() => setSelectedProduct(null)}
+          onAdd={() => addToCart(selectedProduct)}
+        />
+      )}
     </div>
   );
 }
 
-const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
+const ProductCard = memo(function ProductCard({
+  item,
+  index,
+  inCart,
+  onAdd,
+  onDetails,
+}) {
   const [imgError, setImgError] = useState(false);
   const hasImage = item.image && item.image.trim() !== "" && !imgError;
 
@@ -53,7 +70,10 @@ const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
       className="card group animate-fade-in flex flex-col"
     >
       {/* Image */}
-      <div
+      <button
+        type="button"
+        onClick={onDetails}
+        aria-label={`View details for ${item.name}`}
         className="relative overflow-hidden h-44 shrink-0"
         style={{ background: "#F4ECDF" }}
       >
@@ -123,13 +143,17 @@ const ProductCard = memo(function ProductCard({ item, index, inCart, onAdd }) {
             <span>{item.category.name}</span>
           </span>
         )}
-      </div>
+      </button>
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-semibold text-codex-text text-[15px] mb-1 line-clamp-1 group-hover:text-codex-accent transition-colors duration-300">
+        <button
+          type="button"
+          onClick={onDetails}
+          className="text-left font-semibold text-codex-text text-[15px] mb-1 line-clamp-1 group-hover:text-codex-accent transition-colors duration-300"
+        >
           {item.name}
-        </h3>
+        </button>
         <p className="text-xs text-codex-muted mb-3 line-clamp-2 flex-1 leading-relaxed">
           {item.description || "Freshly prepared with premium ingredients"}
         </p>
@@ -202,6 +226,70 @@ function AddButton({ inCart, onAdd, itemName }) {
         </>
       )}
     </button>
+  );
+}
+
+function ProductDetailsModal({ item, inCart, onClose, onAdd }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      style={{ background: "rgba(42,27,14,0.55)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl overflow-hidden animate-slide-up"
+        style={{
+          background: "#FFFFFF",
+          border: "1px solid #E8DCC4",
+          boxShadow: "0 24px 64px rgba(61,40,23,0.22)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-5" style={{ borderBottom: "1px solid #E8DCC4" }}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-codex-muted">
+                Product Details
+              </p>
+              <h2 className="text-2xl font-display font-bold text-codex-text mt-1">
+                {item.name}
+              </h2>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-codex-muted hover:text-codex-text"
+              aria-label="Close product details"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <div className="p-5 space-y-4">
+          {item.category && (
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full"
+              style={{ background: "#FFFBF3", border: "1px solid #E8DCC4" }}
+            >
+              <CategoryIcon
+                icon={item.category.icon}
+                label={item.category.name}
+                size="sm"
+              />
+              {item.category.name}
+            </div>
+          )}
+          <p className="text-sm text-codex-muted leading-relaxed">
+            {item.description || "Freshly prepared with premium ingredients."}
+          </p>
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-xl font-bold text-codex-accent">
+              {fmt(item.price)}
+            </span>
+            <AddButton inCart={inCart} onAdd={onAdd} itemName={item.name} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

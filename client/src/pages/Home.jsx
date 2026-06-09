@@ -115,6 +115,21 @@ function Home({ initialData = null }) {
     [cart],
   );
 
+  const visibleProducts = useMemo(() => {
+    const term = debouncedSearch.trim().toLowerCase();
+    return products.filter((product) => {
+      const matchesSearch =
+        !term ||
+        [product.name, product.description, product.category?.name]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(term));
+      const matchesCategory =
+        !activeCategoryId ||
+        Number(product.category_id) === Number(activeCategoryId);
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, debouncedSearch, activeCategoryId]);
+
   const handleProductAdded = useCallback(
     (item) => showToast(`${item.name} added to cart`, "added", 1800),
     [showToast],
@@ -200,7 +215,7 @@ function Home({ initialData = null }) {
 
             <div className="flex-1 overflow-hidden">
               <ProductList
-                products={products}
+                products={visibleProducts}
                 cart={cart}
                 setCart={setCart}
                 loading={loading}

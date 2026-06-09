@@ -219,6 +219,7 @@ async function seed() {
         max_discount: 15000,
         min_order: 0,
         is_active: true,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
       {
         code: "HEMAT10K",
@@ -228,6 +229,7 @@ async function seed() {
         max_discount: null,
         min_order: 30000,
         is_active: true,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
       {
         code: "NEWMEMBER",
@@ -237,6 +239,7 @@ async function seed() {
         max_discount: 20000,
         min_order: 0,
         is_active: true,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
     ]);
     console.log("✅ Promos seeded");

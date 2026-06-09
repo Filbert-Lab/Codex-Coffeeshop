@@ -12,9 +12,18 @@ const getCategories = async (req, res, next) => {
 const createCategory = async (req, res, next) => {
   try {
     const { name, description, icon } = req.body;
-    if (!name) return res.status(400).json({ success: false, message: "Name is required" });
+    if (!name)
+      return res
+        .status(400)
+        .json({ success: false, message: "Name is required" });
+    if (!icon || !String(icon).trim())
+      return res
+        .status(400)
+        .json({ success: false, message: "Please select an icon" });
     const category = await Category.createRecord({ name, description, icon });
-    res.status(201).json({ success: true, message: "Category created", data: category });
+    res
+      .status(201)
+      .json({ success: true, message: "Category created", data: category });
   } catch (error) {
     next(error);
   }
@@ -23,8 +32,19 @@ const createCategory = async (req, res, next) => {
 const updateCategory = async (req, res, next) => {
   try {
     const { name, description, icon } = req.body;
-    const affected = await Category.updateById(req.params.id, { name, description, icon });
-    if (!affected) return res.status(404).json({ success: false, message: "Category not found" });
+    if (icon !== undefined && !String(icon).trim())
+      return res
+        .status(400)
+        .json({ success: false, message: "Please select an icon" });
+    const affected = await Category.updateById(req.params.id, {
+      name,
+      description,
+      icon,
+    });
+    if (!affected)
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
     res.json({ success: true, message: "Category updated" });
   } catch (error) {
     next(error);
@@ -34,11 +54,19 @@ const updateCategory = async (req, res, next) => {
 const deleteCategory = async (req, res, next) => {
   try {
     const affected = await Category.deleteById(req.params.id);
-    if (!affected) return res.status(404).json({ success: false, message: "Category not found" });
+    if (!affected)
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
     res.json({ success: true, message: "Category deleted" });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { getCategories, createCategory, updateCategory, deleteCategory };
+module.exports = {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+};

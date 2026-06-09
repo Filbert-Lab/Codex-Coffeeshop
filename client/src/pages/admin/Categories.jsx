@@ -11,7 +11,7 @@ import CategoryIcon, {
   normalizeIcon,
 } from "../../components/CategoryIcon";
 
-const EMPTY = { name: "", description: "", icon: FALLBACK_ICON };
+const EMPTY = { name: "", description: "", icon: "" };
 const ICONS = Object.keys(CATEGORY_ICONS);
 const card = {
   background: "#FFFFFF",
@@ -47,6 +47,10 @@ export default function AdminCategories() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!form.icon) {
+      setError("Please select an icon");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -242,7 +246,7 @@ export default function AdminCategories() {
                         onClick={() => setForm({ ...form, icon: ic })}
                         className="text-2xl p-2 rounded-xl transition-all duration-200"
                         style={
-                          normalizeIcon(form.icon) === ic
+                          form.icon && normalizeIcon(form.icon) === ic
                             ? {
                                 border: "2px solid #9C6B3F",
                                 background: "rgba(156,107,63,0.1)",
@@ -258,7 +262,7 @@ export default function AdminCategories() {
                           icon={ic}
                           label={ic}
                           size="sm"
-                          active={normalizeIcon(form.icon) === ic}
+                          active={form.icon && normalizeIcon(form.icon) === ic}
                         />
                       </button>
                     ))}
@@ -274,7 +278,7 @@ export default function AdminCategories() {
                   </button>
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saving || !form.icon}
                     className="btn-primary flex-1 disabled:opacity-50"
                   >
                     {saving ? "Saving..." : "Save"}
