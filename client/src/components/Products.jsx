@@ -230,6 +230,9 @@ function AddButton({ inCart, onAdd, itemName }) {
 }
 
 function ProductDetailsModal({ item, inCart, onClose, onAdd }) {
+  const [imgError, setImgError] = useState(false);
+  const hasImage = item.image && item.image.trim() !== "" && !imgError;
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
@@ -237,7 +240,7 @@ function ProductDetailsModal({ item, inCart, onClose, onAdd }) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl overflow-hidden animate-slide-up"
+        className="w-full max-w-2xl rounded-2xl overflow-hidden animate-slide-up"
         style={{
           background: "#FFFFFF",
           border: "1px solid #E8DCC4",
@@ -245,47 +248,109 @@ function ProductDetailsModal({ item, inCart, onClose, onAdd }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-5" style={{ borderBottom: "1px solid #E8DCC4" }}>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-codex-muted">
-                Product Details
-              </p>
-              <h2 className="text-2xl font-display font-bold text-codex-text mt-1">
-                {item.name}
-              </h2>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-codex-muted hover:text-codex-text"
-              aria-label="Close product details"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-        <div className="p-5 space-y-4">
-          {item.category && (
-            <div
-              className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full"
-              style={{ background: "#FFFBF3", border: "1px solid #E8DCC4" }}
-            >
-              <CategoryIcon
-                icon={item.category.icon}
-                label={item.category.name}
-                size="sm"
+        <div className="grid md:grid-cols-[240px_1fr]">
+          <div
+            className="relative min-h-[220px]"
+            style={{ background: "#F4ECDF" }}
+          >
+            {hasImage ? (
+              <img
+                src={item.image}
+                alt={item.name}
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={() => setImgError(true)}
               />
-              {item.category.name}
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-center p-6">
+                <div className="animate-float">
+                  <svg
+                    width="54"
+                    height="54"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    style={{ color: "rgba(156,107,63,0.45)" }}
+                    className="mx-auto mb-3"
+                  >
+                    <path d="M17 8h1a4 4 0 0 1 0 8h-1" />
+                    <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" />
+                    <path d="M6 2v3M10 2v3M14 2v3" />
+                  </svg>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-codex-muted">
+                    {item.name}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="p-5" style={{ borderBottom: "1px solid #E8DCC4" }}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-codex-muted">
+                    Product Details
+                  </p>
+                  <h2 className="text-2xl font-display font-bold text-codex-text mt-1">
+                    {item.name}
+                  </h2>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="text-codex-muted hover:text-codex-text"
+                  aria-label="Close product details"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
-          )}
-          <p className="text-sm text-codex-muted leading-relaxed">
-            {item.description || "Freshly prepared with premium ingredients."}
-          </p>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-xl font-bold text-codex-accent">
-              {fmt(item.price)}
-            </span>
-            <AddButton inCart={inCart} onAdd={onAdd} itemName={item.name} />
+            <div className="p-5 space-y-4">
+              {item.category && (
+                <div
+                  className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full"
+                  style={{ background: "#FFFBF3", border: "1px solid #E8DCC4" }}
+                >
+                  <CategoryIcon
+                    icon={item.category.icon}
+                    label={item.category.name}
+                    size="sm"
+                  />
+                  {item.category.name}
+                </div>
+              )}
+              <p className="text-sm text-codex-muted leading-relaxed">
+                {item.description ||
+                  "Freshly prepared with premium ingredients."}
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div
+                  className="rounded-xl p-3"
+                  style={{ background: "#FFFBF3", border: "1px solid #E8DCC4" }}
+                >
+                  <span className="block text-codex-muted">Availability</span>
+                  <strong className="text-codex-text">
+                    {item.is_available === false
+                      ? "Unavailable"
+                      : "Ready today"}
+                  </strong>
+                </div>
+                <div
+                  className="rounded-xl p-3"
+                  style={{ background: "#FFFBF3", border: "1px solid #E8DCC4" }}
+                >
+                  <span className="block text-codex-muted">Stock</span>
+                  <strong className="text-codex-text">
+                    {item.stock ?? "Limited"}
+                  </strong>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-xl font-bold text-codex-accent">
+                  {fmt(item.price)}
+                </span>
+                <AddButton inCart={inCart} onAdd={onAdd} itemName={item.name} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
