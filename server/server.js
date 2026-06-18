@@ -6,12 +6,18 @@ const dotenv = require("dotenv");
 const fs = require("fs");
 const path = require("path");
 
+// Load env from server/.env first (where DATABASE_URL etc. live), then fall
+// back to project root .env. Both are no-ops if the file doesn't exist.
+dotenv.config({ path: path.join(__dirname, ".env") });
 dotenv.config();
 
 // Load models & associations (registers them with Sequelize)
 const { sequelize } = require("./models/index");
+// Auth module (Passport, JWT, OAuth strategies, /api/auth routes)
+const auth = require("./auth");
 
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 const isProd = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
 const clientDistPath = path.join(__dirname, "../client/dist");
@@ -81,8 +87,17 @@ const generalLimiter = rateLimit({
 });
 
 app.use("/api", generalLimiter);
+// Rate-limit both legacy and new auth endpoints
 app.use("/api/users/login", authLimiter);
 app.use("/api/users/register", authLimiter);
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+
+// ─── Passport (stateless JWT — no sessions) ───
+app.use(auth.passport.initialize());
+
+// ─── Auth routes (register, login, OAuth, /me) ───
+app.use("/api/auth", auth.routes);
 
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/categories", require("./routes/categoryRoutes"));

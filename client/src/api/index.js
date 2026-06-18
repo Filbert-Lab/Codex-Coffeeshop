@@ -29,7 +29,10 @@ const handleRes = async (res) => {
     localStorage.removeItem("codex_token");
     localStorage.removeItem("codex_user");
     // Don't redirect on login/register endpoints (they expected to fail)
-    if (!res.url.includes("/users/login") && !res.url.includes("/users/register")) {
+    if (
+      !res.url.includes("/users/login") &&
+      !res.url.includes("/users/register")
+    ) {
       window.location.href = "/";
     }
   }
@@ -39,30 +42,49 @@ const handleRes = async (res) => {
   } catch {
     throw new Error(`Server returned ${res.status}`);
   }
-  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+  if (!res.ok)
+    throw new Error(data?.message || `Request failed (${res.status})`);
   return data;
 };
 
 const buildQuery = (params) => {
-  const filtered = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "");
+  const filtered = Object.entries(params).filter(
+    ([, v]) => v !== undefined && v !== null && v !== "",
+  );
   return filtered.length ? "?" + new URLSearchParams(filtered).toString() : "";
 };
 
 const request = (url, options = {}) =>
-  fetch(`${BASE}${url}`, { ...options, headers: buildHeaders(options.headers) }).then(handleRes);
+  fetch(`${BASE}${url}`, {
+    ...options,
+    headers: buildHeaders(options.headers),
+  }).then(handleRes);
 
 const get = (url, signal) => request(url, { method: "GET", signal });
-const post = (url, body, signal) => request(url, { method: "POST", body: JSON.stringify(body), signal });
-const put = (url, body, signal) => request(url, { method: "PUT", body: JSON.stringify(body), signal });
-const patch = (url, body, signal) => request(url, { method: "PATCH", body: JSON.stringify(body), signal });
+const post = (url, body, signal) =>
+  request(url, { method: "POST", body: JSON.stringify(body), signal });
+const put = (url, body, signal) =>
+  request(url, { method: "PUT", body: JSON.stringify(body), signal });
+const patch = (url, body, signal) =>
+  request(url, { method: "PATCH", body: JSON.stringify(body), signal });
 const del = (url, signal) => request(url, { method: "DELETE", signal });
 
 // ─── AUTH ───
-export const login = (email, password) => post("/users/login", { email, password });
-export const register = (name, email, password) => post("/users/register", { name, email, password });
+// New endpoints live under /api/auth (with passport.js + OAuth).
+// /api/users/login & /api/users/register stay as backwards-compat aliases.
+export const login = (email, password) =>
+  post("/auth/login", { email, password });
+export const register = (name, email, password) =>
+  post("/auth/register", { name, email, password });
+export const fetchCurrentUser = (signal) => get("/auth/me", signal);
+export const logoutApi = () => post("/auth/logout", {});
+export const getAuthProviders = (signal) => get("/auth/providers", signal);
+/** Absolute URL (so the browser will follow it) to start an OAuth flow. */
+export const oauthStartUrl = (provider) => `${BASE}/auth/${provider}`;
 
 // ─── PRODUCTS ───
-export const getProducts = (params = {}, signal) => get(`/products${buildQuery(params)}`, signal);
+export const getProducts = (params = {}, signal) =>
+  get(`/products${buildQuery(params)}`, signal);
 export const getProductById = (id, signal) => get(`/products/${id}`, signal);
 export const createProduct = (data) => post("/products", data);
 export const updateProduct = (id, data) => put(`/products/${id}`, data);
@@ -76,21 +98,26 @@ export const deleteCategory = (id) => del(`/categories/${id}`);
 
 // ─── ORDERS ───
 export const createOrder = (data) => post("/orders", data);
-export const getOrders = (params = {}, signal) => get(`/orders${buildQuery(params)}`, signal);
+export const getOrders = (params = {}, signal) =>
+  get(`/orders${buildQuery(params)}`, signal);
 export const getOrderById = (id, signal) => get(`/orders/${id}`, signal);
-export const updateOrderStatus = (id, status) => patch(`/orders/${id}/status`, { status });
+export const updateOrderStatus = (id, status) =>
+  patch(`/orders/${id}/status`, { status });
 export const deleteOrder = (id) => del(`/orders/${id}`);
 
 // ─── PROMOS ───
 export const getActivePromos = (signal) => get("/promos/active", signal);
-export const validatePromo = (code, subtotal) => post("/promos/validate", { code, subtotal });
-export const getPromos = (params = {}, signal) => get(`/promos${buildQuery(params)}`, signal);
+export const validatePromo = (code, subtotal) =>
+  post("/promos/validate", { code, subtotal });
+export const getPromos = (params = {}, signal) =>
+  get(`/promos${buildQuery(params)}`, signal);
 export const createPromo = (data) => post("/promos", data);
 export const updatePromo = (id, data) => put(`/promos/${id}`, data);
 export const deletePromo = (id) => del(`/promos/${id}`);
 
 // ─── USERS (admin) ───
-export const getUsers = (params = {}, signal) => get(`/users${buildQuery(params)}`, signal);
+export const getUsers = (params = {}, signal) =>
+  get(`/users${buildQuery(params)}`, signal);
 export const updateUser = (id, data) => put(`/users/${id}`, data);
 export const deleteUser = (id) => del(`/users/${id}`);
 

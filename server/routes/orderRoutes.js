@@ -7,13 +7,20 @@ const {
   updateOrderStatus,
   deleteOrder,
 } = require("../controllers/orderCtrl");
-const { authMiddleware, adminMiddleware } = require("../middleware/auth");
+const { requireAuth, requireAdmin } = require("../auth");
 const { validateIdParam } = require("../middleware/validate");
 
-router.get("/", authMiddleware, adminMiddleware, getOrders);
-router.get("/:id", validateIdParam, getOrderById);
-router.post("/", createOrder);
-router.patch("/:id/status", validateIdParam, authMiddleware, adminMiddleware, updateOrderStatus);
-router.delete("/:id", validateIdParam, authMiddleware, adminMiddleware, deleteOrder);
+router.get("/", requireAuth, requireAdmin, getOrders);
+router.get("/:id", validateIdParam, requireAuth, getOrderById);
+// Customers MUST be logged in to place an order
+router.post("/", requireAuth, createOrder);
+router.patch(
+  "/:id/status",
+  validateIdParam,
+  requireAuth,
+  requireAdmin,
+  updateOrderStatus,
+);
+router.delete("/:id", validateIdParam, requireAuth, requireAdmin, deleteOrder);
 
 module.exports = router;

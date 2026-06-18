@@ -57,6 +57,7 @@ server/package-lock.json
 .eslintcache
 coverage/
 .nyc_output/
+nul
 
 # Local agent/tooling state
 .agents/

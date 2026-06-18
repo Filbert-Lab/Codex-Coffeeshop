@@ -8,6 +8,7 @@ import PaymentModal from "../components/PaymentModal";
 import Toast from "../components/Toast";
 import { useToast } from "../hooks/useToast";
 import { useDebounce } from "../hooks/useDebounce";
+import { useAuth } from "../context/AuthContext";
 import * as api from "../api";
 
 const ALL_CATEGORY = { id: null, name: "All", icon: "🍽️" };
@@ -31,6 +32,9 @@ function Home({ initialData = null }) {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
+  // Set to true when the user opens the auth modal *because* they tried to
+  // check out — we re-open the payment modal automatically once they're in.
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const [products, setProducts] = useState(() => initialData?.products ?? []);
   const [categories, setCategories] = useState(() => [
     ALL_CATEGORY,
@@ -40,6 +44,7 @@ function Home({ initialData = null }) {
 
   const { toast, showToast } = useToast();
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const { user, oauthError, clearOauthError } = useAuth();
 
   // Load cart after mount so SSR stays deterministic.
   useEffect(() => {
@@ -140,9 +145,32 @@ function Home({ initialData = null }) {
       const name = authenticatedUser?.name?.trim();
       const greeting = mode === "login" ? "Welcome back" : "Welcome to Codex";
       showToast(`${greeting}${name ? `, ${name}` : ""}!`, "success", 3000);
+      // If they were trying to check out before signing in, open it now.
+      if (pendingCheckout) {
+        setPendingCheckout(false);
+        setIsPaymentOpen(true);
+      }
     },
-    [showToast],
+    [showToast, pendingCheckout],
   );
+
+  // Open the auth modal first if not signed in, otherwise the payment modal.
+  const requestCheckout = useCallback(() => {
+    if (!user) {
+      setPendingCheckout(true);
+      setIsAuthOpen(true);
+      showToast("Please sign in to place an order", "info", 2500);
+      return;
+    }
+    setIsPaymentOpen(true);
+  }, [user, showToast]);
+
+  // Surface OAuth errors that come back via ?error=... in the callback URL.
+  useEffect(() => {
+    if (!oauthError) return;
+    showToast(oauthError, "error", 3500);
+    clearOauthError();
+  }, [oauthError, showToast, clearOauthError]);
 
   const handleCheckout = useCallback(
     async (orderData) => {
@@ -226,11 +254,7 @@ function Home({ initialData = null }) {
 
           {/* Desktop cart */}
           <div className="w-[280px] xl:w-[300px] shrink-0 hidden lg:block">
-            <Cart
-              cart={cart}
-              setCart={setCart}
-              openPayment={() => setIsPaymentOpen(true)}
-            />
+            <Cart cart={cart} setCart={setCart} openPayment={requestCheckout} />
           </div>
         </div>
       </div>
@@ -254,7 +278,7 @@ function Home({ initialData = null }) {
               setCart={setCart}
               openPayment={() => {
                 setIsMobileCartOpen(false);
-                setIsPaymentOpen(true);
+                requestCheckout();
               }}
             />
           </div>

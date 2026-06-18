@@ -1,4 +1,4 @@
-<div align="center">
+\<div align="center">
 
 # ☕ Codex Coffee Shop
 
@@ -38,21 +38,22 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 - 📱 **Mobile responsive** — drawer cart, category pills, mobile menu untuk admin
 - 🔔 **Toast notifications** — feedback instan saat tambah ke cart / checkout
 - ☁️ **Cloud-ready** — siap deploy ke Vercel + Neon PostgreSQL serverless
-- 🔐 **JWT authentication** — role-based access (admin / customer)
+- 🔐 **JWT authentication via Passport.js** — role-based (admin / customer), wajib login untuk checkout
+- 🌐 **OAuth 2.0** — sign in with Google & GitHub (opt-in via env vars)
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer        | Teknologi                                     |
-| ------------ | --------------------------------------------- |
-| Runtime      | Node.js v18+                                  |
-| Backend      | Express.js v4 + Sequelize ORM v6              |
-| Database     | SQLite (dev) / PostgreSQL via Neon (prod)     |
-| Frontend     | React 18 + React Router v6 + Vite 5           |
-| Styling      | Tailwind CSS v3 (custom dark theme)           |
-| Auth         | JWT (jsonwebtoken) + bcryptjs                 |
-| Deployment   | Vercel (static frontend + serverless backend) |
+| Layer      | Teknologi                                              |
+| ---------- | ------------------------------------------------------ |
+| Runtime    | Node.js v18+                                           |
+| Backend    | Express.js v4 + Sequelize ORM v6                       |
+| Database   | SQLite (dev) / PostgreSQL via Neon (prod)              |
+| Frontend   | React 18 + React Router v6 + Vite 5                    |
+| Styling    | Tailwind CSS v3 (custom dark theme)                    |
+| Auth       | Passport.js (Local + JWT + Google + GitHub) + bcryptjs |
+| Deployment | Vercel (static frontend + serverless backend)          |
 
 ---
 
@@ -94,20 +95,34 @@ codex-coffee-shop/
 │   ├── tailwind.config.js
 │   └── vite.config.js
 ├── server/                     # Backend
+│   ├── auth/                   # 🔐 Passport.js + JWT + OAuth
+│   │   ├── index.js            # Public surface (re-exports)
+│   │   ├── passport.js         # Strategy registration
+│   │   ├── tokenService.js     # JWT issue / verify
+│   │   ├── authController.js   # register / login / me / oauth callbacks
+│   │   ├── authRoutes.js       # /api/auth/* endpoints
+│   │   ├── authMiddleware.js   # requireAuth, requireAdmin, optionalAuth
+│   │   └── strategies/
+│   │       ├── localStrategy.js
+│   │       ├── jwtStrategy.js
+│   │       ├── googleStrategy.js
+│   │       └── githubStrategy.js
 │   ├── config/
 │   │   ├── sequelize.js        # SQLite + Neon support
 │   │   └── seed.js
 │   ├── controllers/
-│   │   ├── userCtrl.js
+│   │   ├── userCtrl.js         # Admin user mgmt (auth lives in /auth)
 │   │   ├── categoryCtrl.js
 │   │   ├── productCtrl.js
 │   │   ├── orderCtrl.js
 │   │   ├── promoCtrl.js
 │   │   └── statsCtrl.js        # Dashboard analytics queries
-│   ├── middleware/auth.js
+│   ├── middleware/
+│   │   ├── auth.js             # Backwards-compat shim → server/auth
+│   │   └── validate.js
 │   ├── models/                 # OOP inheritance
 │   │   ├── BaseModel.js
-│   │   ├── User.js
+│   │   ├── User.js             # + provider, provider_id, avatar_url
 │   │   ├── Category.js
 │   │   ├── Product.js
 │   │   ├── Order.js
@@ -116,6 +131,7 @@ codex-coffee-shop/
 │   │   └── index.js
 │   ├── routes/
 │   └── server.js
+
 ├── .env.example
 ├── .gitignore
 ├── vercel.json
@@ -126,14 +142,14 @@ codex-coffee-shop/
 
 ## 🗄️ Database — 6 Resource
 
-| #   | Resource       | Tabel         | Deskripsi                                   | CRUD       |
-| --- | -------------- | ------------- | ------------------------------------------- | ---------- |
-| 1   | **Users**      | `users`       | User dengan role admin/customer             | ✅ C-R-U-D |
-| 2   | **Categories** | `categories`  | Kategori menu (Espresso, Non-Coffee, dll)   | ✅ C-R-U-D |
-| 3   | **Products**   | `products`    | Menu kopi & makanan dengan stok, harga      | ✅ C-R-U-D |
-| 4   | **Orders**     | `orders`      | Pesanan dengan status tracking              | ✅ C-R-U-D |
-| 5   | **OrderItems** | `order_items` | Detail item per pesanan (junction)          | ✅ C-R     |
-| 6   | **Promos**     | `promos`      | Kode promo (percent / fixed)                | ✅ C-R-U-D |
+| #   | Resource       | Tabel         | Deskripsi                                 | CRUD       |
+| --- | -------------- | ------------- | ----------------------------------------- | ---------- |
+| 1   | **Users**      | `users`       | User dengan role admin/customer           | ✅ C-R-U-D |
+| 2   | **Categories** | `categories`  | Kategori menu (Espresso, Non-Coffee, dll) | ✅ C-R-U-D |
+| 3   | **Products**   | `products`    | Menu kopi & makanan dengan stok, harga    | ✅ C-R-U-D |
+| 4   | **Orders**     | `orders`      | Pesanan dengan status tracking            | ✅ C-R-U-D |
+| 5   | **OrderItems** | `order_items` | Detail item per pesanan (junction)        | ✅ C-R     |
+| 6   | **Promos**     | `promos`      | Kode promo (percent / fixed)              | ✅ C-R-U-D |
 
 ### Relasi
 
@@ -148,6 +164,7 @@ User ──< Order ──< OrderItem >── Product >── Category
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - **Node.js v18+** & **npm**
 
 ### Setup Lokal (SQLite — tanpa Neon)
@@ -184,12 +201,12 @@ npm run dev
 
 ### Akses
 
-| Halaman             | URL                              |
-| ------------------- | -------------------------------- |
-| Customer (Menu)     | http://localhost:5173            |
-| Admin Panel        | http://localhost:5173/admin      |
-| API Backend         | http://localhost:5000/api        |
-| Health Check        | http://localhost:5000/api/health |
+| Halaman         | URL                              |
+| --------------- | -------------------------------- |
+| Customer (Menu) | http://localhost:5173            |
+| Admin Panel     | http://localhost:5173/admin      |
+| API Backend     | http://localhost:5000/api        |
+| Health Check    | http://localhost:5000/api/health |
 
 ### 🔐 Default Login
 
@@ -202,57 +219,79 @@ npm run dev
 
 ## 📡 API Endpoints
 
-### Auth — `/api/users`
-| Method   | Endpoint              | Auth     |
-| -------- | --------------------- | -------- |
-| `POST`   | `/login`              | ❌       |
-| `POST`   | `/register`           | ❌       |
-| `GET`    | `/`                   | 🔒 Admin |
-| `PUT`    | `/:id`                | 🔒 Admin |
-| `DELETE` | `/:id`                | 🔒 Admin |
+### Auth — `/api/auth` (NEW, powered by Passport.js)
+
+| Method | Endpoint           | Auth    | Notes                                    |
+| ------ | ------------------ | ------- | ---------------------------------------- |
+| `POST` | `/register`        | ❌      | Local sign-up (email + password)         |
+| `POST` | `/login`           | ❌      | Local sign-in (returns JWT)              |
+| `GET`  | `/me`              | 🔒 User | Returns current user from Bearer token   |
+| `POST` | `/logout`          | ❌      | Stateless — clears token client-side     |
+| `GET`  | `/providers`       | ❌      | Lists enabled OAuth providers            |
+| `GET`  | `/google`          | ❌      | Start Google OAuth (browser redirect)    |
+| `GET`  | `/google/callback` | ❌      | Google OAuth callback → redirects to SPA |
+| `GET`  | `/github`          | ❌      | Start GitHub OAuth (browser redirect)    |
+| `GET`  | `/github/callback` | ❌      | GitHub OAuth callback → redirects to SPA |
+
+> Legacy aliases `POST /api/users/login` & `POST /api/users/register` masih
+> berfungsi dan langsung delegate ke `/api/auth/login` & `/api/auth/register`.
+
+### Users — `/api/users` (admin management)
+
+| Method   | Endpoint | Auth     |
+| -------- | -------- | -------- |
+| `GET`    | `/`      | 🔒 Admin |
+| `PUT`    | `/:id`   | 🔒 Admin |
+| `DELETE` | `/:id`   | 🔒 Admin |
 
 ### Products — `/api/products`
-| Method   | Endpoint                                          | Auth     |
-| -------- | ------------------------------------------------- | -------- |
-| `GET`    | `/?search=&category_id=&page=&limit=`             | ❌       |
-| `GET`    | `/:id`                                            | ❌       |
-| `POST`   | `/`                                               | 🔒 Admin |
-| `PUT`    | `/:id`                                            | 🔒 Admin |
-| `DELETE` | `/:id`                                            | 🔒 Admin |
+
+| Method   | Endpoint                              | Auth     |
+| -------- | ------------------------------------- | -------- |
+| `GET`    | `/?search=&category_id=&page=&limit=` | ❌       |
+| `GET`    | `/:id`                                | ❌       |
+| `POST`   | `/`                                   | 🔒 Admin |
+| `PUT`    | `/:id`                                | 🔒 Admin |
+| `DELETE` | `/:id`                                | 🔒 Admin |
 
 ### Categories — `/api/categories`
-| Method   | Endpoint              | Auth     |
-| -------- | --------------------- | -------- |
-| `GET`    | `/`                   | ❌       |
-| `POST`   | `/`                   | 🔒 Admin |
-| `PUT`    | `/:id`                | 🔒 Admin |
-| `DELETE` | `/:id`                | 🔒 Admin |
+
+| Method   | Endpoint | Auth     |
+| -------- | -------- | -------- |
+| `GET`    | `/`      | ❌       |
+| `POST`   | `/`      | 🔒 Admin |
+| `PUT`    | `/:id`   | 🔒 Admin |
+| `DELETE` | `/:id`   | 🔒 Admin |
 
 ### Orders — `/api/orders`
-| Method   | Endpoint              | Auth     |
-| -------- | --------------------- | -------- |
-| `POST`   | `/`                   | ❌       |
-| `GET`    | `/?status=&page=&limit=` | 🔒 Admin |
-| `GET`    | `/:id`                | ❌       |
-| `PATCH`  | `/:id/status`         | 🔒 Admin |
-| `DELETE` | `/:id`                | 🔒 Admin |
+
+| Method   | Endpoint                 | Auth     | Notes                             |
+| -------- | ------------------------ | -------- | --------------------------------- |
+| `POST`   | `/`                      | 🔒 User  | **Wajib login** untuk place order |
+| `GET`    | `/?status=&page=&limit=` | 🔒 Admin |                                   |
+| `GET`    | `/:id`                   | 🔒 User  |                                   |
+| `PATCH`  | `/:id/status`            | 🔒 Admin |                                   |
+| `DELETE` | `/:id`                   | 🔒 Admin |                                   |
 
 ### Promos — `/api/promos`
-| Method   | Endpoint              | Auth     |
-| -------- | --------------------- | -------- |
-| `GET`    | `/active`             | ❌       |
-| `POST`   | `/validate`           | ❌       |
-| `GET`    | `/?page=&limit=`      | 🔒 Admin |
-| `POST`   | `/`                   | 🔒 Admin |
-| `PUT`    | `/:id`                | 🔒 Admin |
-| `DELETE` | `/:id`                | 🔒 Admin |
+
+| Method   | Endpoint         | Auth     |
+| -------- | ---------------- | -------- |
+| `GET`    | `/active`        | ❌       |
+| `POST`   | `/validate`      | ❌       |
+| `GET`    | `/?page=&limit=` | 🔒 Admin |
+| `POST`   | `/`              | 🔒 Admin |
+| `PUT`    | `/:id`           | 🔒 Admin |
+| `DELETE` | `/:id`           | 🔒 Admin |
 
 ### Stats — `/api/stats`
-| Method | Endpoint     | Returns                                              | Auth     |
-| ------ | ------------ | ---------------------------------------------------- | -------- |
-| `GET`  | `/`          | Dashboard analytics (revenue, daily chart, top prods) | 🔒 Admin |
+
+| Method | Endpoint | Returns                                               | Auth     |
+| ------ | -------- | ----------------------------------------------------- | -------- |
+| `GET`  | `/`      | Dashboard analytics (revenue, daily chart, top prods) | 🔒 Admin |
 
 **Stats response:**
+
 ```json
 {
   "success": true,
@@ -279,21 +318,23 @@ npm run dev
 ## 📋 Format Response
 
 ### ✅ Success
+
 ```json
 { "success": true, "message": "...", "data": {...} }
 ```
 
 ### ❌ Error
+
 ```json
 { "success": false, "message": "..." }
 ```
 
-| Status | Saat                              |
-| ------ | --------------------------------- |
-| `400`  | Validasi input gagal              |
-| `401`  | Token tidak ada / expired         |
-| `403`  | Bukan admin                       |
-| `404`  | Resource tidak ditemukan          |
+| Status | Saat                               |
+| ------ | ---------------------------------- |
+| `400`  | Validasi input gagal               |
+| `401`  | Token tidak ada / expired          |
+| `403`  | Bukan admin                        |
+| `404`  | Resource tidak ditemukan           |
 | `500`  | Server error (centralized handler) |
 
 ---
@@ -301,7 +342,10 @@ npm run dev
 ## ✨ Fitur
 
 ### 👤 Customer (`/`)
-- 🔐 Login / Register dengan JWT
+
+- 🔐 Login / Register dengan JWT (email-password) + OAuth (Google / GitHub)
+- 🛒 Browse menu tanpa login — bebas eksplor & isi keranjang
+- 🔒 **Wajib login sebelum checkout** — modal auth otomatis muncul saat klik Checkout, lalu lanjut ke pembayaran setelah berhasil
 - 🔍 Live search produk
 - 🗂️ Filter kategori (desktop sidebar + mobile category pills)
 - 🛒 Cart dengan quantity control & live total
@@ -311,6 +355,7 @@ npm run dev
 - 🔔 Toast notification saat tambah cart / order placed
 
 ### 🛡️ Admin Panel (`/admin`)
+
 - 📊 **Dashboard** dengan analytics:
   - Stats cards (revenue, orders, products, customers)
   - Highlight cards (today, avg order, pending)
@@ -348,6 +393,70 @@ Aplikasi otomatis menggunakan Neon di production (terdeteksi via `process.env.VE
 
 ---
 
+## 🔐 Authentication (Passport.js + JWT + OAuth)
+
+Auth module hidup di **`server/auth/`** — terpisah dari controller/middleware lain, jadi mudah dirawat dan ditest.
+
+### Flow
+
+```
+                        ┌──────────────────────────────────────┐
+  Email + password ───► │ POST /api/auth/login (LocalStrategy) │ ──┐
+                        └──────────────────────────────────────┘   │
+                                                                   ├─► JWT (Bearer) ─► localStorage ─► Authorization header
+   Google / GitHub  ───► /api/auth/{provider}                      │
+                              ↓                                    │
+                         OAuth dance                                │
+                              ↓                                    │
+                         /api/auth/{provider}/callback ─────────────┘
+                              ↓
+                         Redirect ke `/auth/callback?token=...`
+                              ↓
+                         SPA AuthContext baca query → simpan token → fetch /me
+```
+
+- **Stateless** — tidak ada session cookie. JWT disimpan di `localStorage` client.
+- **Wajib login untuk POST `/api/orders`** — `user_id` diambil dari JWT, **tidak** dari body request (dilindungi tampering).
+- **OAuth opsional** — strategi hanya didaftarkan kalau credentials ada di env. Strategi yang tidak dikonfigurasi tidak muncul di UI.
+
+### Setup OAuth
+
+#### Google
+
+1. Buka https://console.cloud.google.com → buat OAuth Client (type: **Web application**).
+2. Tambahkan **Authorized redirect URI**: `http://localhost:5000/api/auth/google/callback`
+   (untuk Vercel: ganti host ke domain produksi).
+3. Salin Client ID + Secret ke `server/.env`:
+   ```env
+   GOOGLE_CLIENT_ID=...
+   GOOGLE_CLIENT_SECRET=...
+   ```
+
+#### GitHub
+
+1. Buka https://github.com/settings/developers → **New OAuth App**.
+2. Authorization callback URL: `http://localhost:5000/api/auth/github/callback`.
+3. Salin ke `server/.env`:
+   ```env
+   GITHUB_CLIENT_ID=...
+   GITHUB_CLIENT_SECRET=...
+   ```
+
+Restart dev server. Tombol Continue with Google / GitHub otomatis muncul di modal login.
+
+### Custom callback URL (production)
+
+Di Vercel, set:
+
+```env
+GOOGLE_CALLBACK_URL=https://your-domain.vercel.app/api/auth/google/callback
+GITHUB_CALLBACK_URL=https://your-domain.vercel.app/api/auth/github/callback
+OAUTH_SUCCESS_REDIRECT=/auth/callback
+OAUTH_FAILURE_REDIRECT=/auth/callback
+```
+
+---
+
 ## 🏗️ Pola Desain
 
 ### OOP Inheritance pada Models
@@ -369,10 +478,12 @@ Sequelize.Model
 ```
 
 ### Module System
+
 - **Server**: CommonJS (`require` / `module.exports`)
 - **Client**: ES Modules (`import` / `export`)
 
 ### Async / Error Handling
+
 - Semua controller pakai `async/await` + `try/catch`
 - Error di-forward ke centralized error handler via `next(error)`
 - Async hooks di model untuk bcrypt password hashing
@@ -384,15 +495,15 @@ Sequelize.Model
 
 **Color Palette (Dark Coffee):**
 
-| Token             | Hex       | Usage                |
-| ----------------- | --------- | -------------------- |
-| `codex-bg`        | `#1C1410` | Background utama     |
-| `codex-surface`   | `#251C16` | Cards & panels       |
-| `codex-panel`     | `#2E2218` | Navbar/sidebar       |
-| `codex-border`    | `#3D2E22` | Border subtle        |
-| `codex-accent`    | `#E8A045` | Orange-gold accent   |
-| `codex-text`      | `#F0E6D8` | Text utama           |
-| `codex-muted`     | `#8A7060` | Text sekunder        |
+| Token           | Hex       | Usage              |
+| --------------- | --------- | ------------------ |
+| `codex-bg`      | `#1C1410` | Background utama   |
+| `codex-surface` | `#251C16` | Cards & panels     |
+| `codex-panel`   | `#2E2218` | Navbar/sidebar     |
+| `codex-border`  | `#3D2E22` | Border subtle      |
+| `codex-accent`  | `#E8A045` | Orange-gold accent |
+| `codex-text`    | `#F0E6D8` | Text utama         |
+| `codex-muted`   | `#8A7060` | Text sekunder      |
 
 **Fonts:** Poppins (display) + Inter (body)
 

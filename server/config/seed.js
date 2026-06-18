@@ -203,7 +203,7 @@ async function seed() {
         description: "Floral lavender with local honey and oat milk",
         price: 38000,
         image:
-          "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
+          "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=400&fit=crop",
         stock: 20,
       },
     ]);

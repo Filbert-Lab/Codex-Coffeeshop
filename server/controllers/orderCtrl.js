@@ -14,7 +14,9 @@ const getOrders = async (req, res, next) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 10));
-    const status = VALID_STATUSES.includes(req.query.status) ? req.query.status : null;
+    const status = VALID_STATUSES.includes(req.query.status)
+      ? req.query.status
+      : null;
 
     const where = status ? { status } : {};
     const result = await Order.findPaginated({
@@ -33,7 +35,10 @@ const getOrderById = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     const order = await Order.findWithItems(id);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     res.json({ success: true, data: order });
   } catch (error) {
     next(error);
@@ -50,25 +55,38 @@ const createOrder = async (req, res, next) => {
       order_type = "pickup",
       promo_code,
       notes,
-      user_id,
     } = req.body;
+    // user_id comes from the verified JWT, NEVER from the request body —
+    // the route requires authentication so req.user is always present.
+    const user_id = req.user?.id ?? null;
 
     // ─── Validation ───
     if (!Array.isArray(items) || items.length === 0) {
       await t.rollback();
-      return res.status(400).json({ success: false, message: "Order must have at least one item" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Order must have at least one item" });
     }
     if (items.length > MAX_ITEMS_PER_ORDER) {
       await t.rollback();
-      return res.status(400).json({ success: false, message: `Maximum ${MAX_ITEMS_PER_ORDER} items per order` });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: `Maximum ${MAX_ITEMS_PER_ORDER} items per order`,
+        });
     }
     if (!VALID_ORDER_TYPES.includes(order_type)) {
       await t.rollback();
-      return res.status(400).json({ success: false, message: "Invalid order type" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order type" });
     }
 
     // ─── SECURITY: refetch product prices server-side, NEVER trust client ───
-    const productIds = [...new Set(items.map((i) => Number(i.product_id)).filter(Boolean))];
+    const productIds = [
+      ...new Set(items.map((i) => Number(i.product_id)).filter(Boolean)),
+    ];
     const products = await Product.findAll({
       where: { id: { [Op.in]: productIds } },
       attributes: ["id", "price", "name", "is_available"],
@@ -77,7 +95,9 @@ const createOrder = async (req, res, next) => {
 
     if (products.length !== productIds.length) {
       await t.rollback();
-      return res.status(400).json({ success: false, message: "One or more products not found" });
+      return res
+        .status(400)
+        .json({ success: false, message: "One or more products not found" });
     }
 
     const priceMap = new Map(products.map((p) => [p.id, p]));
@@ -88,17 +108,30 @@ const createOrder = async (req, res, next) => {
       const product = priceMap.get(Number(raw.product_id));
       if (!product) {
         await t.rollback();
-        return res.status(400).json({ success: false, message: `Product ${raw.product_id} not found` });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: `Product ${raw.product_id} not found`,
+          });
       }
       if (!product.is_available) {
         await t.rollback();
         return res
           .status(400)
-          .json({ success: false, message: `${product.name} is not available` });
+          .json({
+            success: false,
+            message: `${product.name} is not available`,
+          });
       }
       const qty = Math.max(1, Math.min(99, parseInt(raw.quantity, 10) || 1));
       const price = Number(product.price); // server-trusted price
-      validatedItems.push({ product_id: product.id, quantity: qty, price, subtotal: price * qty });
+      validatedItems.push({
+        product_id: product.id,
+        quantity: qty,
+        price,
+        subtotal: price * qty,
+      });
     }
 
     const subtotal = validatedItems.reduce((s, i) => s + i.subtotal, 0);
@@ -129,12 +162,12 @@ const createOrder = async (req, res, next) => {
         promo_code: appliedPromoCode,
         notes: notes ? String(notes).trim().slice(0, 500) : null,
       },
-      { transaction: t }
+      { transaction: t },
     );
 
     await OrderItem.bulkCreate(
       validatedItems.map((i) => ({ ...i, order_id: order.id })),
-      { transaction: t }
+      { transaction: t },
     );
 
     await t.commit();
@@ -155,10 +188,15 @@ const updateOrderStatus = async (req, res, next) => {
     const id = Number(req.params.id);
     const { status } = req.body;
     if (!VALID_STATUSES.includes(status)) {
-      return res.status(400).json({ success: false, message: "Invalid status" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status" });
     }
     const affected = await Order.updateById(id, { status });
-    if (!affected) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!affected)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     res.json({ success: true, message: "Order status updated" });
   } catch (error) {
     next(error);
@@ -174,7 +212,9 @@ const deleteOrder = async (req, res, next) => {
     const affected = await Order.destroy({ where: { id }, transaction: t });
     if (!affected) {
       await t.rollback();
-      return res.status(404).json({ success: false, message: "Order not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
     }
     await t.commit();
     res.json({ success: true, message: "Order deleted" });
@@ -184,4 +224,10 @@ const deleteOrder = async (req, res, next) => {
   }
 };
 
-module.exports = { getOrders, getOrderById, createOrder, updateOrderStatus, deleteOrder };
+module.exports = {
+  getOrders,
+  getOrderById,
+  createOrder,
+  updateOrderStatus,
+  deleteOrder,
+};
