@@ -26,16 +26,20 @@ const buildHeaders = (extra = {}) => {
 const handleRes = async (res) => {
   // 401 → token expired or invalid → clear and reload
   if (res.status === 401) {
-    localStorage.removeItem("codex_token");
-    localStorage.removeItem("codex_user");
-    // Don't redirect on login/register endpoints (they expected to fail)
-    if (
-      !res.url.includes("/users/login") &&
-      !res.url.includes("/users/register")
-    ) {
+    // Don't redirect on auth endpoints — a 401 there is an expected
+    // "wrong credentials" response that the form should surface inline.
+    const isAuthAttempt =
+      res.url.includes("/auth/login") ||
+      res.url.includes("/auth/register") ||
+      res.url.includes("/users/login") ||
+      res.url.includes("/users/register");
+    if (!isAuthAttempt) {
+      localStorage.removeItem("codex_token");
+      localStorage.removeItem("codex_user");
       window.location.href = "/";
     }
   }
+
   let data;
   try {
     data = await res.json();
