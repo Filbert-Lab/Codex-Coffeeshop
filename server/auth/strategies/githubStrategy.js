@@ -46,20 +46,15 @@ if (isConfigured) {
         let user = await User.findByProvider("github", profile.id);
         if (user) return done(null, user);
 
-        // 2) Existing email? Link the OAuth provider to it.
+        // 2) Existing email? Link/Switch the OAuth provider to it.
         if (email) {
           user = await User.findByEmail(email);
           if (user) {
-            if (user.provider === "local" || user.provider === "github") {
-              user.provider = "github";
-              user.provider_id = String(profile.id);
-              if (!user.avatar_url) user.avatar_url = avatar;
-              await user.save();
-              return done(null, user);
-            }
-            return done(null, false, {
-              message: `Email already registered via ${user.provider}`,
-            });
+            user.provider = "github";
+            user.provider_id = String(profile.id);
+            if (!user.avatar_url) user.avatar_url = avatar;
+            await user.save();
+            return done(null, user);
           }
         }
 

@@ -1,7 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Home from "./pages/Home";
+import AuthCallback from "./pages/AuthCallback";
 import AdminLayout from "./pages/admin/AdminLayout";
+
 import Dashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
@@ -25,6 +27,7 @@ function App({ initialHomeData = null }) {
   return (
     <Routes>
       <Route path="/" element={<Home initialData={initialHomeData} />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
         path="/admin"
         element={

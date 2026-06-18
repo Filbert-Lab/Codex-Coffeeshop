@@ -48,20 +48,14 @@ if (isConfigured) {
         let user = await User.findByProvider("google", profile.id);
         if (user) return done(null, user);
 
-        // 2) Existing email? Link the OAuth provider to it.
+        // 2) Existing email? Link/Switch the OAuth provider to it.
         user = await User.findByEmail(email);
         if (user) {
-          // Only link if the existing account isn't bound to another provider.
-          if (user.provider === "local" || user.provider === "google") {
-            user.provider = "google";
-            user.provider_id = String(profile.id);
-            if (!user.avatar_url) user.avatar_url = avatar;
-            await user.save();
-            return done(null, user);
-          }
-          return done(null, false, {
-            message: `Email already registered via ${user.provider}`,
-          });
+          user.provider = "google";
+          user.provider_id = String(profile.id);
+          if (!user.avatar_url) user.avatar_url = avatar;
+          await user.save();
+          return done(null, user);
         }
 
         // 3) Brand new user

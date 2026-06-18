@@ -39,8 +39,14 @@ ALTER TABLE "users"
 ALTER TABLE "users"
   ADD COLUMN IF NOT EXISTS "avatar_url" VARCHAR(500);
 
+-- OAuth-only users have no password. The table was created with a NOT NULL
+-- constraint before the model made password nullable, so relax it here.
+ALTER TABLE "users"
+  ALTER COLUMN "password" DROP NOT NULL;
+
 CREATE INDEX IF NOT EXISTS "users_provider_provider_id"
   ON "users" ("provider", "provider_id");
+
 `;
 
 (async () => {

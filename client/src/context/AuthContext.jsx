@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import * as api from "../api";
 
 const AuthContext = createContext(null);
@@ -31,10 +31,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [providers, setProviders] = useState([]);
   const [oauthError, setOauthError] = useState(null);
+  const bootstrapRun = useRef(false);
 
   // Initial bootstrap: pick up OAuth callback token, then restore session
   useEffect(() => {
-    let cancelled = false;
+    if (bootstrapRun.current) return;
+    bootstrapRun.current = true;
 
     (async () => {
       const { token: oauthToken, error } = extractAuthFromQuery();
@@ -45,7 +47,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem(TOKEN_KEY, oauthToken);
         try {
           const res = await api.fetchCurrentUser();
-          if (!cancelled && res?.data?.user) {
+          if (res?.data?.user) {
             localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
             setUser(res.data.user);
           }
@@ -54,7 +56,7 @@ export function AuthProvider({ children }) {
           localStorage.removeItem(TOKEN_KEY);
           localStorage.removeItem(USER_KEY);
         } finally {
-          if (!cancelled) setLoading(false);
+          setLoading(false);
         }
         return;
       }
@@ -69,12 +71,8 @@ export function AuthProvider({ children }) {
           localStorage.removeItem(USER_KEY);
         }
       }
-      if (!cancelled) setLoading(false);
+      setLoading(false);
     })();
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   // Fetch enabled OAuth providers (best-effort; ignore failures)
