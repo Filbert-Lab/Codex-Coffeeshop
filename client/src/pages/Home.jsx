@@ -44,7 +44,15 @@ function Home({ initialData = null }) {
 
   const { toast, showToast } = useToast();
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const { user, oauthError, clearOauthError } = useAuth();
+  const {
+    user,
+    oauthError,
+    clearOauthError,
+    oauthWelcome,
+    clearOauthWelcome,
+    logoutFlash,
+    clearLogoutFlash,
+  } = useAuth();
 
   // Load cart after mount so SSR stays deterministic.
   useEffect(() => {
@@ -171,6 +179,26 @@ function Home({ initialData = null }) {
     showToast(oauthError, "error", 3500);
     clearOauthError();
   }, [oauthError, showToast, clearOauthError]);
+
+  // Welcome the user back after an OAuth redirect login (Google/GitHub).
+  useEffect(() => {
+    if (!oauthWelcome) return;
+    const name = oauthWelcome?.name?.trim();
+    showToast(`Welcome back${name ? `, ${name}` : ""}!`, "success", 3000);
+    clearOauthWelcome();
+  }, [oauthWelcome, showToast, clearOauthWelcome]);
+
+  // Confirm a successful logout with a toast (works from navbar or admin panel).
+  useEffect(() => {
+    if (!logoutFlash) return;
+    const name = logoutFlash?.name?.trim();
+    showToast(
+      `You've been logged out${name ? `, ${name}` : ""}. See you soon!`,
+      "info",
+      3000,
+    );
+    clearLogoutFlash();
+  }, [logoutFlash, showToast, clearLogoutFlash]);
 
   const handleCheckout = useCallback(
     async (orderData) => {

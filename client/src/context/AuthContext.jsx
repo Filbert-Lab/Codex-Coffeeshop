@@ -31,6 +31,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [providers, setProviders] = useState([]);
   const [oauthError, setOauthError] = useState(null);
+  // Transient signal so the UI can flash a "welcome back" toast right after
+  // an OAuth redirect login (where handleAuthenticated never fires).
+  const [oauthWelcome, setOauthWelcome] = useState(null);
+  // Transient signal so the UI can flash a "logged out" toast — survives the
+  // redirect from the admin panel back to the storefront.
+  const [logoutFlash, setLogoutFlash] = useState(null);
   const bootstrapRun = useRef(false);
 
   // Initial bootstrap: pick up OAuth callback token, then restore session
@@ -50,6 +56,7 @@ export function AuthProvider({ children }) {
           if (res?.data?.user) {
             localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
             setUser(res.data.user);
+            setOauthWelcome(res.data.user);
           }
         } catch {
           // Token didn't validate — clean up so we don't loop.
@@ -112,14 +119,21 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    const previousUser = user;
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setUser(null);
+    // Flag so the storefront can flash a "logged out" toast (survives the
+    // admin -> storefront redirect).
+    setLogoutFlash(previousUser || { name: "" });
     // Stateless server — fire-and-forget, ignore errors
     api.logoutApi().catch(() => {});
+    return previousUser;
   };
 
   const clearOauthError = () => setOauthError(null);
+  const clearOauthWelcome = () => setOauthWelcome(null);
+  const clearLogoutFlash = () => setLogoutFlash(null);
 
   return (
     <AuthContext.Provider
@@ -133,6 +147,10 @@ export function AuthProvider({ children }) {
         providers,
         oauthError,
         clearOauthError,
+        oauthWelcome,
+        clearOauthWelcome,
+        logoutFlash,
+        clearLogoutFlash,
         isAdmin: user?.role === "admin",
       }}
     >
