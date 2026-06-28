@@ -89,12 +89,14 @@ codex-coffee-shop/
 │   │   │   ├── Navbar.jsx
 │   │   │   ├── Sidebar.jsx
 │   │   │   ├── Products.jsx
+│   │   │   ├── CategoryIcon.jsx     # Category emoji/icon renderer
 │   │   │   ├── CartPreview.jsx
 │   │   │   ├── AuthModal.jsx
 │   │   │   ├── PaymentModal.jsx
+│   │   │   ├── ConfirmCallModal.jsx       # NEW: pre-call confirmation
 │   │   │   ├── CallModal.jsx        # NEW: WebRTC video call UI
 │   │   │   ├── IncomingCallNotification.jsx  # NEW: admin call alert
-│   │   │   └── Toast.jsx       # NEW: toast notifications
+│   │   │   └── Toast.jsx
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── hooks/              # NEW
@@ -164,7 +166,7 @@ codex-coffee-shop/
 
 ---
 
-## 🗄️ Database — 6 Resource
+## 🗄️ Database — 7 Resource
 
 | #   | Resource       | Tabel         | Deskripsi                                 | CRUD       |
 | --- | -------------- | ------------- | ----------------------------------------- | ---------- |
@@ -180,8 +182,10 @@ codex-coffee-shop/
 
 ```
 User ──< Order ──< OrderItem >── Product >── Category
-                                     │
-                              Promo (validated at checkout)
+   │                                    │
+   │                             Promo (validated at checkout)
+   │
+   └──< CallSession (WebRTC signaling: offer, answer, ICE)
 ```
 
 ---
@@ -530,8 +534,8 @@ Customer (Caller)                              Admin (Callee)
 ### Alur Customer
 
 1. Klik tombol **"Live Support"** (floating, bottom-left)
-2. Jika belum login → modal auth muncul, lalu call dimulai otomatis
-3. Browser request izin kamera & mikrofon
+2. Jika belum login → modal auth muncul, lalu confirm modal tampil
+3. Klik **"Start Call"** di confirm modal → browser request izin kamera & mikrofon
 4. Tunggu admin menjawab (status: "Calling admin…")
 5. Saat admin accept → video call aktif
 6. Kontrol: mute, camera off, chat, hangup
