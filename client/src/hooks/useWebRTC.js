@@ -121,6 +121,34 @@ export function useWebRTC() {
     }
   }, []);
 
+  /** Tear down peer connection, data channel, and local media tracks. */
+  const teardownPeer = useCallback(() => {
+    clearConnectTimeout();
+    const pc = pcRef.current;
+    if (pc) {
+      pc.ontrack = null;
+      pc.onicecandidate = null;
+      pc.oniceconnectionstatechange = null;
+      pc.onicegatheringstatechange = null;
+      pc.ondatachannel = null;
+      pc.onconnectionstatechange = null;
+      pc.close();
+      pcRef.current = null;
+    }
+    if (dcRef.current) {
+      dcRef.current.close();
+      dcRef.current = null;
+    }
+    const stream = localStreamRef.current;
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+    }
+    if (iceFlushTimerRef.current) {
+      clearTimeout(iceFlushTimerRef.current);
+      iceFlushTimerRef.current = null;
+    }
+  }, [clearConnectTimeout]);
+
   /** Start a timeout — if the call doesn't reach "active" within
    *  CONNECT_TIMEOUT ms, tear down with a helpful error. */
   const startConnectTimeout = useCallback(() => {
@@ -149,34 +177,6 @@ export function useWebRTC() {
       }
     }, CONNECT_TIMEOUT);
   }, [clearConnectTimeout, stopPolling, teardownPeer]);
-
-  /** Tear down peer connection, data channel, and local media tracks. */
-  const teardownPeer = useCallback(() => {
-    clearConnectTimeout();
-    const pc = pcRef.current;
-    if (pc) {
-      pc.ontrack = null;
-      pc.onicecandidate = null;
-      pc.oniceconnectionstatechange = null;
-      pc.onicegatheringstatechange = null;
-      pc.ondatachannel = null;
-      pc.onconnectionstatechange = null;
-      pc.close();
-      pcRef.current = null;
-    }
-    if (dcRef.current) {
-      dcRef.current.close();
-      dcRef.current = null;
-    }
-    const stream = localStreamRef.current;
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-    }
-    if (iceFlushTimerRef.current) {
-      clearTimeout(iceFlushTimerRef.current);
-      iceFlushTimerRef.current = null;
-    }
-  }, [clearConnectTimeout]);
 
   const updateLocalStream = useCallback((stream) => {
     localStreamRef.current = stream;
