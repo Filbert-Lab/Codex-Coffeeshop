@@ -39,7 +39,7 @@ const ICE_SERVERS = (() => {
   } else {
     console.warn(
       "[WebRTC] No TURN server configured (VITE_TURN_URL/USERNAME/CREDENTIAL). " +
-        "Using free OpenRelay fallback — calls may fail behind strict NAT/firewalls."
+        "Using free OpenRelay fallback — calls may fail behind strict NAT/firewalls.",
     );
     servers.push(
       {
@@ -61,7 +61,7 @@ const ICE_SERVERS = (() => {
         urls: "turns:openrelay.metered.ca:443?transport=tcp",
         username: "openrelayproject",
         credential: "openrelayproject",
-      }
+      },
     );
   }
 
@@ -173,7 +173,7 @@ export function useWebRTC() {
         "[WebRTC] Connection timed out — ICE state:",
         iceState,
         "| ICE servers:",
-        ICE_SERVERS.iceServers.map((s) => s.urls)
+        ICE_SERVERS.iceServers.map((s) => s.urls),
       );
       stopPolling();
       teardownPeer();
@@ -182,7 +182,7 @@ export function useWebRTC() {
       setIsMuted(false);
       setIsCameraOff(false);
       setError(
-        "Connection timed out. This usually means a TURN server is needed to relay traffic through your network/firewall."
+        "Connection timed out. This usually means a TURN server is needed to relay traffic through your network/firewall.",
       );
       setStatus("ended");
       if (callIdRef.current) {
@@ -206,6 +206,11 @@ export function useWebRTC() {
       try {
         await api.addIceCandidate(callIdRef.current, candidate);
       } catch (err) {
+        // Call already ended — stop trying and drop remaining candidates.
+        if (/already ended/i.test(err?.message || "")) {
+          iceBufferRef.current = [];
+          return;
+        }
         console.error("[WebRTC] Failed to send ICE candidate:", err);
       }
     }
@@ -260,7 +265,7 @@ export function useWebRTC() {
     if (!pc || !remoteDescSetRef.current) return;
     for (const candidate of pendingRemoteIceRef.current) {
       pc.addIceCandidate(new RTCIceCandidate(candidate)).catch((err) =>
-        console.error("[WebRTC] pending ICE error:", err)
+        console.error("[WebRTC] pending ICE error:", err),
       );
     }
     pendingRemoteIceRef.current = [];
@@ -283,11 +288,11 @@ export function useWebRTC() {
         getCandidateType(candidate),
         candidate.protocol,
         candidate.address || candidate.ip,
-        candidate.port
+        candidate.port,
       );
       if (remoteDescSetRef.current) {
         pc.addIceCandidate(new RTCIceCandidate(candidate)).catch((err) =>
-          console.error("[WebRTC] addIceCandidate error:", err)
+          console.error("[WebRTC] addIceCandidate error:", err),
         );
       } else {
         pendingRemoteIceRef.current.push(candidate);
@@ -304,7 +309,7 @@ export function useWebRTC() {
       "[WebRTC] Creating RTCPeerConnection with ICE servers:",
       ICE_SERVERS.iceServers.map((s) => s.urls),
       "| policy:",
-      ICE_SERVERS.iceTransportPolicy
+      ICE_SERVERS.iceTransportPolicy,
     );
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
@@ -322,7 +327,7 @@ export function useWebRTC() {
           getCandidateType(event.candidate),
           event.candidate.protocol,
           event.candidate.address || event.candidate.ip,
-          event.candidate.port
+          event.candidate.port,
         );
         iceBufferRef.current.push(event.candidate);
         scheduleIceFlush();
@@ -341,7 +346,7 @@ export function useWebRTC() {
       if (iceState === "failed") {
         console.error(
           "[WebRTC] ICE failed — possible NAT/firewall blocking. " +
-            "A TURN relay server is likely needed."
+            "A TURN relay server is likely needed.",
         );
       }
     };
@@ -363,7 +368,9 @@ export function useWebRTC() {
         setRemoteStream(null);
         setIsMuted(false);
         setIsCameraOff(false);
-        setError("Connection failed. This usually means a TURN relay server is needed to traverse your network.");
+        setError(
+          "Connection failed. This usually means a TURN relay server is needed to traverse your network.",
+        );
         setStatus("ended");
         if (callIdRef.current) {
           api.endCall(callIdRef.current).catch(() => {});
@@ -429,7 +436,7 @@ export function useWebRTC() {
                     new RTCSessionDescription({
                       type: "answer",
                       sdp: call.sdp_answer,
-                    })
+                    }),
                   );
                   remoteDescSetRef.current = true;
                   setStatus("connecting");
@@ -438,7 +445,7 @@ export function useWebRTC() {
                 } catch (err) {
                   console.error(
                     "[WebRTC] setRemoteDescription (answer) failed:",
-                    err
+                    err,
                   );
                 }
               }
@@ -446,14 +453,14 @@ export function useWebRTC() {
             if (call.callee_ice) {
               processedIceRef.current = addRemoteIceCandidates(
                 call.callee_ice,
-                processedIceRef.current
+                processedIceRef.current,
               );
             }
           } else {
             if (call.caller_ice) {
               processedIceRef.current = addRemoteIceCandidates(
                 call.caller_ice,
-                processedIceRef.current
+                processedIceRef.current,
               );
             }
           }
@@ -489,7 +496,13 @@ export function useWebRTC() {
 
       pollRef.current = setTimeout(poll, POLL_INTERVAL);
     },
-    [stopPolling, addRemoteIceCandidates, flushPendingIce, startConnectTimeout, teardownPeer]
+    [
+      stopPolling,
+      addRemoteIceCandidates,
+      flushPendingIce,
+      startConnectTimeout,
+      teardownPeer,
+    ],
   );
 
   // ─── Caller (customer): start a call ───
@@ -500,8 +513,9 @@ export function useWebRTC() {
       setStatus("requesting_media");
       setChatMessages([]);
 
+      // Audio-only: no video captured/relayed to keep TURN bandwidth low.
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720 },
+        video: false,
         audio: true,
       });
       updateLocalStream(stream);
@@ -513,9 +527,10 @@ export function useWebRTC() {
       setupDataChannel(dc);
 
       const offer = await pc.createOffer({
-        offerToReceiveVideo: true,
+        offerToReceiveVideo: false,
         offerToReceiveAudio: true,
       });
+
       await pc.setLocalDescription(offer);
 
       roleRef.current = "caller";
@@ -562,8 +577,9 @@ export function useWebRTC() {
         setStatus("requesting_media");
         setChatMessages([]);
 
+        // Audio-only: no video captured/relayed to keep TURN bandwidth low.
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720 },
+          video: false,
           audio: true,
         });
         updateLocalStream(stream);
@@ -580,7 +596,7 @@ export function useWebRTC() {
           new RTCSessionDescription({
             type: "offer",
             sdp: incomingCall.sdp_offer,
-          })
+          }),
         );
         remoteDescSetRef.current = true;
         flushPendingIce();
@@ -602,7 +618,9 @@ export function useWebRTC() {
         setIsMuted(false);
         setIsCameraOff(false);
         if (err.name === "NotAllowedError") {
-          setError("Camera/microphone access denied. Please allow permissions.");
+          setError(
+            "Camera/microphone access denied. Please allow permissions.",
+          );
         } else if (err.name === "NotFoundError") {
           setError("No camera or microphone found.");
         } else {
@@ -619,7 +637,7 @@ export function useWebRTC() {
       startPolling,
       teardownPeer,
       updateLocalStream,
-    ]
+    ],
   );
 
   // ─── End call (either party) ───
@@ -667,10 +685,7 @@ export function useWebRTC() {
     if (!trimmed) return;
     const time = Date.now();
     const msg = JSON.stringify({ type: "chat", text: trimmed, time });
-    setChatMessages((prev) => [
-      ...prev,
-      { text: trimmed, from: "self", time },
-    ]);
+    setChatMessages((prev) => [...prev, { text: trimmed, from: "self", time }]);
     const dc = dcRef.current;
     if (!dc || dc.readyState !== "open") {
       pendingChatRef.current.push(msg);

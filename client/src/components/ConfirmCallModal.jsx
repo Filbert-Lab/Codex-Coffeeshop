@@ -39,11 +39,11 @@ export default function ConfirmCallModal({ onConfirm, onCancel }) {
             </svg>
           </div>
           <h3 className="text-lg font-bold font-display">
-            Start a video call?
+            Start a voice call?
           </h3>
           <p className="text-sm text-codex-muted mt-1.5 leading-relaxed">
-            You&apos;ll be connected with our support team. Your camera and
-            microphone will be used during the call.
+            You&apos;ll be connected with our support team. Your microphone will
+            be used during the call.
           </p>
         </div>
 
