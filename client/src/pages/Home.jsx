@@ -7,6 +7,7 @@ import AuthModal from "../components/AuthModal";
 import PaymentModal from "../components/PaymentModal";
 import Toast from "../components/Toast";
 import CallModal from "../components/CallModal";
+import ConfirmCallModal from "../components/ConfirmCallModal";
 import { useToast } from "../hooks/useToast";
 import { useDebounce } from "../hooks/useDebounce";
 import { useWebRTC } from "../hooks/useWebRTC";
@@ -57,6 +58,7 @@ function Home({ initialData = null }) {
   } = useAuth();
   const webrtc = useWebRTC();
   const [showCallModal, setShowCallModal] = useState(false);
+  const [showCallConfirm, setShowCallConfirm] = useState(false);
   const [pendingSupport, setPendingSupport] = useState(false);
 
   // Load cart after mount so SSR stays deterministic.
@@ -166,11 +168,10 @@ function Home({ initialData = null }) {
       // If they were trying to call support before signing in, start now.
       if (pendingSupport) {
         setPendingSupport(false);
-        setShowCallModal(true);
-        webrtc.startCall();
+        setShowCallConfirm(true);
       }
     },
-    [showToast, pendingCheckout, pendingSupport, webrtc],
+    [showToast, pendingCheckout, pendingSupport],
   );
 
   // Open the auth modal first if not signed in, otherwise the payment modal.
@@ -184,7 +185,7 @@ function Home({ initialData = null }) {
     setIsPaymentOpen(true);
   }, [user, showToast]);
 
-  // Open auth modal first if not signed in, otherwise start the support call.
+  // Open auth modal first if not signed in, otherwise confirm the call.
   const requestSupportCall = useCallback(() => {
     if (!user) {
       setPendingSupport(true);
@@ -192,9 +193,18 @@ function Home({ initialData = null }) {
       showToast("Please sign in to call support", "info", 2500);
       return;
     }
+    setShowCallConfirm(true);
+  }, [user, showToast]);
+
+  const handleConfirmCall = useCallback(() => {
+    setShowCallConfirm(false);
     setShowCallModal(true);
     webrtc.startCall();
-  }, [user, showToast, webrtc]);
+  }, [webrtc]);
+
+  const handleCancelCall = useCallback(() => {
+    setShowCallConfirm(false);
+  }, []);
 
   const handleCloseCallModal = useCallback(() => {
     setShowCallModal(false);
@@ -421,6 +431,13 @@ function Home({ initialData = null }) {
           cart={cart}
           close={() => setIsPaymentOpen(false)}
           onSuccess={handleCheckout}
+        />
+      )}
+
+      {showCallConfirm && (
+        <ConfirmCallModal
+          onConfirm={handleConfirmCall}
+          onCancel={handleCancelCall}
         />
       )}
 

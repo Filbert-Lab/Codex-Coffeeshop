@@ -191,7 +191,7 @@ export default function CallModal({ webrtc, role, onClose }) {
         {/* ─── Chat panel ─── */}
         {showChat && (
           <div
-            className="w-full max-w-[320px] flex flex-col animate-fade-in"
+            className="w-full max-w-[320px] flex flex-col animate-fade-in pb-[92px] sm:pb-[108px]"
             style={{
               background: "rgba(28,20,16,0.95)",
               borderLeft: "1px solid #3D2E22",
