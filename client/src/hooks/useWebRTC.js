@@ -45,6 +45,7 @@ export function useWebRTC() {
   const processedIceRef = useRef(0);
   const pendingRemoteIceRef = useRef([]);
   const remoteDescSetRef = useRef(false);
+  const pendingChatRef = useRef([]);
 
   // ─── Helpers ───
 
@@ -113,7 +114,17 @@ export function useWebRTC() {
 
   const setupDataChannel = useCallback((channel) => {
     dcRef.current = channel;
-    channel.onopen = () => console.log("[WebRTC] Data channel open");
+    channel.onopen = () => {
+      console.log("[WebRTC] Data channel open");
+      for (const msg of pendingChatRef.current) {
+        try {
+          channel.send(msg);
+        } catch (err) {
+          console.error("[WebRTC] flush pending chat failed:", err);
+        }
+      }
+      pendingChatRef.current = [];
+    };
     channel.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
@@ -494,17 +505,24 @@ export function useWebRTC() {
   }, []);
 
   const sendChatMessage = useCallback((text) => {
-    if (!text.trim() || !dcRef.current) return;
+    const trimmed = text.trim();
+    if (!trimmed) return;
     const time = Date.now();
-    const msg = JSON.stringify({ type: "chat", text: text.trim(), time });
+    const msg = JSON.stringify({ type: "chat", text: trimmed, time });
+    setChatMessages((prev) => [
+      ...prev,
+      { text: trimmed, from: "self", time },
+    ]);
+    const dc = dcRef.current;
+    if (!dc || dc.readyState !== "open") {
+      pendingChatRef.current.push(msg);
+      return;
+    }
     try {
-      dcRef.current.send(msg);
-      setChatMessages((prev) => [
-        ...prev,
-        { text: text.trim(), from: "self", time },
-      ]);
+      dc.send(msg);
     } catch (err) {
       console.error("[WebRTC] sendChatMessage failed:", err);
+      pendingChatRef.current.push(msg);
     }
   }, []);
 
@@ -523,6 +541,7 @@ export function useWebRTC() {
     processedIceRef.current = 0;
     pendingRemoteIceRef.current = [];
     remoteDescSetRef.current = false;
+    pendingChatRef.current = [];
     setError(null);
     setCallId(null);
     setStatus("idle");
