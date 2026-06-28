@@ -56,12 +56,25 @@ const ICE_SERVERS = (() => {
         urls: "turn:openrelay.metered.ca:443?transport=tcp",
         username: "openrelayproject",
         credential: "openrelayproject",
+      },
+      {
+        urls: "turns:openrelay.metered.ca:443?transport=tcp",
+        username: "openrelayproject",
+        credential: "openrelayproject",
       }
     );
   }
 
-  return { iceServers: servers };
+  return {
+    iceServers: servers,
+    iceTransportPolicy:
+      env.VITE_WEBRTC_FORCE_RELAY === "true" ? "relay" : "all",
+  };
 })();
+
+const getCandidateType = (candidate) =>
+  candidate?.candidate?.match(/ typ (host|srflx|prflx|relay) /)?.[1] ||
+  "unknown";
 
 const POLL_INTERVAL = 1500;
 const RINGING_TIMEOUT = 45000;
@@ -265,6 +278,13 @@ export function useWebRTC() {
     let processed = startIndex;
     for (let i = startIndex; i < candidates.length; i++) {
       const candidate = candidates[i];
+      console.log(
+        "[WebRTC] Remote ICE candidate:",
+        getCandidateType(candidate),
+        candidate.protocol,
+        candidate.address || candidate.ip,
+        candidate.port
+      );
       if (remoteDescSetRef.current) {
         pc.addIceCandidate(new RTCIceCandidate(candidate)).catch((err) =>
           console.error("[WebRTC] addIceCandidate error:", err)
@@ -282,7 +302,9 @@ export function useWebRTC() {
   const createPeerConnection = useCallback(() => {
     console.log(
       "[WebRTC] Creating RTCPeerConnection with ICE servers:",
-      ICE_SERVERS.iceServers.map((s) => s.urls)
+      ICE_SERVERS.iceServers.map((s) => s.urls),
+      "| policy:",
+      ICE_SERVERS.iceTransportPolicy
     );
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
@@ -295,8 +317,17 @@ export function useWebRTC() {
     // avoid concurrent read-modify-write races on the server.
     pc.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log(
+          "[WebRTC] Local ICE candidate:",
+          getCandidateType(event.candidate),
+          event.candidate.protocol,
+          event.candidate.address || event.candidate.ip,
+          event.candidate.port
+        );
         iceBufferRef.current.push(event.candidate);
         scheduleIceFlush();
+      } else {
+        console.log("[WebRTC] Local ICE gathering complete");
       }
     };
 
