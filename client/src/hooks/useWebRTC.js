@@ -1,17 +1,72 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import * as api from "../api";
 
-const ICE_SERVERS = {
-  iceServers: [
+/**
+ * ICE server configuration — STUN + TURN.
+ *
+ * STUN alone only works when both peers are reachable directly via public
+ * IP. When either peer is behind symmetric NAT, CGNAT (common on mobile
+ * networks), or a strict firewall, a TURN relay server is REQUIRED to
+ * route media traffic.
+ *
+ * Configure your own TURN server via Vite env vars (recommended for
+ * production):
+ *   VITE_TURN_URL=turn:your.turn.server:3478,turn:your.turn.server:3478?transport=tcp
+ *   VITE_TURN_USERNAME=youruser
+ *   VITE_TURN_CREDENTIAL=yourpass
+ *
+ * If no TURN env vars are set, falls back to the free OpenRelay TURN
+ * servers (may be unreliable — configure your own for production).
+ */
+const ICE_SERVERS = (() => {
+  const servers = [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
     { urls: "stun:stun2.l.google.com:19302" },
-  ],
-};
+  ];
+
+  const env = import.meta.env;
+  const turnUrl = env.VITE_TURN_URL;
+  const turnUser = env.VITE_TURN_USERNAME;
+  const turnCred = env.VITE_TURN_CREDENTIAL;
+
+  if (turnUrl && turnUser && turnCred) {
+    const urls = turnUrl
+      .split(",")
+      .map((u) => u.trim())
+      .filter(Boolean);
+    servers.push({ urls, username: turnUser, credential: turnCred });
+  } else {
+    console.warn(
+      "[WebRTC] No TURN server configured (VITE_TURN_URL/USERNAME/CREDENTIAL). " +
+        "Using free OpenRelay fallback — calls may fail behind strict NAT/firewalls."
+    );
+    servers.push(
+      {
+        urls: "turn:openrelay.metered.ca:80",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+      {
+        urls: "turn:openrelay.metered.ca:443",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+      {
+        urls: "turn:openrelay.metered.ca:443?transport=tcp",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      }
+    );
+  }
+
+  return { iceServers: servers };
+})();
 
 const POLL_INTERVAL = 1500;
 const RINGING_TIMEOUT = 45000;
 const ICE_FLUSH_DELAY = 300;
+const CONNECT_TIMEOUT = 30000;
 
 /**
  * useWebRTC — manages a WebRTC peer-to-peer video call between a customer
@@ -46,6 +101,7 @@ export function useWebRTC() {
   const pendingRemoteIceRef = useRef([]);
   const remoteDescSetRef = useRef(false);
   const pendingChatRef = useRef([]);
+  const connectTimeoutRef = useRef(null);
 
   // ─── Helpers ───
 
@@ -57,12 +113,52 @@ export function useWebRTC() {
     }
   }, []);
 
+  /** Clear the connection timeout (called when status reaches "active"). */
+  const clearConnectTimeout = useCallback(() => {
+    if (connectTimeoutRef.current) {
+      clearTimeout(connectTimeoutRef.current);
+      connectTimeoutRef.current = null;
+    }
+  }, []);
+
+  /** Start a timeout — if the call doesn't reach "active" within
+   *  CONNECT_TIMEOUT ms, tear down with a helpful error. */
+  const startConnectTimeout = useCallback(() => {
+    clearConnectTimeout();
+    connectTimeoutRef.current = setTimeout(() => {
+      const pc = pcRef.current;
+      const iceState = pc?.iceConnectionState || "unknown";
+      console.error(
+        "[WebRTC] Connection timed out — ICE state:",
+        iceState,
+        "| ICE servers:",
+        ICE_SERVERS.iceServers.map((s) => s.urls)
+      );
+      stopPolling();
+      teardownPeer();
+      setLocalStream(null);
+      setRemoteStream(null);
+      setIsMuted(false);
+      setIsCameraOff(false);
+      setError(
+        "Connection timed out. This usually means a TURN server is needed to relay traffic through your network/firewall."
+      );
+      setStatus("ended");
+      if (callIdRef.current) {
+        api.endCall(callIdRef.current).catch(() => {});
+      }
+    }, CONNECT_TIMEOUT);
+  }, [clearConnectTimeout, stopPolling, teardownPeer]);
+
   /** Tear down peer connection, data channel, and local media tracks. */
   const teardownPeer = useCallback(() => {
+    clearConnectTimeout();
     const pc = pcRef.current;
     if (pc) {
       pc.ontrack = null;
       pc.onicecandidate = null;
+      pc.oniceconnectionstatechange = null;
+      pc.onicegatheringstatechange = null;
       pc.ondatachannel = null;
       pc.onconnectionstatechange = null;
       pc.close();
@@ -80,7 +176,7 @@ export function useWebRTC() {
       clearTimeout(iceFlushTimerRef.current);
       iceFlushTimerRef.current = null;
     }
-  }, []);
+  }, [clearConnectTimeout]);
 
   const updateLocalStream = useCallback((stream) => {
     localStreamRef.current = stream;
@@ -184,9 +280,14 @@ export function useWebRTC() {
   // ─── Peer connection ───
 
   const createPeerConnection = useCallback(() => {
+    console.log(
+      "[WebRTC] Creating RTCPeerConnection with ICE servers:",
+      ICE_SERVERS.iceServers.map((s) => s.urls)
+    );
     const pc = new RTCPeerConnection(ICE_SERVERS);
 
     pc.ontrack = (event) => {
+      console.log("[WebRTC] Remote track received:", event.track.kind);
       setRemoteStream(event.streams[0]);
     };
 
@@ -199,11 +300,28 @@ export function useWebRTC() {
       }
     };
 
+    pc.onicegatheringstatechange = () => {
+      console.log("[WebRTC] ICE gathering state:", pc.iceGatheringState);
+    };
+
+    pc.oniceconnectionstatechange = () => {
+      const iceState = pc.iceConnectionState;
+      console.log("[WebRTC] ICE connection state:", iceState);
+      if (iceState === "failed") {
+        console.error(
+          "[WebRTC] ICE failed — possible NAT/firewall blocking. " +
+            "A TURN relay server is likely needed."
+        );
+      }
+    };
+
     pc.ondatachannel = (event) => setupDataChannel(event.channel);
 
     pc.onconnectionstatechange = () => {
       const state = pc.connectionState;
+      console.log("[WebRTC] Peer connection state:", state);
       if (state === "connected") {
+        clearConnectTimeout();
         setStatus("active");
       } else if (state === "disconnected") {
         setStatus("connecting");
@@ -214,7 +332,7 @@ export function useWebRTC() {
         setRemoteStream(null);
         setIsMuted(false);
         setIsCameraOff(false);
-        setError("Connection failed. Please try again.");
+        setError("Connection failed. This usually means a TURN relay server is needed to traverse your network.");
         setStatus("ended");
         if (callIdRef.current) {
           api.endCall(callIdRef.current).catch(() => {});
@@ -224,7 +342,13 @@ export function useWebRTC() {
 
     pcRef.current = pc;
     return pc;
-  }, [setupDataChannel, scheduleIceFlush, stopPolling, teardownPeer]);
+  }, [
+    setupDataChannel,
+    scheduleIceFlush,
+    clearConnectTimeout,
+    stopPolling,
+    teardownPeer,
+  ]);
 
   // ─── Signaling poll (recursive setTimeout — no overlapping requests) ───
 
@@ -278,6 +402,7 @@ export function useWebRTC() {
                   );
                   remoteDescSetRef.current = true;
                   setStatus("connecting");
+                  startConnectTimeout();
                   flushPendingIce();
                 } catch (err) {
                   console.error(
@@ -333,7 +458,7 @@ export function useWebRTC() {
 
       pollRef.current = setTimeout(poll, POLL_INTERVAL);
     },
-    [stopPolling, addRemoteIceCandidates, flushPendingIce, teardownPeer]
+    [stopPolling, addRemoteIceCandidates, flushPendingIce, startConnectTimeout, teardownPeer]
   );
 
   // ─── Caller (customer): start a call ───
@@ -433,6 +558,7 @@ export function useWebRTC() {
         await pc.setLocalDescription(answer);
 
         setStatus("connecting");
+        startConnectTimeout();
         await api.submitCallAnswer(id, answer.sdp);
 
         await flushIceBuffer();
@@ -458,6 +584,7 @@ export function useWebRTC() {
       createPeerConnection,
       flushPendingIce,
       flushIceBuffer,
+      startConnectTimeout,
       startPolling,
       teardownPeer,
       updateLocalStream,
