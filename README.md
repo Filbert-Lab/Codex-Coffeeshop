@@ -27,7 +27,23 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 
 ## 🎥 Video Demo
 
-🔗 **[Link Video Demo Aplikasi]** _(masukkan link Google Drive / YouTube)_
+🔗 **[Link Video Demo Aplikasi]** _(upload ke Google Drive / YouTube, set public, durasi max 15 menit)_
+
+> Video demo menjelaskan semua fitur aplikasi: customer flow (browse, cart, checkout, promo), admin panel (dashboard, CRUD products/categories/orders/users/promos), dan WebRTC live video support.
+
+---
+
+## 📋 Pemenuhan Indikator Penilaian UAS
+
+| # | Indikator Penilaian | Bobot | Status | Implementasi |
+|---|---------------------|-------|--------|--------------|
+| 1 | Database di server | 15% | ✅ | 7 model (Users, Categories, Products, Orders, OrderItems, Promos, CallSessions) + full CRUD via Sequelize ORM, SQLite dev / Neon PostgreSQL prod |
+| 2 | Middleware | 10% | ✅ | `requireAuth`, `requireAdmin`, `optionalAuth` (Passport JWT), `validateIdParam`, `sanitizeBody`, helmet, CORS, express-rate-limit (auth + general), centralized error handler |
+| 3 | REST | 10% | ✅ | HTTP method sesuai (GET/POST/PUT/PATCH/DELETE), status code (200/201/400/401/403/404/500), format response konsisten `{success, message, data}` |
+| 4 | Autentikasi & Otorisasi | 15% | ✅ | JWT + Passport.js (Local/JWT/Google/GitHub), bcrypt, role-based (admin/customer), ownership check di setiap endpoint, `user_id` dari JWT bukan body |
+| 5 | Tampilan web | 20% | ✅ | React 18 + Tailwind CSS v3, dark coffee theme, glassmorphism, micro-animation, responsive, dashboard + chart, toast notifications |
+| 6 | RTC & hosting | 20% | ✅ | WebRTC video call P2P (RTCPeerConnection + DataChannel), STUN servers, live chat, signaling via REST + DB polling. Hosting: Vercel + Neon PostgreSQL serverless |
+| 7 | Teknologi mandiri | 10% | ✅ | OAuth 2.0 (Google + GitHub), Neon serverless Postgres, Vercel serverless, OOP inheritance BaseModel, SSR (EJS), WebRTC native browser API |
 
 ---
 
