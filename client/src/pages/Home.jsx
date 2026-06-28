@@ -6,8 +6,10 @@ import Cart from "../components/CartPreview";
 import AuthModal from "../components/AuthModal";
 import PaymentModal from "../components/PaymentModal";
 import Toast from "../components/Toast";
+import CallModal from "../components/CallModal";
 import { useToast } from "../hooks/useToast";
 import { useDebounce } from "../hooks/useDebounce";
+import { useWebRTC } from "../hooks/useWebRTC";
 import { useAuth } from "../context/AuthContext";
 import * as api from "../api";
 
@@ -53,6 +55,9 @@ function Home({ initialData = null }) {
     logoutFlash,
     clearLogoutFlash,
   } = useAuth();
+  const webrtc = useWebRTC();
+  const [showCallModal, setShowCallModal] = useState(false);
+  const [pendingSupport, setPendingSupport] = useState(false);
 
   // Load cart after mount so SSR stays deterministic.
   useEffect(() => {
@@ -158,8 +163,14 @@ function Home({ initialData = null }) {
         setPendingCheckout(false);
         setIsPaymentOpen(true);
       }
+      // If they were trying to call support before signing in, start now.
+      if (pendingSupport) {
+        setPendingSupport(false);
+        setShowCallModal(true);
+        webrtc.startCall();
+      }
     },
-    [showToast, pendingCheckout],
+    [showToast, pendingCheckout, pendingSupport, webrtc],
   );
 
   // Open the auth modal first if not signed in, otherwise the payment modal.
@@ -172,6 +183,23 @@ function Home({ initialData = null }) {
     }
     setIsPaymentOpen(true);
   }, [user, showToast]);
+
+  // Open auth modal first if not signed in, otherwise start the support call.
+  const requestSupportCall = useCallback(() => {
+    if (!user) {
+      setPendingSupport(true);
+      setIsAuthOpen(true);
+      showToast("Please sign in to call support", "info", 2500);
+      return;
+    }
+    setShowCallModal(true);
+    webrtc.startCall();
+  }, [user, showToast, webrtc]);
+
+  const handleCloseCallModal = useCallback(() => {
+    setShowCallModal(false);
+    webrtc.reset();
+  }, [webrtc]);
 
   // Surface OAuth errors that come back via ?error=... in the callback URL.
   useEffect(() => {
@@ -313,6 +341,43 @@ function Home({ initialData = null }) {
         </div>
       )}
 
+      {/* Live Support floating button (WebRTC video call) */}
+      <button
+        onClick={requestSupportCall}
+        className="fixed bottom-5 left-5 z-40 px-3.5 py-3 rounded-2xl flex items-center gap-2.5 animate-slide-up active:scale-95 transition-all group"
+        style={{
+          background: "linear-gradient(135deg, #3D2817 0%, #2A1B0E 100%)",
+          color: "#FAF6EF",
+          border: "1px solid #5C3D24",
+          boxShadow:
+            "0 8px 28px rgba(42,27,14,0.4), 0 1px 0 rgba(255,255,255,0.08) inset",
+        }}
+        title="Call live support"
+        aria-label="Call live support"
+      >
+        <span className="relative flex items-center justify-center">
+          <span
+            className="absolute inset-0 rounded-full animate-ping"
+            style={{ background: "rgba(90,144,112,0.3)", animationDuration: "2.5s" }}
+          />
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ transform: "rotate(135deg)", position: "relative" }}
+            className="group-hover:scale-110 transition-transform"
+          >
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+        </span>
+        <span className="text-xs font-bold hidden sm:block">Live Support</span>
+      </button>
+
       {/* Mobile floating cart button */}
       {cart.length > 0 && !isMobileCartOpen && (
         <button
@@ -356,6 +421,14 @@ function Home({ initialData = null }) {
           cart={cart}
           close={() => setIsPaymentOpen(false)}
           onSuccess={handleCheckout}
+        />
+      )}
+
+      {showCallModal && (
+        <CallModal
+          webrtc={webrtc}
+          role="caller"
+          onClose={handleCloseCallModal}
         />
       )}
 

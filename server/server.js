@@ -105,6 +105,7 @@ app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/promos", require("./routes/promoRoutes"));
 app.use("/api/stats", require("./routes/statsRoutes"));
+app.use("/api/calls", require("./routes/callRoutes"));
 
 // Health check
 app.get("/api/health", (_req, res) => {

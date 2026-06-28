@@ -40,6 +40,7 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 - ☁️ **Cloud-ready** — siap deploy ke Vercel + Neon PostgreSQL serverless
 - 🔐 **JWT authentication via Passport.js** — role-based (admin / customer), wajib login untuk checkout
 - 🌐 **OAuth 2.0** — sign in with Google & GitHub (opt-in via env vars)
+- 📹 **WebRTC Live Video Support** — customer dapat memanggil admin via video call P2P dengan live chat (DataChannel)
 
 ---
 
@@ -53,6 +54,7 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 | Frontend   | React 18 + React Router v6 + Vite 5                    |
 | Styling    | Tailwind CSS v3 (custom dark theme)                    |
 | Auth       | Passport.js (Local + JWT + Google + GitHub) + bcryptjs |
+| RTC        | WebRTC (RTCPeerConnection + DataChannel) + STUN         |
 | Deployment | Vercel (static frontend + serverless backend)          |
 
 ---
@@ -74,11 +76,14 @@ codex-coffee-shop/
 │   │   │   ├── CartPreview.jsx
 │   │   │   ├── AuthModal.jsx
 │   │   │   ├── PaymentModal.jsx
+│   │   │   ├── CallModal.jsx        # NEW: WebRTC video call UI
+│   │   │   ├── IncomingCallNotification.jsx  # NEW: admin call alert
 │   │   │   └── Toast.jsx       # NEW: toast notifications
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx
 │   │   ├── hooks/              # NEW
-│   │   │   └── useToast.js
+│   │   │   ├── useToast.js
+│   │   │   └── useWebRTC.js    # NEW: RTCPeerConnection manager
 │   │   ├── pages/
 │   │   │   ├── Home.jsx
 │   │   │   └── admin/
@@ -116,6 +121,7 @@ codex-coffee-shop/
 │   │   ├── productCtrl.js
 │   │   ├── orderCtrl.js
 │   │   ├── promoCtrl.js
+│   │   ├── callCtrl.js       # NEW: WebRTC signaling controller
 │   │   └── statsCtrl.js        # Dashboard analytics queries
 │   ├── middleware/
 │   │   ├── auth.js             # Backwards-compat shim → server/auth
@@ -128,8 +134,10 @@ codex-coffee-shop/
 │   │   ├── Order.js
 │   │   ├── OrderItem.js
 │   │   ├── Promo.js
+│   │   ├── CallSession.js    # NEW: WebRTC signaling storage
 │   │   └── index.js
 │   ├── routes/
+│   │   └── callRoutes.js     # NEW: /api/calls endpoints
 │   └── server.js
 
 ├── .env.example
@@ -149,7 +157,8 @@ codex-coffee-shop/
 | 3   | **Products**   | `products`    | Menu kopi & makanan dengan stok, harga    | ✅ C-R-U-D |
 | 4   | **Orders**     | `orders`      | Pesanan dengan status tracking            | ✅ C-R-U-D |
 | 5   | **OrderItems** | `order_items` | Detail item per pesanan (junction)        | ✅ C-R     |
-| 6   | **Promos**     | `promos`      | Kode promo (percent / fixed)              | ✅ C-R-U-D |
+| 6   | **Promos**     | `promos`        | Kode promo (percent / fixed)              | ✅ C-R-U-D |
+| 7   | **CallSessions** | `call_sessions` | WebRTC signaling data (offer, answer, ICE) | ✅ C-R-U-D |
 
 ### Relasi
 
@@ -290,6 +299,22 @@ npm run dev
 | ------ | -------- | ----------------------------------------------------- | -------- |
 | `GET`  | `/`      | Dashboard analytics (revenue, daily chart, top prods) | 🔒 Admin |
 
+### Calls — `/api/calls` (WebRTC Signaling)
+
+Since Vercel is serverless (no persistent WebSocket), WebRTC signaling is
+exchanged via REST + DB polling. The actual video/audio/chat data flows
+peer-to-peer through `RTCPeerConnection`.
+
+| Method   | Endpoint         | Auth     | Notes                                              |
+| -------- | ---------------- | -------- | -------------------------------------------------- |
+| `POST`   | `/`              | 🔒 User  | Caller creates SDP offer → status "ringing"        |
+| `GET`    | `/incoming`      | 🔒 Admin  | Admin polls for a ringing call                     |
+| `GET`    | `/:id`           | 🔒 User  | Poll for answer, ICE candidates, status             |
+| `POST`   | `/:id/answer`    | 🔒 Admin | Admin submits SDP answer → status "active"        |
+| `POST`   | `/:id/ice`       | 🔒 User  | Append ICE candidate (caller→caller_ice, admin→callee_ice) |
+| `PATCH`  | `/:id/end`       | 🔒 User  | Either party ends the call                         |
+| `PATCH`  | `/:id/decline`   | 🔒 Admin | Admin declines an incoming call                    |
+
 **Stats response:**
 
 ```json
@@ -353,6 +378,7 @@ npm run dev
 - 💳 Checkout dengan Pickup / Delivery
 - 🏷️ Validasi promo & kalkulasi diskon
 - 🔔 Toast notification saat tambah cart / order placed
+- 📹 **Live Video Support** — panggil admin via WebRTC video call + live chat
 
 ### 🛡️ Admin Panel (`/admin`)
 
@@ -369,6 +395,7 @@ npm run dev
 - 📦 Order management (filter status, transition pending→processing→completed)
 - 👥 User management (toggle role, search)
 - 🏷️ CRUD Promos (toggle active)
+- 📹 **Incoming video call support** — notifikasi otomatis + video call P2P dengan customer
 - 🔄 Sidebar collapsible (state persisted di localStorage)
 - 📱 Mobile drawer untuk admin nav
 - 🔙 Tombol "Back to Store" di sidebar
@@ -443,6 +470,72 @@ Auth module hidup di **`server/auth/`** — terpisah dari controller/middleware 
    ```
 
 Restart dev server. Tombol Continue with Google / GitHub otomatis muncul di modal login.
+
+---
+
+## 📹 WebRTC Live Video Support (RTC)
+
+Aplikasi mendukung **video call real-time** antara customer dan admin
+menggunakan WebRTC — media (video/audio) dan chat mengalir **peer-to-peer**,
+hanya signaling yang melalui server.
+
+### Arsitektur Signaling
+
+```
+Customer (Caller)                              Admin (Callee)
+      │                                              │
+      │  1. getUserMedia + createOffer               │
+      │  2. POST /api/calls (sdp_offer)              │
+      │──────────────────────────────────────────►   │
+      │  status: "ringing"                           │
+      │                                  3. GET /api/calls/incoming (poll)
+      │ ◄──────────────────────────────────────────  │
+      │                                  4. getUserMedia + setRemoteDescription(offer)
+      │                                  5. createAnswer + POST /api/calls/:id/answer
+      │ ◄──────────────────────────────────────────  │
+      │  6. setRemoteDescription(answer)             │
+      │                                              │
+      │  ◄──── ICE candidates (via REST polling) ───►│
+      │                                              │
+      │  ════ P2P video/audio/chat established ═════ │
+      │         (no server in the media path)        │
+```
+
+### Fitur
+
+- 🎥 **Video call dua arah** — customer dan admin saling melihat
+- 🎙️ **Mute / camera toggle** — kontrol media real-time
+- 💬 **Live chat via DataChannel** — pesan teks P2P tanpa server
+- 🔔 **Incoming call notification** — admin mendapat notifikasi otomatis
+- ⏱️ **Auto-timeout** — call otomatis berakhir jika tidak diangkat dalam 45 detik
+- 🌐 **STUN servers** — Google STUN untuk NAT traversal cross-network
+- 📱 **Responsive** — video call bekerja di desktop & mobile
+
+### Alur Customer
+
+1. Klik tombol **"Live Support"** (floating, bottom-left)
+2. Jika belum login → modal auth muncul, lalu call dimulai otomatis
+3. Browser request izin kamera & mikrofon
+4. Tunggu admin menjawab (status: "Calling admin…")
+5. Saat admin accept → video call aktif
+6. Kontrol: mute, camera off, chat, hangup
+
+### Alur Admin
+
+1. Notifikasi muncul otomatis di pojok kanan atas saat ada call masuk
+2. Klik **Accept** → browser request izin kamera & mikrofon
+3. Video call aktif dengan customer
+4. Atau klik **Decline** untuk menolak
+
+### Catatan Teknis
+
+- **Signaling via REST + DB polling** — karena Vercel serverless tidak
+  mendukung WebSocket persisten. SDP offer/answer dan ICE candidates disimpan
+  di tabel `call_sessions` dan di-poll oleh kedua sisi.
+- **Media P2P** — setelah koneksi terbentuk, video/audio/chat mengalir
+  langsung antar peer tanpa melalui server (sesuai prinsip WebRTC).
+- **HTTPS required** — WebRTC `getUserMedia` memerlukan HTTPS (Vercel
+  menyediakan ini secara default; localhost juga diizinkan untuk dev).
 
 ### Custom callback URL (production)
 

@@ -127,3 +127,15 @@ export const deleteUser = (id) => del(`/users/${id}`);
 
 // ─── STATS ───
 export const getDashboardStats = (signal) => get("/stats", signal);
+
+// ─── CALLS (WebRTC signaling via REST + DB polling) ───
+export const initiateCall = (sdpOffer) =>
+  post("/calls", { sdp_offer: sdpOffer });
+export const getIncomingCall = (signal) => get("/calls/incoming", signal);
+export const getCall = (id, signal) => get(`/calls/${id}`, signal);
+export const submitCallAnswer = (id, sdpAnswer) =>
+  post(`/calls/${id}/answer`, { sdp_answer: sdpAnswer });
+export const addIceCandidate = (id, candidate) =>
+  post(`/calls/${id}/ice`, { candidate });
+export const endCall = (id) => patch(`/calls/${id}/end`, {});
+export const declineCall = (id) => patch(`/calls/${id}/decline`, {});

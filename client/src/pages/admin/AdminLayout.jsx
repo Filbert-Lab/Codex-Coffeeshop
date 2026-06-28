@@ -1,6 +1,9 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useWebRTC } from "../../hooks/useWebRTC";
+import CallModal from "../../components/CallModal";
+import IncomingCallNotification from "../../components/IncomingCallNotification";
 
 const ICON = (path) => (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -23,9 +26,24 @@ export default function AdminLayout() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem("codex_admin_collapsed") === "true");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
+  const webrtc = useWebRTC();
 
   useEffect(() => setMobileOpen(false), [location.pathname]);
   useEffect(() => localStorage.setItem("codex_admin_collapsed", String(collapsed)), [collapsed]);
+
+  const handleAcceptCall = useCallback(
+    (incomingCall) => {
+      setShowCallModal(true);
+      webrtc.acceptCall(incomingCall);
+    },
+    [webrtc]
+  );
+
+  const handleCloseCallModal = useCallback(() => {
+    setShowCallModal(false);
+    webrtc.reset();
+  }, [webrtc]);
 
   return (
     <div className="flex h-screen font-sans overflow-hidden" style={{ background: "#F4ECDF" }}>
@@ -268,6 +286,21 @@ export default function AdminLayout() {
       <main className="flex-1 overflow-y-auto relative" style={{ background: "#F4ECDF" }}>
         <Outlet />
       </main>
+
+      {/* WebRTC incoming call notification (polls for ringing calls) */}
+      <IncomingCallNotification
+        onAccept={handleAcceptCall}
+        disabled={showCallModal}
+      />
+
+      {/* WebRTC video call modal */}
+      {showCallModal && (
+        <CallModal
+          webrtc={webrtc}
+          role="callee"
+          onClose={handleCloseCallModal}
+        />
+      )}
     </div>
   );
 }

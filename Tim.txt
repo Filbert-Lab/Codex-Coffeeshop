@@ -60,3 +60,25 @@ Inovasi & Kreativitas pada Tampilan dan Fungsionalitas Web:
 7. Dual Database & Cloud Deployment:
    Konfigurasi mulus antara SQLite untuk development lokal dan
    PostgreSQL (Neon) untuk production di Vercel serverless.
+
+8. WebRTC Live Video Support (RTC):
+   - Video call real-time P2P antara customer dan admin via WebRTC
+   - Live chat menggunakan RTCDataChannel (peer-to-peer)
+   - Signaling via REST + DB polling (karena Vercel serverless)
+   - STUN server untuk NAT traversal cross-network
+   - Customer: tombol "Live Support" → video call ke admin
+   - Admin: notifikasi otomatis panggilan masuk → Accept/Decline
+   - Fitur: mute mic, toggle camera, live chat, hangup
+   - Auto-timeout jika admin tidak menjawab dalam 45 detik
+
+Link Hostingan:
+- Website : https://codex-coffeeshop.vercel.app/
+- Admin Panel : https://codex-coffeeshop.vercel.app/admin
+
+Username & Password (Admin):
+- Email    : admin@codex.com
+- Password : admin123
+
+Username & Password (Customer):
+- Email    : user@codex.com
+- Password : user123
