@@ -1,10 +1,10 @@
 Nama Tim: Codex
 
 Anggota:
-- 241112498 - Nachelle Ferari
-- 241110460 - Filbert Matthew
-- 241112002 - Ryu Kierando
-- 241110371 - Zakky Pratama
+- 241112498 - Nachelle Ferari   (Frontend UI/UX, Customer flow, Cart & Checkout)
+- 241110460 - Filbert Matthew   (Backend API, Database, Auth & Middleware)
+- 241112002 - Ryu Kierando      (Admin Panel, Dashboard analytics, CRUD operations)
+- 241110371 - Zakky Pratama     (WebRTC Integration, Deployment, Testing)
 
 Teknologi yang Digunakan:
 - Runtime       : Node.js v18+
@@ -13,7 +13,7 @@ Teknologi yang Digunakan:
 - Database      : SQLite (Development) / PostgreSQL via Neon (Production)
 - Frontend      : React 18 + React Router v6
 - Build Tool    : Vite 5
-- Styling       : Tailwind CSS v3
+- Styling       : Tailwind CSS v3 (custom warm coffee theme)
 - Autentikasi   : Passport.js (Local + JWT + Google + GitHub) + bcryptjs
 - RTC           : WebRTC (RTCPeerConnection + RTCDataChannel) + STUN
 - Deployment    : Vercel (Frontend static + Backend serverless)
@@ -22,7 +22,77 @@ Link Template:
 - Tampilan dibangun dan dirancang secara mandiri dari awal (from scratch) menggunakan Tailwind CSS.
 - Tidak menggunakan template pihak ketiga.
 
-Inovasi & Kreativitas pada Tampilan dan Fungsionalitas Web:
+===============================================================================
+DAFTAR FITUR & TINGKAT KESULITAN (25 Fitur)
+===============================================================================
+Keterangan Kesulitan: Rendah / Sedang / Tinggi
+
+ 1. Sistem Autentikasi (JWT + Passport.js + bcrypt)         | Backend  | Tinggi
+ 2. OAuth 2.0 (Google + GitHub)                              | Backend  | Tinggi
+ 3. Role-based Authorization (admin/customer)                | Backend  | Tinggi
+ 4. Ownership check per-endpoint (IDOR protection)           | Backend  | Tinggi
+ 5. REST API lengkap (7 resource, 40+ endpoints)             | Backend  | Sedang
+ 6. Middleware: auth guard, rate-limit, helmet, CORS         | Backend  | Sedang
+ 7. Middleware: input validation & sanitization              | Backend  | Sedang
+ 8. Centralized error handler                                | Backend  | Rendah
+ 9. OOP BaseModel inheritance (7 model)                      | Backend  | Sedang
+10. Dual database (SQLite dev / Neon PostgreSQL prod)        | Backend  | Sedang
+11. CRUD Products (search, filter, pagination)               | Backend  | Sedang
+12. CRUD Categories (icon picker)                            | Backend  | Rendah
+13. CRUD Orders (status tracking, transaction)               | Backend  | Sedang
+14. CRUD Users (role toggle)                                 | Backend  | Sedang
+15. CRUD Promos (percent & fixed discount)                   | Backend  | Sedang
+16. Checkout POS (pickup/delivery + promo + ongkir)         | Backend  | Tinggi
+17. Dashboard analytics (raw SQL: revenue, chart)            | Backend  | Tinggi
+18. WebRTC Video Call (RTCPeerConnection P2P)               | Full    | Tinggi
+19. WebRTC Live Chat (RTCDataChannel P2P)                    | Full    | Tinggi
+20. WebRTC Signaling via REST + DB polling                   | Backend  | Tinggi
+21. UI: Warm coffee theme + glassmorphism + animasi         | Frontend| Sedang
+22. UI: Responsive (desktop + mobile drawer/pills)           | Frontend| Sedang
+23. UI: Toast notifications + micro-interactions             | Frontend| Rendah
+24. UI: Admin dashboard dengan chart & visualisasi           | Frontend| Tinggi
+25. Deployment: Vercel serverless + Neon cloud               | DevOps  | Sedang
+
+Ringkasan: 25 Fitur | Tinggi: 11 | Sedang: 11 | Rendah: 3
+
+===============================================================================
+PEMENUHAN INDIKATOR PENILAIAN UAS
+===============================================================================
+
+1. Database di Server (15%):
+   7 model (Users, Categories, Products, Orders, OrderItems, Promos, CallSessions)
+   dengan full CRUD via Sequelize ORM. SQLite untuk dev, Neon PostgreSQL untuk prod.
+
+2. Middleware (10%):
+   requireAuth, requireAdmin, optionalAuth (Passport JWT), validateIdParam,
+   sanitizeBody, helmet, CORS, express-rate-limit (auth + general),
+   centralized error handler.
+
+3. REST (10%):
+   HTTP method sesuai (GET/POST/PUT/PATCH/DELETE), status code lengkap
+   (200/201/400/401/403/404/500), format response konsisten {success, message, data}.
+
+4. Autentikasi & Otorisasi (15%):
+   JWT + Passport.js (Local/JWT/Google/GitHub), bcrypt password hashing,
+   role-based (admin/customer), ownership check di setiap endpoint,
+   user_id diambil dari JWT bukan dari body request.
+
+5. Tampilan Web (20%):
+   React 18 + Tailwind CSS v3, warm coffee theme, glassmorphism, micro-animasi,
+   fully responsive, dashboard dengan chart & visualisasi, toast notifications.
+
+6. RTC & Hosting (20%):
+   WebRTC video call P2P (RTCPeerConnection + DataChannel) + live chat,
+   STUN servers, signaling via REST + DB polling.
+   Hosting: Vercel serverless + Neon PostgreSQL cloud.
+
+7. Teknologi Mandiri (10%):
+   OAuth 2.0 (Google + GitHub), Neon serverless Postgres, Vercel serverless,
+   OOP inheritance BaseModel, WebRTC native browser API.
+
+===============================================================================
+INOVASI & KREATIVITAS
+===============================================================================
 
 1. Arsitektur OOP dengan Inheritance:
    Menggunakan pola BaseModel (class inheritance) untuk seluruh 7 model database,
@@ -34,15 +104,18 @@ Inovasi & Kreativitas pada Tampilan dan Fungsionalitas Web:
    - Checkout dengan pilihan Pickup/Delivery
    - Integrasi kode promo (percent & fixed discount)
    - Kalkulasi otomatis subtotal, diskon, dan ongkir
+   - Harga produk di-fetch ulang dari server (anti-tampering)
 
 3. Role-Based Authentication & Authorization:
    JWT Authentication dengan middleware terpisah untuk auth & admin.
    Admin mendapat akses penuh ke dashboard + CRUD semua resource.
    Customer hanya bisa browse menu, order, dan validasi promo.
+   Ownership check mencegah IDOR (user A tidak bisa akses data user B).
 
-4. Admin Dashboard dengan Statistik Real-Time:
+4. Admin Dashboard dengan Statistik:
    Panel admin lengkap dengan statistik ringkasan (total order, revenue,
    produk, user, pending orders) menggunakan raw SQL query yang efisien.
+   Visualisasi: bar chart revenue 7 hari, donut chart status, top produk.
 
 5. Filter, Search & Pagination Dinamis:
    - Live search produk berdasarkan nama
@@ -51,30 +124,36 @@ Inovasi & Kreativitas pada Tampilan dan Fungsionalitas Web:
    - Filter status order (pending/processing/completed)
 
 6. Desain Premium & Interaktif:
+   - Warm coffee theme (cream + espresso palette)
    - Glassmorphism effect dengan backdrop blur
-   - Micro-animasi (hover, fade-in, slide-up, scale)
-   - Typography premium (Google Fonts: Inter + Playfair Display)
+   - Micro-animasi (hover, fade-in, slide-up, scale, float, pulse)
+   - Typography premium (Plus Jakarta Sans + Inter + Playfair Display)
    - Custom scrollbar dengan gradient
+   - Paper texture overlay (SVG noise)
    - Toast notification animasi
    - Fully responsive (desktop hingga mobile)
 
 7. Dual Database & Cloud Deployment:
    Konfigurasi mulus antara SQLite untuk development lokal dan
    PostgreSQL (Neon) untuk production di Vercel serverless.
+   Auto-switch via environment variable (process.env.VERCEL).
 
 8. WebRTC Live Video Support (RTC):
    - Video call real-time P2P antara customer dan admin via WebRTC
    - Live chat menggunakan RTCDataChannel (peer-to-peer)
    - Signaling via REST + DB polling (karena Vercel serverless)
-   - STUN server untuk NAT traversal cross-network
-   - Customer: tombol "Live Support" → video call ke admin
+   - STUN server (Google) untuk NAT traversal cross-network
+   - Customer: tombol "Live Support" → confirm modal → video call ke admin
    - Admin: notifikasi otomatis panggilan masuk → Accept/Decline
    - Fitur: mute mic, toggle camera, live chat, hangup
-   - Auto-timeout jika admin tidak menjawab dalam 45 detik
+   - Auto-timeout 45 detik jika admin tidak menjawab
+   - Server-side TTL filter: call ringing >60 detik otomatis di-exclude
 
-Link Hostingan:
-- Website : https://codex-coffeeshop.vercel.app/
-- Admin Panel : https://codex-coffeeshop.vercel.app/admin
+===============================================================================
+LINK HOSTINGAN
+===============================================================================
+- Website      : https://codex-coffeeshop.vercel.app/
+- Admin Panel  : https://codex-coffeeshop.vercel.app/admin
 
 Username & Password (Admin):
 - Email    : admin@codex.com
