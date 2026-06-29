@@ -18,18 +18,35 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 
 ## 👥 Tim Pengembang — **Codex**
 
-| NIM       | Nama Lengkap    |
-| --------- | --------------- |
-| 241112498 | Nachelle Ferari |
-| 241110460 | Filbert Matthew |
-| 241112002 | Ryu Kierando    |
-| 241110371 | Zakky Pratama   |
+| NIM       | Nama Lengkap    | Kontribusi Utama                                         |
+| --------- | --------------- | -------------------------------------------------------- |
+| 241112498 | Nachelle Ferari | Frontend UI/UX, Customer flow, Cart & Checkout           |
+| 241110460 | Filbert Matthew | Backend API, Database, Auth & Middleware                 |
+| 241112002 | Ryu Kierando    | Admin Panel, Dashboard analytics, CRUD operations         |
+| 241110371 | Zakky Pratama   | WebRTC Integration, Deployment, Testing                   |
 
 ## 🎥 Video Demo
 
 🔗 **[Link Video Demo Aplikasi]** _(upload ke Google Drive / YouTube, set public, durasi max 15 menit)_
 
-> Video demo menjelaskan semua fitur aplikasi: customer flow (browse, cart, checkout, promo), admin panel (dashboard, CRUD products/categories/orders/users/promos), dan WebRTC live video support.
+> Video demo menjelaskan **semua fitur** aplikasi: customer flow (browse, cart, checkout, promo), admin panel (dashboard, CRUD products/categories/orders/users/promos), REST API & middleware, dan WebRTC live video support.
+
+---
+
+## 🌐 Akses Aplikasi (Production)
+
+| Halaman         | URL                                          |
+| --------------- | -------------------------------------------- |
+| Customer (Menu) | https://codex-coffeeshop.vercel.app/         |
+| Admin Panel    | https://codex-coffeeshop.vercel.app/admin    |
+| API Health     | https://codex-coffeeshop.vercel.app/api/health |
+
+### 🔐 Kredensial Login
+
+| Role     | Email             | Password   |
+| -------- | ----------------- | ---------- |
+| Admin    | `admin@codex.com` | `admin123` |
+| Customer | `user@codex.com`  | `user123`  |
 
 ---
 
@@ -422,6 +439,47 @@ peer-to-peer through `RTCPeerConnection`.
 
 ---
 
+## 📊 Daftar Fitur & Tingkat Kesulitan
+
+> Sesuai ketentuan: "Jumlah fitur dan tingkat kesulitan fitur seharusnya disesuaikan dengan jumlah anggota." Dengan 4 anggota, target ideal 12+ fitur. Proyek ini mengembangkan **25 fitur** dengan tingkat kesulitan bervariasi.
+
+### Tingkat Kesulitan
+- 🟢 **Rendah** — CRUD sederhana, UI statis
+- 🟡 **Sedang** — Logika bisnis, validasi, relasi database
+- 🔴 **Tinggi** — Integrasi kompleks, real-time, keamanan multi-layer
+
+| #  | Fitur                                              | Area    | Kesulitan | Indikator |
+|----|----------------------------------------------------|---------|-----------|-----------|
+| 1  | Sistem Autentikasi (JWT + Passport.js + bcrypt)    | Backend | 🔴        | #4        |
+| 2  | OAuth 2.0 (Google + GitHub)                        | Backend | 🔴        | #4, #7    |
+| 3  | Role-based Authorization (admin/customer)          | Backend | 🔴        | #4        |
+| 4  | Ownership check per-endpoint (IDOR protection)     | Backend | 🔴        | #2, #4    |
+| 5  | REST API lengkap (7 resource, 40+ endpoints)       | Backend | 🟡        | #3        |
+| 6  | Middleware: auth guard, rate-limit, helmet, CORS   | Backend | 🟡        | #2        |
+| 7  | Middleware: input validation & sanitization        | Backend | 🟡        | #2        |
+| 8  | Centralized error handler                          | Backend | 🟢        | #2        |
+| 9  | OOP BaseModel inheritance (7 model)                | Backend | 🟡        | #7        |
+| 10 | Dual database (SQLite dev / Neon PostgreSQL prod)  | Backend | 🟡        | #1, #7    |
+| 11 | CRUD Products (search, filter, pagination)         | Backend | 🟡        | #1, #3    |
+| 12 | CRUD Categories (icon picker)                      | Backend | 🟢        | #1, #3    |
+| 13 | CRUD Orders (status tracking, transaction)         | Backend | 🟡        | #1, #3    |
+| 14 | CRUD Users (role toggle)                           | Backend | 🟡        | #1, #3    |
+| 15 | CRUD Promos (percent & fixed discount)              | Backend | 🟡        | #1, #3    |
+| 16 | Checkout POS (pickup/delivery + promo + ongkir)   | Backend | 🔴        | #1, #4    |
+| 17 | Dashboard analytics (raw SQL: revenue, chart)      | Backend | 🔴        | #1        |
+| 18 | WebRTC Video Call (RTCPeerConnection P2P)          | Full    | 🔴        | #6        |
+| 19 | WebRTC Live Chat (RTCDataChannel P2P)              | Full    | 🔴        | #6, #7    |
+| 20 | WebRTC Signaling via REST + DB polling             | Backend | 🔴        | #6, #7    |
+| 21 | UI: Dark coffee theme + glassmorphism + animasi    | Frontend| 🟡        | #5        |
+| 22 | UI: Responsive (desktop + mobile drawer/pills)     | Frontend| 🟡        | #5        |
+| 23 | UI: Toast notifications + micro-interactions        | Frontend| 🟢        | #5        |
+| 24 | UI: Admin dashboard dengan chart & visualisasi     | Frontend| 🔴        | #5        |
+| 25 | Deployment: Vercel serverless + Neon cloud         | DevOps  | 🟡        | #6, #7    |
+
+**Ringkasan:** 25 fitur — 🔴 Tinggi: 11 | 🟡 Sedang: 11 | 🟢 Rendah: 3
+
+---
+
 ## 🌐 Deployment ke Vercel
 
 ```bash
@@ -582,12 +640,13 @@ Sequelize.Model
         ├── createRecord()
         ├── updateById()
         └── deleteById()
-              ├── User       → findByEmail(), comparePassword()
-              ├── Category   — inherits all
-              ├── Product    → findWithCategory() (search + filter)
-              ├── Order      → findWithItems() (eager load)
-              ├── OrderItem  — inherits all
-              └── Promo      → findByCode(), calculateDiscount()
+              ├── User          → findByEmail(), findByProvider(), comparePassword()
+              ├── Category      — inherits all
+              ├── Product       → findWithCategory() (search + filter)
+              ├── Order         → findWithItems() (eager load)
+              ├── OrderItem     — inherits all
+              ├── Promo         → findByCode(), calculateDiscount()
+              └── CallSession   → findRinging() (with TTL filter)
 ```
 
 ### Module System
@@ -606,19 +665,31 @@ Sequelize.Model
 
 ## 🎨 Design System
 
-**Color Palette (Dark Coffee):**
+**Color Palette (Warm Coffee / Cream):**
 
-| Token           | Hex       | Usage              |
-| --------------- | --------- | ------------------ |
-| `codex-bg`      | `#1C1410` | Background utama   |
-| `codex-surface` | `#251C16` | Cards & panels     |
-| `codex-panel`   | `#2E2218` | Navbar/sidebar     |
-| `codex-border`  | `#3D2E22` | Border subtle      |
-| `codex-accent`  | `#E8A045` | Orange-gold accent |
-| `codex-text`    | `#F0E6D8` | Text utama         |
-| `codex-muted`   | `#8A7060` | Text sekunder      |
+| Token                | Hex       | Usage                      |
+| -------------------- | --------- | -------------------------- |
+| `codex-base`         | `#FAF6EF` | Background terang utama    |
+| `codex-bg`           | `#F4ECDF` | Body background            |
+| `codex-coffee`       | `#3D2817` | Deep espresso (sidebar)   |
+| `codex-coffee-soft`  | `#5C3D24` | Medium roast (borders)     |
+| `codex-coffee-light` | `#8B6F47` | Latte (text sekunder)      |
+| `codex-coffee-pale`  | `#C9A876` | Foam (accents)             |
+| `codex-accent`       | `#9C6B3F` | Primary action (buttons)   |
+| `codex-accent-glow`  | `#B88B5A` | Hover glow                 |
+| `codex-text`         | `#2A1B0E` | Primary text               |
+| `codex-muted`        | `#8C7458` | Tertiary text              |
+| `codex-success`      | `#5A9070` | Success state              |
+| `codex-danger`       | `#B85450` | Danger / delete            |
 
-**Fonts:** Poppins (display) + Inter (body)
+**Fonts:** Plus Jakarta Sans (display) + Inter (body) + Playfair Display (serif)
+
+**Effects:**
+- Glassmorphism dengan backdrop blur
+- Micro-animasi (fade-in, slide-up, scale-in, float, pulse-soft)
+- Custom scrollbar dengan gradient
+- Surface layering (3 levels of elevation)
+- Paper texture overlay (SVG noise)
 
 ---
 
