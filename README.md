@@ -18,16 +18,16 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 
 ## 👥 Tim Pengembang — **Codex**
 
-| NIM       | Nama Lengkap    | Kontribusi Utama                                         |
-| --------- | --------------- | -------------------------------------------------------- |
-| 241112498 | Nachelle Ferari | Frontend UI/UX, Customer flow, Cart & Checkout           |
-| 241110460 | Filbert Matthew | Backend API, Database, Auth & Middleware                 |
-| 241112002 | Ryu Kierando    | Admin Panel, Dashboard analytics, CRUD operations         |
-| 241110371 | Zakky Pratama   | WebRTC Integration, Deployment, Testing                   |
+| NIM       | Nama Lengkap    | Kontribusi Utama                                  |
+| --------- | --------------- | ------------------------------------------------- |
+| 241112498 | Nachelle Ferari | Frontend UI/UX, Customer flow, Cart & Checkout    |
+| 241110460 | Filbert Matthew | Backend API, Database, Auth & Middleware          |
+| 241112002 | Ryu Kierando    | Admin Panel, Dashboard analytics, CRUD operations |
+| 241110371 | Zakky Pratama   | WebRTC Integration, Deployment, Testing           |
 
 ## 🎥 Video Demo
 
-🔗 **[Link Video Demo Aplikasi]** _(upload ke Google Drive / YouTube, set public, durasi max 15 menit)_
+🔗 **[Link Video Demo Aplikasi](https://drive.google.com/drive/folders/1My_VjE2h-lU_eEIwen-7xPwIGhLcK2Z5?usp=sharing)**
 
 > Video demo menjelaskan **semua fitur** aplikasi: customer flow (browse, cart, checkout, promo), admin panel (dashboard, CRUD products/categories/orders/users/promos), REST API & middleware, dan WebRTC live video support.
 
@@ -35,11 +35,11 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 
 ## 🌐 Akses Aplikasi (Production)
 
-| Halaman         | URL                                          |
-| --------------- | -------------------------------------------- |
-| Customer (Menu) | https://codex-coffeeshop.vercel.app/         |
-| Admin Panel    | https://codex-coffeeshop.vercel.app/admin    |
-| API Health     | https://codex-coffeeshop.vercel.app/api/health |
+| Halaman         | URL                                            |
+| --------------- | ---------------------------------------------- |
+| Customer (Menu) | https://codex-coffeeshop.vercel.app/           |
+| Admin Panel     | https://codex-coffeeshop.vercel.app/admin      |
+| API Health      | https://codex-coffeeshop.vercel.app/api/health |
 
 ### 🔐 Kredensial Login
 
@@ -52,15 +52,15 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 
 ## 📋 Pemenuhan Indikator Penilaian UAS
 
-| # | Indikator Penilaian | Bobot | Status | Implementasi |
-|---|---------------------|-------|--------|--------------|
-| 1 | Database di server | 15% | ✅ | 7 model (Users, Categories, Products, Orders, OrderItems, Promos, CallSessions) + full CRUD via Sequelize ORM, SQLite dev / Neon PostgreSQL prod |
-| 2 | Middleware | 10% | ✅ | `requireAuth`, `requireAdmin`, `optionalAuth` (Passport JWT), `validateIdParam`, `sanitizeBody`, helmet, CORS, express-rate-limit (auth + general), centralized error handler |
-| 3 | REST | 10% | ✅ | HTTP method sesuai (GET/POST/PUT/PATCH/DELETE), status code (200/201/400/401/403/404/500), format response konsisten `{success, message, data}` |
-| 4 | Autentikasi & Otorisasi | 15% | ✅ | JWT + Passport.js (Local/JWT/Google/GitHub), bcrypt, role-based (admin/customer), ownership check di setiap endpoint, `user_id` dari JWT bukan body |
-| 5 | Tampilan web | 20% | ✅ | React 18 + Tailwind CSS v3, dark coffee theme, glassmorphism, micro-animation, responsive, dashboard + chart, toast notifications |
-| 6 | RTC & hosting | 20% | ✅ | WebRTC video call P2P (RTCPeerConnection + DataChannel), STUN servers, live chat, signaling via REST + DB polling. Hosting: Vercel + Neon PostgreSQL serverless |
-| 7 | Teknologi mandiri | 10% | ✅ | OAuth 2.0 (Google + GitHub), Neon serverless Postgres, Vercel serverless, OOP inheritance BaseModel, SSR (EJS), WebRTC native browser API |
+| #   | Indikator Penilaian     | Bobot | Status | Implementasi                                                                                                                                                                  |
+| --- | ----------------------- | ----- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Database di server      | 15%   | ✅     | 7 model (Users, Categories, Products, Orders, OrderItems, Promos, CallSessions) + full CRUD via Sequelize ORM, SQLite dev / Neon PostgreSQL prod                              |
+| 2   | Middleware              | 10%   | ✅     | `requireAuth`, `requireAdmin`, `optionalAuth` (Passport JWT), `validateIdParam`, `sanitizeBody`, helmet, CORS, express-rate-limit (auth + general), centralized error handler |
+| 3   | REST                    | 10%   | ✅     | HTTP method sesuai (GET/POST/PUT/PATCH/DELETE), status code (200/201/400/401/403/404/500), format response konsisten `{success, message, data}`                               |
+| 4   | Autentikasi & Otorisasi | 15%   | ✅     | JWT + Passport.js (Local/JWT/Google/GitHub), bcrypt, role-based (admin/customer), ownership check di setiap endpoint, `user_id` dari JWT bukan body                           |
+| 5   | Tampilan web            | 20%   | ✅     | React 18 + Tailwind CSS v3, dark coffee theme, glassmorphism, micro-animation, responsive, dashboard + chart, toast notifications                                             |
+| 6   | RTC & hosting           | 20%   | ✅     | WebRTC video call P2P (RTCPeerConnection + DataChannel), STUN servers, live chat, signaling via REST + DB polling. Hosting: Vercel + Neon PostgreSQL serverless               |
+| 7   | Teknologi mandiri       | 10%   | ✅     | OAuth 2.0 (Google + GitHub), Neon serverless Postgres, Vercel serverless, OOP inheritance BaseModel, SSR (EJS), WebRTC native browser API                                     |
 
 ---
 
@@ -87,7 +87,7 @@ Sistem pemesanan kopi & makanan dengan admin panel lengkap, dashboard analytics 
 | Frontend   | React 18 + React Router v6 + Vite 5                    |
 | Styling    | Tailwind CSS v3 (custom dark theme)                    |
 | Auth       | Passport.js (Local + JWT + Google + GitHub) + bcryptjs |
-| RTC        | WebRTC (RTCPeerConnection + DataChannel) + STUN         |
+| RTC        | WebRTC (RTCPeerConnection + DataChannel) + STUN        |
 | Deployment | Vercel (static frontend + serverless backend)          |
 
 ---
@@ -185,14 +185,14 @@ codex-coffee-shop/
 
 ## 🗄️ Database — 7 Resource
 
-| #   | Resource       | Tabel         | Deskripsi                                 | CRUD       |
-| --- | -------------- | ------------- | ----------------------------------------- | ---------- |
-| 1   | **Users**      | `users`       | User dengan role admin/customer           | ✅ C-R-U-D |
-| 2   | **Categories** | `categories`  | Kategori menu (Espresso, Non-Coffee, dll) | ✅ C-R-U-D |
-| 3   | **Products**   | `products`    | Menu kopi & makanan dengan stok, harga    | ✅ C-R-U-D |
-| 4   | **Orders**     | `orders`      | Pesanan dengan status tracking            | ✅ C-R-U-D |
-| 5   | **OrderItems** | `order_items` | Detail item per pesanan (junction)        | ✅ C-R     |
-| 6   | **Promos**     | `promos`        | Kode promo (percent / fixed)              | ✅ C-R-U-D |
+| #   | Resource         | Tabel           | Deskripsi                                  | CRUD       |
+| --- | ---------------- | --------------- | ------------------------------------------ | ---------- |
+| 1   | **Users**        | `users`         | User dengan role admin/customer            | ✅ C-R-U-D |
+| 2   | **Categories**   | `categories`    | Kategori menu (Espresso, Non-Coffee, dll)  | ✅ C-R-U-D |
+| 3   | **Products**     | `products`      | Menu kopi & makanan dengan stok, harga     | ✅ C-R-U-D |
+| 4   | **Orders**       | `orders`        | Pesanan dengan status tracking             | ✅ C-R-U-D |
+| 5   | **OrderItems**   | `order_items`   | Detail item per pesanan (junction)         | ✅ C-R     |
+| 6   | **Promos**       | `promos`        | Kode promo (percent / fixed)               | ✅ C-R-U-D |
 | 7   | **CallSessions** | `call_sessions` | WebRTC signaling data (offer, answer, ICE) | ✅ C-R-U-D |
 
 ### Relasi
@@ -342,15 +342,15 @@ Since Vercel is serverless (no persistent WebSocket), WebRTC signaling is
 exchanged via REST + DB polling. The actual video/audio/chat data flows
 peer-to-peer through `RTCPeerConnection`.
 
-| Method   | Endpoint         | Auth     | Notes                                              |
-| -------- | ---------------- | -------- | -------------------------------------------------- |
-| `POST`   | `/`              | 🔒 User  | Caller creates SDP offer → status "ringing"        |
-| `GET`    | `/incoming`      | 🔒 Admin  | Admin polls for a ringing call                     |
-| `GET`    | `/:id`           | 🔒 User  | Poll for answer, ICE candidates, status             |
-| `POST`   | `/:id/answer`    | 🔒 Admin | Admin submits SDP answer → status "active"        |
-| `POST`   | `/:id/ice`       | 🔒 User  | Append ICE candidate (caller→caller_ice, admin→callee_ice) |
-| `PATCH`  | `/:id/end`       | 🔒 User  | Either party ends the call                         |
-| `PATCH`  | `/:id/decline`   | 🔒 Admin | Admin declines an incoming call                    |
+| Method  | Endpoint       | Auth     | Notes                                                      |
+| ------- | -------------- | -------- | ---------------------------------------------------------- |
+| `POST`  | `/`            | 🔒 User  | Caller creates SDP offer → status "ringing"                |
+| `GET`   | `/incoming`    | 🔒 Admin | Admin polls for a ringing call                             |
+| `GET`   | `/:id`         | 🔒 User  | Poll for answer, ICE candidates, status                    |
+| `POST`  | `/:id/answer`  | 🔒 Admin | Admin submits SDP answer → status "active"                 |
+| `POST`  | `/:id/ice`     | 🔒 User  | Append ICE candidate (caller→caller_ice, admin→callee_ice) |
+| `PATCH` | `/:id/end`     | 🔒 User  | Either party ends the call                                 |
+| `PATCH` | `/:id/decline` | 🔒 Admin | Admin declines an incoming call                            |
 
 **Stats response:**
 
@@ -444,37 +444,38 @@ peer-to-peer through `RTCPeerConnection`.
 > Sesuai ketentuan: "Jumlah fitur dan tingkat kesulitan fitur seharusnya disesuaikan dengan jumlah anggota." Dengan 4 anggota, target ideal 12+ fitur. Proyek ini mengembangkan **25 fitur** dengan tingkat kesulitan bervariasi.
 
 ### Tingkat Kesulitan
+
 - 🟢 **Rendah** — CRUD sederhana, UI statis
 - 🟡 **Sedang** — Logika bisnis, validasi, relasi database
 - 🔴 **Tinggi** — Integrasi kompleks, real-time, keamanan multi-layer
 
-| #  | Fitur                                              | Area    | Kesulitan | Indikator |
-|----|----------------------------------------------------|---------|-----------|-----------|
-| 1  | Sistem Autentikasi (JWT + Passport.js + bcrypt)    | Backend | 🔴        | #4        |
-| 2  | OAuth 2.0 (Google + GitHub)                        | Backend | 🔴        | #4, #7    |
-| 3  | Role-based Authorization (admin/customer)          | Backend | 🔴        | #4        |
-| 4  | Ownership check per-endpoint (IDOR protection)     | Backend | 🔴        | #2, #4    |
-| 5  | REST API lengkap (7 resource, 40+ endpoints)       | Backend | 🟡        | #3        |
-| 6  | Middleware: auth guard, rate-limit, helmet, CORS   | Backend | 🟡        | #2        |
-| 7  | Middleware: input validation & sanitization        | Backend | 🟡        | #2        |
-| 8  | Centralized error handler                          | Backend | 🟢        | #2        |
-| 9  | OOP BaseModel inheritance (7 model)                | Backend | 🟡        | #7        |
-| 10 | Dual database (SQLite dev / Neon PostgreSQL prod)  | Backend | 🟡        | #1, #7    |
-| 11 | CRUD Products (search, filter, pagination)         | Backend | 🟡        | #1, #3    |
-| 12 | CRUD Categories (icon picker)                      | Backend | 🟢        | #1, #3    |
-| 13 | CRUD Orders (status tracking, transaction)         | Backend | 🟡        | #1, #3    |
-| 14 | CRUD Users (role toggle)                           | Backend | 🟡        | #1, #3    |
-| 15 | CRUD Promos (percent & fixed discount)              | Backend | 🟡        | #1, #3    |
-| 16 | Checkout POS (pickup/delivery + promo + ongkir)   | Backend | 🔴        | #1, #4    |
-| 17 | Dashboard analytics (raw SQL: revenue, chart)      | Backend | 🔴        | #1        |
-| 18 | WebRTC Video Call (RTCPeerConnection P2P)          | Full    | 🔴        | #6        |
-| 19 | WebRTC Live Chat (RTCDataChannel P2P)              | Full    | 🔴        | #6, #7    |
-| 20 | WebRTC Signaling via REST + DB polling             | Backend | 🔴        | #6, #7    |
-| 21 | UI: Dark coffee theme + glassmorphism + animasi    | Frontend| 🟡        | #5        |
-| 22 | UI: Responsive (desktop + mobile drawer/pills)     | Frontend| 🟡        | #5        |
-| 23 | UI: Toast notifications + micro-interactions        | Frontend| 🟢        | #5        |
-| 24 | UI: Admin dashboard dengan chart & visualisasi     | Frontend| 🔴        | #5        |
-| 25 | Deployment: Vercel serverless + Neon cloud         | DevOps  | 🟡        | #6, #7    |
+| #   | Fitur                                             | Area     | Kesulitan | Indikator |
+| --- | ------------------------------------------------- | -------- | --------- | --------- |
+| 1   | Sistem Autentikasi (JWT + Passport.js + bcrypt)   | Backend  | 🔴        | #4        |
+| 2   | OAuth 2.0 (Google + GitHub)                       | Backend  | 🔴        | #4, #7    |
+| 3   | Role-based Authorization (admin/customer)         | Backend  | 🔴        | #4        |
+| 4   | Ownership check per-endpoint (IDOR protection)    | Backend  | 🔴        | #2, #4    |
+| 5   | REST API lengkap (7 resource, 40+ endpoints)      | Backend  | 🟡        | #3        |
+| 6   | Middleware: auth guard, rate-limit, helmet, CORS  | Backend  | 🟡        | #2        |
+| 7   | Middleware: input validation & sanitization       | Backend  | 🟡        | #2        |
+| 8   | Centralized error handler                         | Backend  | 🟢        | #2        |
+| 9   | OOP BaseModel inheritance (7 model)               | Backend  | 🟡        | #7        |
+| 10  | Dual database (SQLite dev / Neon PostgreSQL prod) | Backend  | 🟡        | #1, #7    |
+| 11  | CRUD Products (search, filter, pagination)        | Backend  | 🟡        | #1, #3    |
+| 12  | CRUD Categories (icon picker)                     | Backend  | 🟢        | #1, #3    |
+| 13  | CRUD Orders (status tracking, transaction)        | Backend  | 🟡        | #1, #3    |
+| 14  | CRUD Users (role toggle)                          | Backend  | 🟡        | #1, #3    |
+| 15  | CRUD Promos (percent & fixed discount)            | Backend  | 🟡        | #1, #3    |
+| 16  | Checkout POS (pickup/delivery + promo + ongkir)   | Backend  | 🔴        | #1, #4    |
+| 17  | Dashboard analytics (raw SQL: revenue, chart)     | Backend  | 🔴        | #1        |
+| 18  | WebRTC Video Call (RTCPeerConnection P2P)         | Full     | 🔴        | #6        |
+| 19  | WebRTC Live Chat (RTCDataChannel P2P)             | Full     | 🔴        | #6, #7    |
+| 20  | WebRTC Signaling via REST + DB polling            | Backend  | 🔴        | #6, #7    |
+| 21  | UI: Dark coffee theme + glassmorphism + animasi   | Frontend | 🟡        | #5        |
+| 22  | UI: Responsive (desktop + mobile drawer/pills)    | Frontend | 🟡        | #5        |
+| 23  | UI: Toast notifications + micro-interactions      | Frontend | 🟢        | #5        |
+| 24  | UI: Admin dashboard dengan chart & visualisasi    | Frontend | 🔴        | #5        |
+| 25  | Deployment: Vercel serverless + Neon cloud        | DevOps   | 🟡        | #6, #7    |
 
 **Ringkasan:** 25 fitur — 🔴 Tinggi: 11 | 🟡 Sedang: 11 | 🟢 Rendah: 3
 
@@ -667,24 +668,25 @@ Sequelize.Model
 
 **Color Palette (Warm Coffee / Cream):**
 
-| Token                | Hex       | Usage                      |
-| -------------------- | --------- | -------------------------- |
-| `codex-base`         | `#FAF6EF` | Background terang utama    |
-| `codex-bg`           | `#F4ECDF` | Body background            |
-| `codex-coffee`       | `#3D2817` | Deep espresso (sidebar)   |
-| `codex-coffee-soft`  | `#5C3D24` | Medium roast (borders)     |
-| `codex-coffee-light` | `#8B6F47` | Latte (text sekunder)      |
-| `codex-coffee-pale`  | `#C9A876` | Foam (accents)             |
-| `codex-accent`       | `#9C6B3F` | Primary action (buttons)   |
-| `codex-accent-glow`  | `#B88B5A` | Hover glow                 |
-| `codex-text`         | `#2A1B0E` | Primary text               |
-| `codex-muted`        | `#8C7458` | Tertiary text              |
-| `codex-success`      | `#5A9070` | Success state              |
-| `codex-danger`       | `#B85450` | Danger / delete            |
+| Token                | Hex       | Usage                    |
+| -------------------- | --------- | ------------------------ |
+| `codex-base`         | `#FAF6EF` | Background terang utama  |
+| `codex-bg`           | `#F4ECDF` | Body background          |
+| `codex-coffee`       | `#3D2817` | Deep espresso (sidebar)  |
+| `codex-coffee-soft`  | `#5C3D24` | Medium roast (borders)   |
+| `codex-coffee-light` | `#8B6F47` | Latte (text sekunder)    |
+| `codex-coffee-pale`  | `#C9A876` | Foam (accents)           |
+| `codex-accent`       | `#9C6B3F` | Primary action (buttons) |
+| `codex-accent-glow`  | `#B88B5A` | Hover glow               |
+| `codex-text`         | `#2A1B0E` | Primary text             |
+| `codex-muted`        | `#8C7458` | Tertiary text            |
+| `codex-success`      | `#5A9070` | Success state            |
+| `codex-danger`       | `#B85450` | Danger / delete          |
 
 **Fonts:** Plus Jakarta Sans (display) + Inter (body) + Playfair Display (serif)
 
 **Effects:**
+
 - Glassmorphism dengan backdrop blur
 - Micro-animasi (fade-in, slide-up, scale-in, float, pulse-soft)
 - Custom scrollbar dengan gradient
